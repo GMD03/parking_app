@@ -7,7 +7,13 @@ import 'core/theme/app_colors.dart';
 import 'core/routes/app_pages.dart'; // Import your new AppPages
 import 'core/routes/app_routes.dart'; // Import your new Routes
 
-void main() {
+void main() async {
+  // Ensure Flutter bindings are initialized before async tasks
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize GetStorage
+  await GetStorage.init();
+
   runApp(const SystemAccessPortal());
 }
 
@@ -44,7 +50,7 @@ class SystemAccessPortal extends StatelessWidget {
         ),
       ),
       // GetX Routing Setup - Using the new modular AppPages list
-      // Set to DEVICE_REGISTRATION to test the UI right now.
+      // Initial route set to SPLASH to handle the one-time setup logic
       initialRoute: Routes.SPLASH,
       getPages: AppPages.pages,
     );

@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
+import 'app_routes.dart';
 import '../../modules/login/views/login_view.dart';
 import '../../modules/login/bindings/login_binding.dart';
 import '../../modules/device_registration/views/device_registration_view.dart';
 import '../../modules/device_registration/bindings/device_registration_binding.dart';
-import 'app_routes.dart';
+import '../../modules/config_setup/views/config_view.dart';
+import '../../modules/config_setup/bindings/config_binding.dart';
 
 class AppPages {
   static final pages = [
@@ -16,6 +18,11 @@ class AppPages {
       name: Routes.DEVICE_REGISTRATION,
       page: () => const DeviceRegistrationView(),
       binding: DeviceRegistrationBinding(),
+    ),
+    GetPage(
+      name: Routes.CONFIG_SETUP,
+      page: () => const ConfigView(),
+      binding: ConfigBinding(),
     ),
   ];
 }

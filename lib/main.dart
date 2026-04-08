@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'core/theme/app_colors.dart';
@@ -44,7 +45,7 @@ class SystemAccessPortal extends StatelessWidget {
       ),
       // GetX Routing Setup - Using the new modular AppPages list
       // Set to DEVICE_REGISTRATION to test the UI right now.
-      initialRoute: Routes.DEVICE_REGISTRATION,
+      initialRoute: Routes.SPLASH,
       getPages: AppPages.pages,
     );
   }

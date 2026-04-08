@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'core/theme/app_colors.dart';
-import 'modules/login/bindings/login_binding.dart';
-import 'modules/login/views/login_view.dart';
+import 'core/routes/app_pages.dart'; // Import your new AppPages
+import 'core/routes/app_routes.dart'; // Import your new Routes
 
 void main() {
   runApp(const SystemAccessPortal());
@@ -42,16 +42,10 @@ class SystemAccessPortal extends StatelessWidget {
           ),
         ),
       ),
-      // GetX Routing Setup
-      initialRoute: '/login',
-      getPages: [
-        GetPage(
-          name: '/login',
-          page: () => const LoginView(),
-          binding: LoginBinding(), // Injects Controller
-        ),
-        // Add Dashboard route here later!
-      ],
+      // GetX Routing Setup - Using the new modular AppPages list
+      // Set to DEVICE_REGISTRATION to test the UI right now.
+      initialRoute: Routes.DEVICE_REGISTRATION,
+      getPages: AppPages.pages,
     );
   }
 }

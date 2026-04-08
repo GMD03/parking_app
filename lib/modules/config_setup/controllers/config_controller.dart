@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart'; // Added GetStorage import
 import '../models/config_model.dart';
 import '../../../core/theme/app_colors.dart';
-// import '../../../core/routes/app_routes.dart'; // Uncomment if using Routes.LOGIN
+import '../../../core/routes/app_routes.dart';
 
 class ConfigController extends GetxController {
   // Reactive States
@@ -65,7 +65,6 @@ class ConfigController extends GetxController {
     );
 
     // 4. Complete the One-Time Setup by routing to Login
-    Get.offAllNamed('/login');
-    // Note: Change to Get.offAllNamed(Routes.LOGIN); if you imported app_routes.dart
+    Get.offAllNamed(Routes.LOGIN);
   }
 }

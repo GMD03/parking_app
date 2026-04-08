@@ -70,6 +70,7 @@ class LoginController extends GetxController {
           colorText: AppColors.backgroundDark,
           borderRadius: 0,
         );
+        Get.offAllNamed(Routes.CONFIG_SETUP, arguments: user);
       }
     } else {
       _showSystemAlert('AUTH_FAILED', 'Invalid Operator ID or Passcode.');

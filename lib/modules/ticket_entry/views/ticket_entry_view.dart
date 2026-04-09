@@ -137,6 +137,36 @@ class TicketEntryView extends StatelessWidget {
     );
   }
 
+  Widget _buildZoneSelector(TicketEntryController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('ASSIGN ZONE', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 1.5)),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(color: AppColors.backgroundDark, border: Border.all(color: AppColors.border)),
+          child: Obx(() => DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: controller.selectedZone.value.isEmpty ? null : controller.selectedZone.value,
+              dropdownColor: AppColors.surface,
+              icon: const Icon(Icons.arrow_drop_down, color: AppColors.muted),
+              isExpanded: true,
+              style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 14),
+              onChanged: (String? newValue) {
+                if (newValue != null) controller.selectZone(newValue);
+              },
+              items: controller.availableZones.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(value: value, child: Text(value));
+              }).toList(),
+            ),
+          )),
+        ),
+      ],
+    );
+  }
+
   Widget _buildClassOption(TicketEntryController controller, VehicleClass vClass, String title, String subtitle) {
     return Obx(() {
       final isSelected = controller.selectedClass.value == vClass;

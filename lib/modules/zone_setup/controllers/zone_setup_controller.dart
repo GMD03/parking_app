@@ -57,25 +57,29 @@ class ZoneSetupController extends GetxController {
     allocatedSpots.value = currentAllocated;
   }
 
-  Future<void> armSystem() async {
+  void armSystem() {
     if (remainingSpots < 0) {
       Get.snackbar('CAPACITY_OVERLOAD', 'Allocated spots exceed total facility capacity.', backgroundColor: AppColors.danger, colorText: Colors.white, borderRadius: 0, margin: const EdgeInsets.all(16));
       return;
     }
 
+    // 1. Bundle the data
+    final zoneData = zoneRows.map((row) => {
+      'name': row.nameController.text.trim().isEmpty ? 'UNNAMED' : row.nameController.text.trim().toUpperCase(),
+      'capacity': int.tryParse(row.spotsController.text) ?? 0,
+    }).toList();
+
+    final setupData = {
+      'totalCapacity': totalCapacity.value,
+      'zones': zoneData,
+    };
+
     Get.snackbar('SYSTEM_ARMED', 'Parking system successfully initialized and armed.', backgroundColor: AppColors.success, colorText: AppColors.backgroundDark, borderRadius: 0, margin: const EdgeInsets.all(16));
     
-    // Save settings locally for the Review screen to read
-    final box = GetStorage();
-    await box.write('totalFacilityCapacity', totalCapacity.value);
-
-    // Seamlessly route to the Review & Arm page
-    Get.toNamed(Routes.REVIEW_ARM);
+    // 2. Pass the bundled data to the dashboard
+    Get.offAllNamed('/dashboard', arguments: setupData);
   }
-
-  void returnToConfig() {
-    Get.back();
-  }
+  
 
   // -----------------------------------------------------------------
   // CUSTOM SYSTEM DIALOG (POP-UP)

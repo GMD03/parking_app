@@ -109,12 +109,42 @@ class DashboardView extends GetView<DashboardController> {
     return SizedBox(
       width: 280,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTelemetryCard('AVAILABLE SLOTS', controller.availableSlots, AppColors.success),
           const SizedBox(height: 16),
           _buildTelemetryCard('OCCUPIED SLOTS', controller.occupiedSlots, Colors.white),
           const SizedBox(height: 16),
           _buildTelemetryCard('TICKETS TODAY', controller.ticketsToday, AppColors.primary),
+          
+          const SizedBox(height: 32),
+          Text('ZONE OCCUPANCY', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 1.5)),
+          const SizedBox(height: 12),
+          // Dynamically generate cards for every configured zone
+          ...controller.zones.map((zone) => _buildZoneStatCard(zone)).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildZoneStatCard(ZoneStats zone) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: AppColors.backgroundDark, border: Border.all(color: AppColors.border)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(zone.name, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
+          Obx(() => RichText(
+            text: TextSpan(
+              style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12),
+              children: [
+                TextSpan(text: '${zone.occupied.value}', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                TextSpan(text: ' / ${zone.capacity}'),
+              ],
+            ),
+          )),
         ],
       ),
     );
@@ -197,10 +227,11 @@ class DashboardView extends GetView<DashboardController> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
-            child: Row(
+           child: Row(
               children: [
                 Expanded(flex: 1, child: _tableHeader('ID')),
                 Expanded(flex: 2, child: _tableHeader('PLATE')),
+                Expanded(flex: 1, child: _tableHeader('ZONE')), // <-- Added
                 Expanded(flex: 2, child: _tableHeader('TIME_IN')),
                 Expanded(flex: 2, child: _tableHeader('DURATION')),
                 Expanded(flex: 1, child: Align(alignment: Alignment.centerRight, child: _tableHeader('STATUS'))),
@@ -263,6 +294,7 @@ Widget _buildTableRow(TicketModel ticket) {
             children: [
               Expanded(flex: 1, child: Text(ticket.id, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14))),
               Expanded(flex: 2, child: Text(ticket.plate, style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5))),
+              Expanded(flex: 1, child: Text(ticket.zone, style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 12))), // <-- Added
               Expanded(flex: 2, child: Text(ticket.timeIn, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14))),
               Expanded(flex: 2, child: Text(ticket.duration, style: GoogleFonts.ibmPlexMono(color: Colors.white, fontSize: 14))),
               Expanded(flex: 1, child: Align(alignment: Alignment.centerRight, child: _buildStatusBadge(ticket.status))),

@@ -426,7 +426,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton.icon(
-            onPressed: controller.returnToConfig,
+            onPressed: () => Get.back(),
             icon: const Icon(Icons.arrow_back, size: 18),
             label: const Text('RETURN TO CONFIG'),
             style: TextButton.styleFrom(

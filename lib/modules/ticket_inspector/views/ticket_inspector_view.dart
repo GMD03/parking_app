@@ -3,39 +3,66 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/ticket_inspector_controller.dart';
+import '../../dashboard/models/ticket_model.dart'; // Ensure this import matches your path
 
-class TicketInspectorView extends GetView<TicketInspectorController> {
-  const TicketInspectorView({super.key});
+// CHANGED: From GetView to StatelessWidget
+class TicketInspectorView extends StatelessWidget {
+  final TicketModel ticket; // Add the required ticket parameter
+
+  const TicketInspectorView({super.key, required this.ticket});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Material(
         color: Colors.transparent,
-        child: Container(
-          width: 600,
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            border: Border.all(color: AppColors.border),
-            boxShadow: const [
-              BoxShadow(color: Colors.black87, blurRadius: 40, offset: Offset(0, 20)),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildHeader(),
-              _buildTransitTimeline(),
-              _buildChargeCalculator(),
-              _buildActionFooter(),
-            ],
-          ),
+        // THE FIX 1: GetBuilder automatically handles putting and deleting the controller
+        child: GetBuilder<TicketInspectorController>(
+          init: TicketInspectorController(ticket: ticket), // Initialize the controller with the data
+          builder: (controller) {
+            return Container(
+              width: 600,
+              // THE FIX 2: Constrain max height so it never overflows the screen vertically
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.9, 
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                border: Border.all(color: AppColors.border),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black87, blurRadius: 40, offset: Offset(0, 20)),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min, // Hugs the content if it's smaller than maxHeight
+                children: [
+                  // Pass the controller explicitly to sub-widgets
+                  _buildHeader(controller),
+                  
+                  // THE FIX 3: Flexible + SingleChildScrollView makes the middle content scrollable if it exceeds screen height
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildTransitTimeline(controller),
+                          _buildChargeCalculator(controller),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  _buildActionFooter(controller),
+                ],
+              ),
+            );
+          }
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(TicketInspectorController controller) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
@@ -63,7 +90,7 @@ class TicketInspectorView extends GetView<TicketInspectorController> {
     );
   }
 
-  Widget _buildTransitTimeline() {
+  Widget _buildTransitTimeline(TicketInspectorController controller) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
@@ -98,7 +125,7 @@ class TicketInspectorView extends GetView<TicketInspectorController> {
     );
   }
 
-  Widget _buildChargeCalculator() {
+  Widget _buildChargeCalculator(TicketInspectorController controller) {
     return Container(
       padding: const EdgeInsets.all(24),
       color: AppColors.backgroundDark.withOpacity(0.2),
@@ -151,7 +178,7 @@ class TicketInspectorView extends GetView<TicketInspectorController> {
     );
   }
 
-  Widget _buildActionFooter() {
+  Widget _buildActionFooter(TicketInspectorController controller) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(

@@ -238,24 +238,22 @@ Widget _buildTableRow(TicketModel ticket) {
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          // Inject controller with the specific ticket data
-          Get.lazyPut(() => TicketInspectorController(ticket: ticket));
-          
+          // THE FIX: Do not use lazyPut or delete here. 
+          // Just open the dialog and pass the ticket to the View.
           Get.generalDialog(
             barrierColor: Colors.black.withOpacity(0.8), // Dark blurred backdrop
             barrierDismissible: true,
             barrierLabel: 'Inspector',
             transitionDuration: const Duration(milliseconds: 200),
-            pageBuilder: (context, animation, secondaryAnimation) => const TicketInspectorView(),
+            // Pass the ticket explicitly
+            pageBuilder: (context, animation, secondaryAnimation) => TicketInspectorView(ticket: ticket),
             transitionBuilder: (context, animation, secondaryAnimation, child) {
               return FadeTransition(
                 opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
                 child: child,
               );
             },
-          ).then((_) {
-            Get.delete<TicketInspectorController>();
-          });
+          );
         },
         hoverColor: AppColors.border.withOpacity(0.3),
         child: Container(

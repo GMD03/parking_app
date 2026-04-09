@@ -12,16 +12,14 @@ class TicketEntryController extends GetxController {
 
   final dashboardCtrl = Get.find<DashboardController>();
   final RxString selectedZone = ''.obs;
-  final List<String> availableZones = [];
+  final RxList<String> availableZones = <String>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    // Pull the zones that were configured earlier
+    // Grab zones from dashboard
     availableZones.assignAll(dashboardCtrl.zones.map((z) => z.name).toList());
-    if (availableZones.isNotEmpty) {
-      selectedZone.value = availableZones.first;
-    }
+    if (availableZones.isNotEmpty) selectedZone.value = availableZones.first;
   }
 
   @override
@@ -31,23 +29,24 @@ class TicketEntryController extends GetxController {
   }
 
   void selectClass(VehicleClass vClass) => selectedClass.value = vClass;
-  void selectZone(String zone) => selectedZone.value = zone;
+  void selectZone(String? zone) { if (zone != null) selectedZone.value = zone; }
 
   Future<void> issueTicket() async {
     final plate = plateController.text.trim();
+    
     if (plate.isEmpty || selectedZone.value.isEmpty) {
-      Get.snackbar('ERROR', 'Plate and Zone required.', backgroundColor: AppColors.danger, colorText: Colors.white, borderRadius: 0, margin: const EdgeInsets.all(16));
+      Get.snackbar('VALIDATION ERROR', 'License Plate and Zone are required.', backgroundColor: AppColors.danger, colorText: Colors.white, borderRadius: 0, margin: const EdgeInsets.all(16));
       return;
     }
 
     isSubmitting.value = true;
     await Future.delayed(const Duration(milliseconds: 600));
 
-    // Send to dashboard with the specific zone
+    // Send the ticket TO THE DASHBOARD!
     dashboardCtrl.addTicket(plate, selectedClass.value.name, selectedZone.value);
 
     isSubmitting.value = false;
-    Get.back(); 
-    Get.snackbar('ISSUED', 'Vehicle $plate logged to ${selectedZone.value}.', backgroundColor: AppColors.success, colorText: AppColors.backgroundDark, borderRadius: 0, margin: const EdgeInsets.all(16));
+    Get.back(); // Closes the drawer
+    Get.snackbar('TICKET ISSUED', 'Vehicle $plate assigned to ${selectedZone.value}.', backgroundColor: AppColors.success, colorText: AppColors.backgroundDark, borderRadius: 0, margin: const EdgeInsets.all(16));
   }
 }

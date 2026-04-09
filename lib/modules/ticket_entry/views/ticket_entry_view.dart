@@ -137,7 +137,7 @@ class TicketEntryView extends StatelessWidget {
     );
   }
 
-  // Paste this method into ticket_entry_view.dart
+// Paste this method into ticket_entry_view.dart
   Widget _buildZoneSelector(TicketEntryController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,9 +159,7 @@ class TicketEntryView extends StatelessWidget {
                 icon: const Icon(Icons.arrow_drop_down, color: AppColors.muted),
                 isExpanded: true,
                 style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 14),
-                onChanged: (String? value) {
-                  if (value != null) controller.selectZone(value);
-                },
+                onChanged: controller.selectZone,
                 items: controller.availableZones.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(value: value, child: Text(value));
                 }).toList(),

@@ -11,6 +11,8 @@ import '../../modules/zone_setup/bindings/zone_setup_binding.dart';
 import '../../modules/splash/views/splash_view.dart';
 import '../../modules/dashboard/views/dashboard_view.dart';
 import '../../modules/dashboard/bindings/dashboard_binding.dart';
+import '../../modules/review_arm/views/review_arm_view.dart';
+import '../../modules/review_arm/bindings/review_arm_binding.dart';
 
 class AppPages {
   static final pages = [
@@ -39,6 +41,11 @@ class AppPages {
       name: Routes.DASHBOARD,
       page: () => const DashboardView(),
       binding: DashboardBinding(),
+    ),
+    GetPage(
+      name: Routes.REVIEW_ARM,
+      page: () => const ReviewArmView(),
+      binding: ReviewArmBinding(),
     ),
   ];
 }

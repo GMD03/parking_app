@@ -1,0 +1,426 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../../core/theme/app_colors.dart';
+import '../controllers/review_arm_controller.dart';
+
+class ReviewArmView extends GetView<ReviewArmController> {
+  const ReviewArmView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.backgroundDark,
+      body: Column(
+        children: [
+          _buildTopAppBar(),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch, // Prevents RenderFlex crash
+              children: [
+                _buildSidebar(context),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(48),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1000),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildHeader(),
+                            const SizedBox(height: 48),
+                            // 2-Column Layout for Desktop
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Left Column (Summary Info)
+                                Expanded(
+                                  flex: 3,
+                                  child: Column(
+                                    children: [
+                                      _buildSystemParameters(),
+                                      const SizedBox(height: 24),
+                                      _buildFacilityMapping(),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 48),
+                                // Right Column (Arming Action)
+                                Expanded(
+                                  flex: 2,
+                                  child: _buildActionArea(),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- TOP APP BAR (Shared) ---
+  Widget _buildTopAppBar() {
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      decoration: const BoxDecoration(
+        color: AppColors.backgroundDark,
+        border: Border(bottom: BorderSide(color: AppColors.border)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.grid_4x4, color: AppColors.primary, size: 16),
+              const SizedBox(width: 16),
+              Text('SYS.INITIALIZATION.V1.4', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 2)),
+            ],
+          ),
+          Row(
+            children: [
+              Text('Operator ID: ', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
+              Text('ADMIN_01', style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
+              const SizedBox(width: 16),
+              OutlinedButton.icon(
+                onPressed: () => Get.offAllNamed('/login'),
+                icon: const Icon(Icons.logout, size: 14),
+                label: const Text('[ LOGOUT ]'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.muted,
+                  side: const BorderSide(color: AppColors.border),
+                  backgroundColor: AppColors.surface.withOpacity(0.5),
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  textStyle: GoogleFonts.ibmPlexMono(fontSize: 12),
+                ),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  // --- SIDEBAR (Updated statuses) ---
+  Widget _buildSidebar(BuildContext context) {
+    return Container(
+      width: 256,
+      decoration: const BoxDecoration(
+        color: AppColors.backgroundDark,
+        border: Border(right: BorderSide(color: AppColors.border)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('INITIALIZATION', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                const SizedBox(height: 4),
+                Text('Setup Protocol Active', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 1)),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                Positioned(left: 39, top: 24, bottom: 24, child: Container(width: 1, color: AppColors.border)),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      _buildStepItem(step: '01', title: 'System Config', status: 2), // 2 = Completed
+                      const SizedBox(height: 32),
+                      _buildStepItem(step: '02', title: 'Zone Setup', status: 2),    // 2 = Completed
+                      const SizedBox(height: 32),
+                      _buildStepItem(step: '03', title: 'Review & Arm', status: 1),  // 1 = Active
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepItem({required String step, required String title, required int status}) {
+    Color iconColor;
+    Color bgColor;
+    Widget iconChild;
+
+    if (status == 2) { 
+      iconColor = AppColors.border;
+      bgColor = AppColors.surface;
+      iconChild = const Icon(Icons.check, color: AppColors.muted, size: 16);
+    } else if (status == 1) { 
+      iconColor = AppColors.primary;
+      bgColor = AppColors.primary;
+      iconChild = const Icon(Icons.power_settings_new, color: AppColors.backgroundDark, size: 16);
+    } else { 
+      iconColor = AppColors.border;
+      bgColor = AppColors.backgroundDark;
+      iconChild = Text(step, style: GoogleFonts.ibmPlexMono(color: AppColors.border, fontSize: 12));
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 32, height: 32,
+          decoration: BoxDecoration(
+            color: bgColor,
+            border: Border.all(color: iconColor),
+            boxShadow: status == 1 ? [const BoxShadow(color: Color(0x4DF9AC06), blurRadius: 8)] : null,
+          ),
+          child: Center(child: iconChild),
+        ),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Step $step', style: GoogleFonts.ibmPlexMono(color: status == 1 ? AppColors.primary : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 12)),
+            const SizedBox(height: 4),
+            Text(title.toUpperCase(), style: GoogleFonts.ibmPlexSans(color: status == 1 ? AppColors.textMain : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+          ],
+        )
+      ],
+    );
+  }
+
+  // --- MAIN CONTENT PIECES ---
+  Widget _buildHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text('FINAL SYSTEM VALIDATION', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 32, fontWeight: FontWeight.w600, letterSpacing: 2)),
+            const SizedBox(width: 16),
+            Text('[ PRE-DEPLOYMENT_CHECK ]', style: GoogleFonts.ibmPlexMono(color: AppColors.primary.withOpacity(0.6), fontSize: 14, letterSpacing: 2)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text('All terminal parameters must be verified before engaging the global parking perimeter.', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14)),
+      ],
+    );
+  }
+
+  Widget _buildSystemParameters() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(left: BorderSide(color: AppColors.primary, width: 3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('SYSTEM PARAMETERS', style: GoogleFonts.ibmPlexSans(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                color: AppColors.backgroundDark,
+                child: Text('REF_ID: 992-X', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+              )
+            ],
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(child: _buildDataReadout('Sync Mode', 'CLOUD_SYNC')),
+              Expanded(child: _buildDataReadout('API Key Status', 'AUTHENTICATED', isVerified: true)),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(child: _buildDataReadout('Telemetry Rate', '10ms / 60Hz')),
+              Expanded(child: _buildDataReadout('Encryption', 'AES-256-SCADA')),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFacilityMapping() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.map, color: AppColors.primary, size: 16),
+              const SizedBox(width: 8),
+              Text('FACILITY MAPPING', style: GoogleFonts.ibmPlexSans(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+            ],
+          ),
+          const SizedBox(height: 24),
+          _buildRowItem('Total Zones', '2'),
+          const Divider(color: AppColors.border, height: 24),
+          Obx(() => _buildRowItem('Total Capacity', controller.totalCapacity.value.toString())),
+          const Divider(color: AppColors.border, height: 24),
+          _buildRowItem('Gate Nodes', '2'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRowItem(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(label, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14)),
+        Text(value, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 24)),
+      ],
+    );
+  }
+
+  Widget _buildDataReadout(String label, String value, {bool isVerified = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label.toUpperCase(), style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            if (isVerified) ...[
+              const Icon(Icons.verified, color: AppColors.success, size: 14),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              value, 
+              style: GoogleFonts.ibmPlexMono(
+                color: isVerified ? AppColors.success : AppColors.textMain, 
+                fontSize: 16, 
+                fontWeight: FontWeight.w600
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _buildActionArea() {
+    return Column(
+      children: [
+        // Top Return Button
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: controller.returnToZoneSetup,
+            icon: const Icon(Icons.arrow_back, size: 14),
+            label: const Text('BACK TO ZONE SETUP'),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.muted,
+              textStyle: GoogleFonts.ibmPlexMono(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        
+        // Critical Action Box
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.danger.withOpacity(0.1),
+                  border: Border.all(color: AppColors.danger.withOpacity(0.3)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.warning, color: AppColors.danger, size: 18),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'CRITICAL: Arming the system overrides manual gate control and initiates high-voltage solenoid engagement.',
+                        style: GoogleFonts.ibmPlexMono(color: AppColors.danger, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              Obx(() => ElevatedButton(
+                onPressed: controller.isArming.value ? null : controller.executeSystemArm,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.backgroundDark,
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  elevation: 8,
+                  shadowColor: AppColors.primary.withOpacity(0.5),
+                  disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
+                ),
+                child: Center(
+                  child: controller.isArming.value 
+                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: AppColors.backgroundDark, strokeWidth: 2))
+                    : Column(
+                        children: [
+                          const Icon(Icons.power_settings_new, size: 32),
+                          const SizedBox(height: 12),
+                          Text(
+                            '[ ARM PARKING SYSTEM ]', 
+                            style: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 2),
+                          ),
+                        ],
+                      ),
+                ),
+              )),
+              
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('ESTIMATED SPINDOWN: 2.4s', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+                  Row(
+                    children: [
+                      Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle)),
+                      const SizedBox(width: 8),
+                      Text('HARDWARE READY', style: GoogleFonts.ibmPlexMono(color: AppColors.success, fontSize: 10, letterSpacing: 1)),
+                    ],
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

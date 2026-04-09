@@ -17,6 +17,8 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
           _buildTopAppBar(),
           Expanded(
             child: Row(
+              // THE FIX: Stretch the Row vertically to prevent RenderFlex crash
+              crossAxisAlignment: CrossAxisAlignment.stretch, 
               children: [
                 _buildSidebar(context),
                 Expanded(
@@ -299,8 +301,11 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
             children: [
               // Header Row
               Container(
-                color: AppColors.surface,
-                decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
+                
+                decoration: const BoxDecoration(
+                  color: AppColors.surface,
+                  border: Border(bottom: BorderSide(color: AppColors.border))
+                  ),
                 child: Row(
                   children: [
                     Expanded(child: _buildGridHeaderCell('Zone ID / Name')),

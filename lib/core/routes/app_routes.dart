@@ -7,4 +7,5 @@ abstract class Routes {
   static const DASHBOARD = '/dashboard';
   static const TICKET_ENTRY = '/ticket-entry';
   static const TICKET_INSPECTOR = '/ticket-inspector';
+  static const REVIEW_ARM = '/review-arm';
 }

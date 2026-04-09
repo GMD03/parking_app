@@ -86,7 +86,7 @@ class ZoneSetupController extends GetxController {
     );
     
     // Route to Dashboard, clearing the navigation stack so they can't go back
-    Get.offAllNamed(Routes.DASHBOARD);
+    Get.toNamed(Routes.REVIEW_ARM);
   }
 
   void returnToConfig() {

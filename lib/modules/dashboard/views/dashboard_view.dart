@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/dashboard_controller.dart';
 import '../models/ticket_model.dart';
+import '../../ticket_inspector/controllers/ticket_inspector_controller.dart';
+import '../../ticket_inspector/views/ticket_inspector_view.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -231,11 +233,30 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildTableRow(TicketModel ticket) {
+Widget _buildTableRow(TicketModel ticket) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {}, // Will open Inspector panel later
+        onTap: () {
+          // Inject controller with the specific ticket data
+          Get.lazyPut(() => TicketInspectorController(ticket: ticket));
+          
+          Get.generalDialog(
+            barrierColor: Colors.black.withOpacity(0.8), // Dark blurred backdrop
+            barrierDismissible: true,
+            barrierLabel: 'Inspector',
+            transitionDuration: const Duration(milliseconds: 200),
+            pageBuilder: (context, animation, secondaryAnimation) => const TicketInspectorView(),
+            transitionBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                child: child,
+              );
+            },
+          ).then((_) {
+            Get.delete<TicketInspectorController>();
+          });
+        },
         hoverColor: AppColors.border.withOpacity(0.3),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

@@ -104,7 +104,7 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  // --- TELEMETRY SIDEBAR ---
+// --- TELEMETRY SIDEBAR ---
   Widget _buildTelemetrySidebar() {
     return SizedBox(
       width: 280,
@@ -120,8 +120,15 @@ class DashboardView extends GetView<DashboardController> {
           const SizedBox(height: 32),
           Text('ZONE OCCUPANCY', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 1.5)),
           const SizedBox(height: 12),
-          // Dynamically generate cards for every configured zone
-          ...controller.zones.map((zone) => _buildZoneStatCard(zone)).toList(),
+          
+          // THE FIX: Listen to the zones list here, and allow it to scroll
+          Expanded(
+            child: SingleChildScrollView(
+              child: Obx(() => Column(
+                children: controller.zones.map((zone) => _buildZoneStatCard(zone)).toList(),
+              )),
+            ),
+          ),
         ],
       ),
     );
@@ -136,7 +143,7 @@ class DashboardView extends GetView<DashboardController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(zone.name, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
-          Obx(() => RichText(
+          RichText(
             text: TextSpan(
               style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12),
               children: [
@@ -144,7 +151,7 @@ class DashboardView extends GetView<DashboardController> {
                 TextSpan(text: ' / ${zone.capacity}'),
               ],
             ),
-          )),
+          ),
         ],
       ),
     );

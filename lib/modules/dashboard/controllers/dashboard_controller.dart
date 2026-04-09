@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/ticket_model.dart';
+import '../../ticket_entry/views/ticket_entry_view.dart';
+import '../../ticket_entry/controllers/ticket_entry_controller.dart';
 
 class DashboardController extends GetxController {
   // Live Clock
@@ -83,7 +85,29 @@ class DashboardController extends GetxController {
   }
 
   void openNewTicketPanel() {
-    // This will open the Ticket Entry Panel (Next Task)
-    Get.snackbar('ACTION', 'Opening New Ticket Panel...', snackPosition: SnackPosition.BOTTOM);
+    Get.lazyPut(() => TicketEntryController());
+
+    Get.generalDialog(
+      barrierColor: Colors.black.withOpacity(0.6), // Dim the dashboard
+      barrierDismissible: true,
+      barrierLabel: 'TicketEntry',
+      transitionDuration: const Duration(milliseconds: 250),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return const TicketEntryView();
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        // Creates the sliding effect from the right edge
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1.0, 0.0),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+          child: child,
+        );
+      },
+    ).then((_) {
+      // 3. Clean up the controller when the drawer closes to free memory
+      Get.delete<TicketEntryController>();
+    });
   }
 }

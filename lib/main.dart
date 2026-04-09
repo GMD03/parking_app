@@ -51,7 +51,7 @@ class SystemAccessPortal extends StatelessWidget {
       ),
       // GetX Routing Setup - Using the new modular AppPages list
       // Initial route set to SPLASH to handle the one-time setup logic
-      initialRoute: Routes.SPLASH,
+      initialRoute: Routes.DASHBOARD,
       getPages: AppPages.pages,
     );
   }

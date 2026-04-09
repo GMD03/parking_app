@@ -6,25 +6,21 @@ import '../../ticket_entry/views/ticket_entry_view.dart';
 import '../../ticket_entry/controllers/ticket_entry_controller.dart';
 
 class DashboardController extends GetxController {
-  // Live Clock
   final currentTime = ''.obs;
   Timer? _timer;
 
-  // Telemetry Stats
-  final totalCapacity = 500;
-  final availableSlots = 245.obs;
-  final occupiedSlots = 55.obs;
-  final ticketsToday = 300.obs;
+  // Dynamic Telemetry Stats
+  late int totalCapacity;
+  final availableSlots = 0.obs;
+  final occupiedSlots = 0.obs;
+  final ticketsToday = 0.obs;
 
-  // Search functionality
   final searchController = TextEditingController();
   final searchQuery = ''.obs;
 
-  // CHANGED: This must be an RxList so the UI updates when tickets are added/removed
+  // CHANGED: Converted to RxList. Retained exactly ONE overstay ticket.
   final RxList<TicketModel> allTickets = <TicketModel>[
-    TicketModel(id: '#78921', plate: 'ABC-1234', timeIn: '08:15:22', duration: '05:50:00', status: TicketStatus.active),
-    TicketModel(id: '#78922', plate: 'XYZ-9876', timeIn: '09:30:10', duration: '04:35:12', status: TicketStatus.active),
-    TicketModel(id: '#78923', plate: 'LMN-4567', timeIn: '10:05:45', duration: '03:59:37', status: TicketStatus.overstay),
+    TicketModel(id: '#78901', plate: 'OVR-9999', timeIn: '06:00:00', duration: '08:32:15', status: TicketStatus.overstay),
   ].obs;
 
   List<TicketModel> get filteredTickets {
@@ -41,9 +37,13 @@ class DashboardController extends GetxController {
     _startClock();
     searchController.addListener(() => searchQuery.value = searchController.text);
     
-    // Initialize stats based on current list
+    // Retrieve capacity from Zone Setup (default to 500 if bypassed)
+    totalCapacity = Get.arguments ?? 500;
+    
+    // Initialize stats based on the 1 overstay ticket
     occupiedSlots.value = allTickets.length;
     availableSlots.value = totalCapacity - occupiedSlots.value;
+    ticketsToday.value = allTickets.length; 
   }
 
   @override
@@ -67,7 +67,8 @@ class DashboardController extends GetxController {
     currentTime.value = '$h:$m:$s:$ms';
   }
 
-  // --- ADDED: Functional Logic to modify the list ---
+  // --- DATA MODIFICATION METHODS ---
+
   void addTicket(String plate, String vehicleClass) {
     final now = DateTime.now();
     final timeString = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
@@ -82,8 +83,10 @@ class DashboardController extends GetxController {
       status: TicketStatus.active,
     );
 
-    allTickets.insert(0, newTicket); // Adds to top of list
+    // Insert at top of UI list
+    allTickets.insert(0, newTicket); 
     
+    // Update Telemetry
     ticketsToday.value++;
     occupiedSlots.value++;
     availableSlots.value--;
@@ -91,6 +94,8 @@ class DashboardController extends GetxController {
 
   void checkoutTicket(String ticketId) {
     allTickets.removeWhere((t) => t.id == ticketId);
+    
+    // Free up the slot, but do NOT decrement ticketsToday
     occupiedSlots.value--;
     availableSlots.value++;
   }
@@ -100,26 +105,19 @@ class DashboardController extends GetxController {
 
   void openNewTicketPanel() {
     Get.lazyPut(() => TicketEntryController());
-
     Get.generalDialog(
       barrierColor: Colors.black.withOpacity(0.6),
       barrierDismissible: true,
       barrierLabel: 'TicketEntry',
       transitionDuration: const Duration(milliseconds: 250),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const TicketEntryView();
-      },
+      pageBuilder: (context, animation, secondaryAnimation) => const TicketEntryView(),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1.0, 0.0),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+          position: Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero)
+              .animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
           child: child,
         );
       },
-    ).then((_) {
-      Get.delete<TicketEntryController>();
-    });
+    ).then((_) => Get.delete<TicketEntryController>());
   }
 }

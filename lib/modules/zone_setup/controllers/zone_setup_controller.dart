@@ -58,21 +58,18 @@ class ZoneSetupController extends GetxController {
   }
 
   Future<void> armSystem() async {
-    // 1. Validation: Prevent proceeding if overloaded
     if (remainingSpots < 0) {
-      _showSystemDialog(
-        title: 'CAPACITY OVERLOAD',
-        message: 'Allocated spots exceed total facility capacity. Reduce allocations by ${remainingSpots.abs()} before proceeding.',
-        isError: true,
-      );
+      Get.snackbar('CAPACITY_OVERLOAD', 'Allocated spots exceed total facility capacity.', backgroundColor: AppColors.danger, colorText: Colors.white, borderRadius: 0, margin: const EdgeInsets.all(16));
       return;
     }
 
-    // 2. Save settings locally for the Review screen to read
+    Get.snackbar('SYSTEM_ARMED', 'Parking system successfully initialized and armed.', backgroundColor: AppColors.success, colorText: AppColors.backgroundDark, borderRadius: 0, margin: const EdgeInsets.all(16));
+    
+    // Save settings locally for the Review screen to read
     final box = GetStorage();
-    await box.write('totalFacilityCapacity', totalCapacity.value); 
+    await box.write('totalFacilityCapacity', totalCapacity.value);
 
-    // 3. Seamlessly route to the Review & Arm page (No popup needed here)
+    // Seamlessly route to the Review & Arm page
     Get.toNamed(Routes.REVIEW_ARM);
   }
 

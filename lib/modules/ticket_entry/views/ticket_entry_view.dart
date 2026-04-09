@@ -4,58 +4,62 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/ticket_entry_controller.dart';
 
-class TicketEntryView extends GetView<TicketEntryController> {
+// CHANGED: From GetView<TicketEntryController> to StatelessWidget
+class TicketEntryView extends StatelessWidget {
   const TicketEntryView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // We use Material and Align to make this act as a right-side drawer
     return Align(
       alignment: Alignment.centerRight,
       child: Material(
         color: Colors.transparent,
-        child: Container(
-          width: 400,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
-            border: Border(left: BorderSide(color: AppColors.border)),
-            boxShadow: [
-              BoxShadow(color: Colors.black54, blurRadius: 30, offset: Offset(-10, 0)),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildHeader(),
-              
-              // THE FIX: Wrap the body in Expanded + SingleChildScrollView
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildLicensePlateInput(),
-                      const SizedBox(height: 32),
-                      _buildVehicleClassSelector(),
-                      const SizedBox(height: 32),
-                      _buildRecentLogSection(),
-                    ],
-                  ),
-                ),
+        // THE FIX: GetBuilder handles init and dispose safely synced with the widget lifecycle
+        child: GetBuilder<TicketEntryController>(
+          init: TicketEntryController(), 
+          builder: (controller) {
+            return Container(
+              width: 400,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                border: Border(left: BorderSide(color: AppColors.border)),
+                boxShadow: [
+                  BoxShadow(color: Colors.black54, blurRadius: 30, offset: Offset(-10, 0)),
+                ],
               ),
-              
-              // The footer containing the Obx action button stays pinned to the bottom
-              _buildFooter(),
-            ],
-          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(controller),
+                  
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildLicensePlateInput(controller),
+                          const SizedBox(height: 32),
+                          _buildVehicleClassSelector(controller),
+                          const SizedBox(height: 32),
+                          _buildRecentLogSection(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  _buildFooter(controller),
+                ],
+              ),
+            );
+          }
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(TicketEntryController controller) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
       decoration: const BoxDecoration(
@@ -83,7 +87,7 @@ class TicketEntryView extends GetView<TicketEntryController> {
     );
   }
 
-  Widget _buildLicensePlateInput() {
+  Widget _buildLicensePlateInput(TicketEntryController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -114,7 +118,7 @@ class TicketEntryView extends GetView<TicketEntryController> {
     );
   }
 
-  Widget _buildVehicleClassSelector() {
+  Widget _buildVehicleClassSelector(TicketEntryController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -122,18 +126,18 @@ class TicketEntryView extends GetView<TicketEntryController> {
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _buildClassOption(VehicleClass.car, 'CLASS A', 'SEDAN/SUV')),
+            Expanded(child: _buildClassOption(controller, VehicleClass.car, 'CLASS A', 'SEDAN/SUV')),
             const SizedBox(width: 12),
-            Expanded(child: _buildClassOption(VehicleClass.truck, 'CLASS B', 'TRUCK/VAN')),
+            Expanded(child: _buildClassOption(controller, VehicleClass.truck, 'CLASS B', 'TRUCK/VAN')),
           ],
         ),
         const SizedBox(height: 12),
-        _buildClassOption(VehicleClass.moto, 'CLASS C', 'MOTORCYCLE'),
+        _buildClassOption(controller, VehicleClass.moto, 'CLASS C', 'MOTORCYCLE'),
       ],
     );
   }
 
-  Widget _buildClassOption(VehicleClass vClass, String title, String subtitle) {
+  Widget _buildClassOption(TicketEntryController controller, VehicleClass vClass, String title, String subtitle) {
     return Obx(() {
       final isSelected = controller.selectedClass.value == vClass;
       return InkWell(
@@ -200,7 +204,7 @@ class TicketEntryView extends GetView<TicketEntryController> {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(TicketEntryController controller) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(

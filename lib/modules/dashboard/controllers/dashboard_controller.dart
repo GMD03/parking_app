@@ -11,6 +11,7 @@ class DashboardController extends GetxController {
   Timer? _timer;
 
   // Telemetry Stats
+  final totalCapacity = 500;
   final availableSlots = 245.obs;
   final occupiedSlots = 55.obs;
   final ticketsToday = 300.obs;
@@ -19,24 +20,16 @@ class DashboardController extends GetxController {
   final searchController = TextEditingController();
   final searchQuery = ''.obs;
 
-  // Master list of tickets (Mock data based on your UI design)
-  final List<TicketModel> _allTickets = [
+  // CHANGED: This must be an RxList so the UI updates when tickets are added/removed
+  final RxList<TicketModel> allTickets = <TicketModel>[
     TicketModel(id: '#78921', plate: 'ABC-1234', timeIn: '08:15:22', duration: '05:50:00', status: TicketStatus.active),
     TicketModel(id: '#78922', plate: 'XYZ-9876', timeIn: '09:30:10', duration: '04:35:12', status: TicketStatus.active),
     TicketModel(id: '#78923', plate: 'LMN-4567', timeIn: '10:05:45', duration: '03:59:37', status: TicketStatus.overstay),
-    TicketModel(id: '#78924', plate: 'QRS-8822', timeIn: '11:20:00', duration: '02:45:22', status: TicketStatus.active),
-    TicketModel(id: '#78925', plate: 'DEF-3344', timeIn: '12:10:15', duration: '01:55:07', status: TicketStatus.active),
-    TicketModel(id: '#78926', plate: 'GHI-5566', timeIn: '13:00:00', duration: '01:05:22', status: TicketStatus.active),
-    TicketModel(id: '#78927', plate: 'JKL-7788', timeIn: '13:30:45', duration: '00:34:37', status: TicketStatus.active),
-    TicketModel(id: '#78928', plate: 'MNO-9900', timeIn: '13:45:10', duration: '00:20:12', status: TicketStatus.processing),
-    TicketModel(id: '#78929', plate: 'PQR-1122', timeIn: '13:55:00', duration: '00:10:22', status: TicketStatus.active),
-    TicketModel(id: '#78930', plate: 'STU-3344', timeIn: '14:02:15', duration: '00:03:07', status: TicketStatus.active),
-  ];
+  ].obs;
 
-  // Derived list that updates automatically when search query changes
   List<TicketModel> get filteredTickets {
-    if (searchQuery.value.isEmpty) return _allTickets;
-    return _allTickets.where((t) => 
+    if (searchQuery.value.isEmpty) return allTickets;
+    return allTickets.where((t) => 
       t.plate.toLowerCase().contains(searchQuery.value.toLowerCase()) || 
       t.id.toLowerCase().contains(searchQuery.value.toLowerCase())
     ).toList();
@@ -46,11 +39,11 @@ class DashboardController extends GetxController {
   void onInit() {
     super.onInit();
     _startClock();
+    searchController.addListener(() => searchQuery.value = searchController.text);
     
-    // Listen to search input
-    searchController.addListener(() {
-      searchQuery.value = searchController.text;
-    });
+    // Initialize stats based on current list
+    occupiedSlots.value = allTickets.length;
+    availableSlots.value = totalCapacity - occupiedSlots.value;
   }
 
   @override
@@ -61,10 +54,8 @@ class DashboardController extends GetxController {
   }
 
   void _startClock() {
-    _updateTime(); // Initial call
-    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      _updateTime();
-    });
+    _updateTime();
+    _timer = Timer.periodic(const Duration(milliseconds: 100), (_) => _updateTime());
   }
 
   void _updateTime() {
@@ -76,19 +67,42 @@ class DashboardController extends GetxController {
     currentTime.value = '$h:$m:$s:$ms';
   }
 
-  void logout() {
-    Get.offAllNamed('/login');
+  // --- ADDED: Functional Logic to modify the list ---
+  void addTicket(String plate, String vehicleClass) {
+    final now = DateTime.now();
+    final timeString = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+    
+    final newId = '#${78900 + ticketsToday.value + 1}';
+
+    final newTicket = TicketModel(
+      id: newId,
+      plate: plate.toUpperCase(),
+      timeIn: timeString,
+      duration: '00:00:00', 
+      status: TicketStatus.active,
+    );
+
+    allTickets.insert(0, newTicket); // Adds to top of list
+    
+    ticketsToday.value++;
+    occupiedSlots.value++;
+    availableSlots.value--;
   }
 
-  void syncNow() {
-    // Implement sync logic
+  void checkoutTicket(String ticketId) {
+    allTickets.removeWhere((t) => t.id == ticketId);
+    occupiedSlots.value--;
+    availableSlots.value++;
   }
+
+  void logout() => Get.offAllNamed('/login');
+  void syncNow() {}
 
   void openNewTicketPanel() {
     Get.lazyPut(() => TicketEntryController());
 
     Get.generalDialog(
-      barrierColor: Colors.black.withOpacity(0.6), // Dim the dashboard
+      barrierColor: Colors.black.withOpacity(0.6),
       barrierDismissible: true,
       barrierLabel: 'TicketEntry',
       transitionDuration: const Duration(milliseconds: 250),
@@ -96,7 +110,6 @@ class DashboardController extends GetxController {
         return const TicketEntryView();
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        // Creates the sliding effect from the right edge
         return SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(1.0, 0.0),
@@ -106,7 +119,6 @@ class DashboardController extends GetxController {
         );
       },
     ).then((_) {
-      // 3. Clean up the controller when the drawer closes to free memory
       Get.delete<TicketEntryController>();
     });
   }

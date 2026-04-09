@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/theme/app_colors.dart';
+// ADDED: Import Dashboard Controller
+import '../../dashboard/controllers/dashboard_controller.dart'; 
 
 enum VehicleClass { car, truck, moto }
 
@@ -24,34 +26,27 @@ class TicketEntryController extends GetxController {
     
     if (plate.isEmpty) {
       Get.snackbar(
-        'VALIDATION ERROR',
-        'License Plate is required.',
+        'VALIDATION ERROR', 'License Plate is required.',
         backgroundColor: AppColors.danger.withOpacity(0.9),
-        colorText: Colors.white,
-        borderRadius: 0,
-        margin: const EdgeInsets.all(16),
+        colorText: Colors.white, borderRadius: 0, margin: const EdgeInsets.all(16),
       );
       return;
     }
 
     isSubmitting.value = true;
-    
-    // Simulate network latency / saving to database
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    // CHANGED: Send the ticket to the Dashboard!
+    final dashboardCtrl = Get.find<DashboardController>();
+    dashboardCtrl.addTicket(plate, selectedClass.value.name);
 
     isSubmitting.value = false;
+    Get.back(); // Closes the drawer
     
-    // Close the drawer
-    Get.back();
-    
-    // Notify the user on the dashboard
     Get.snackbar(
-      'TICKET ISSUED',
-      'Vehicle $plate has been logged successfully.',
+      'TICKET ISSUED', 'Vehicle $plate has been logged successfully.',
       backgroundColor: AppColors.success.withOpacity(0.9),
-      colorText: AppColors.backgroundDark,
-      borderRadius: 0,
-      margin: const EdgeInsets.all(16),
+      colorText: AppColors.backgroundDark, borderRadius: 0, margin: const EdgeInsets.all(16),
     );
   }
 }

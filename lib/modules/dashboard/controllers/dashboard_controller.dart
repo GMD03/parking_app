@@ -1,35 +1,41 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart'; // Added GetStorage import
 import '../models/ticket_model.dart';
 import '../../ticket_entry/views/ticket_entry_view.dart';
 import '../../ticket_entry/controllers/ticket_entry_controller.dart';
+
+// Helper class for tracking zone occupancies
+class ZoneStats {
+  final String name;
+  final int capacity;
+  final RxInt occupied;
+  ZoneStats({required this.name, required this.capacity, int initialOccupied = 0}) : occupied = initialOccupied.obs;
+}
 
 class DashboardController extends GetxController {
   final currentTime = ''.obs;
   Timer? _timer;
 
-  // Dynamic Telemetry Stats
+  // Master Telemetry
   late int totalCapacity;
   final availableSlots = 0.obs;
   final occupiedSlots = 0.obs;
   final ticketsToday = 0.obs;
 
+  // Zone Telemetry
+  final RxList<ZoneStats> zones = <ZoneStats>[].obs;
+
   final searchController = TextEditingController();
   final searchQuery = ''.obs;
 
-  // CHANGED: Converted to RxList. Retained exactly ONE overstay ticket.
   final RxList<TicketModel> allTickets = <TicketModel>[
-    TicketModel(id: '#78901', plate: 'OVR-9999', timeIn: '06:00:00', duration: '08:32:15', status: TicketStatus.overstay),
+    TicketModel(id: '#78901', plate: 'OVR-9999', timeIn: '06:00:00', duration: '08:32:15', zone: 'LEVEL_A', status: TicketStatus.overstay),
   ].obs;
 
   List<TicketModel> get filteredTickets {
     if (searchQuery.value.isEmpty) return allTickets;
-    return allTickets.where((t) => 
-      t.plate.toLowerCase().contains(searchQuery.value.toLowerCase()) || 
-      t.id.toLowerCase().contains(searchQuery.value.toLowerCase())
-    ).toList();
+    return allTickets.where((t) => t.plate.toLowerCase().contains(searchQuery.value.toLowerCase()) || t.id.toLowerCase().contains(searchQuery.value.toLowerCase())).toList();
   }
 
   @override
@@ -38,14 +44,31 @@ class DashboardController extends GetxController {
     _startClock();
     searchController.addListener(() => searchQuery.value = searchController.text);
     
-    // THE FIX: Retrieve capacity from GetStorage instead of Get.arguments
-    final box = GetStorage();
-    totalCapacity = box.read('totalFacilityCapacity') ?? 500;
-    
-    // Initialize stats based on the 1 overstay ticket
+    // 1. Receive Data from Zone Setup
+    final args = Get.arguments as Map<String, dynamic>?;
+    if (args != null) {
+      totalCapacity = args['totalCapacity'] ?? 500;
+      final zoneList = args['zones'] as List<dynamic>? ?? [];
+      for (var z in zoneList) {
+        zones.add(ZoneStats(name: z['name'], capacity: z['capacity']));
+      }
+    } else {
+      // Fallback if debugging directly to Dashboard
+      totalCapacity = 500;
+      zones.add(ZoneStats(name: 'LEVEL_A', capacity: 200));
+      zones.add(ZoneStats(name: 'LEVEL_B', capacity: 150));
+    }
+
+    // 2. Initialize Telemetry Math
     occupiedSlots.value = allTickets.length;
     availableSlots.value = totalCapacity - occupiedSlots.value;
-    ticketsToday.value = allTickets.length; 
+    ticketsToday.value = allTickets.length;
+
+    // Attribute existing overstay ticket to its zone
+    for (var t in allTickets) {
+      final z = zones.firstWhereOrNull((z) => z.name == t.zone);
+      if (z != null) z.occupied.value++;
+    }
   }
 
   @override
@@ -69,50 +92,44 @@ class DashboardController extends GetxController {
     currentTime.value = '$h:$m:$s:$ms';
   }
 
-  // --- DATA MODIFICATION METHODS ---
-
-  void addTicket(String plate, String vehicleClass) {
+  void addTicket(String plate, String vehicleClass, String zoneName) {
     final now = DateTime.now();
     final timeString = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
-    
     final newId = '#${78900 + ticketsToday.value + 1}';
 
-    final newTicket = TicketModel(
-      id: newId,
-      plate: plate.toUpperCase(),
-      timeIn: timeString,
-      duration: '00:00:00', 
-      status: TicketStatus.active,
-    );
-
-    // Insert at top of UI list
-    allTickets.insert(0, newTicket); 
+    allTickets.insert(0, TicketModel(
+      id: newId, plate: plate.toUpperCase(), timeIn: timeString, duration: '00:00:00', zone: zoneName, status: TicketStatus.active,
+    )); 
     
-    // Update Telemetry
+    // Update Master Telemetry
     ticketsToday.value++;
     occupiedSlots.value++;
     availableSlots.value--;
+
+    // Update Zone Telemetry
+    final z = zones.firstWhereOrNull((z) => z.name == zoneName);
+    if (z != null) z.occupied.value++;
   }
 
   void checkoutTicket(String ticketId) {
-    allTickets.removeWhere((t) => t.id == ticketId);
-    
-    // Free up the slot, but do NOT decrement ticketsToday
-    occupiedSlots.value--;
-    availableSlots.value++;
+    final ticket = allTickets.firstWhereOrNull((t) => t.id == ticketId);
+    if (ticket != null) {
+      // Free up specific zone
+      final z = zones.firstWhereOrNull((z) => z.name == ticket.zone);
+      if (z != null) z.occupied.value--;
+
+      // Update Master Telemetry
+      allTickets.remove(ticket);
+      occupiedSlots.value--;
+      availableSlots.value++;
+    }
   }
 
-  void logout() {
-    // Optional: You might want to clear Get.arguments here depending on your auth flow
-    Get.offAllNamed('/login');
-  }
-  
+  void logout() => Get.offAllNamed('/login');
   void syncNow() {}
 
-void openNewTicketPanel() {
-    // THE FIX: Use Get.put() instead of Get.lazyPut() to inject it into memory instantly
-    Get.put(TicketEntryController());
-    
+  void openNewTicketPanel() {
+    Get.lazyPut(() => TicketEntryController());
     Get.generalDialog(
       barrierColor: Colors.black.withOpacity(0.6),
       barrierDismissible: true,
@@ -120,12 +137,8 @@ void openNewTicketPanel() {
       transitionDuration: const Duration(milliseconds: 250),
       pageBuilder: (context, animation, secondaryAnimation) => const TicketEntryView(),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero)
-              .animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
-          child: child,
-        );
+        return SlideTransition(position: Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)), child: child);
       },
-    ).then((_) => Get.delete<TicketEntryController>()); // Cleans up when dialog closes
+    ).then((_) => Get.delete<TicketEntryController>());
   }
 }

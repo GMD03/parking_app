@@ -5,6 +5,7 @@ class TicketModel {
   final String plate;
   final String timeIn;
   final String duration;
+  final String zone;
   final TicketStatus status;
 
   TicketModel({
@@ -12,6 +13,7 @@ class TicketModel {
     required this.plate,
     required this.timeIn,
     required this.duration,
+    required this.zone,
     required this.status,
   });
 }

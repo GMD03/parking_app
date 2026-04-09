@@ -77,7 +77,7 @@ class ZoneSetupController extends GetxController {
     Get.snackbar('SYSTEM_ARMED', 'Parking system successfully initialized and armed.', backgroundColor: AppColors.success, colorText: AppColors.backgroundDark, borderRadius: 0, margin: const EdgeInsets.all(16));
     
     // 2. Pass the bundled data to the dashboard
-    Get.offAllNamed('/dashboard', arguments: setupData);
+    Get.offAllNamed('/review-arm', arguments: setupData);
   }
   
 

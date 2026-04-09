@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart'; // Added for SCADA typography
 import '../models/zone_setup_model.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
@@ -57,39 +58,123 @@ class ZoneSetupController extends GetxController {
   }
 
   Future<void> armSystem() async {
+    // 1. Validation: Prevent proceeding if overloaded
     if (remainingSpots < 0) {
-      Get.snackbar(
-        'CAPACITY_OVERLOAD',
-        'Allocated spots exceed total facility capacity.',
-        backgroundColor: AppColors.danger,
-        colorText: Colors.white,
-        borderRadius: 0,
-        margin: const EdgeInsets.all(16),
-        icon: const Icon(Icons.warning_amber_rounded, color: Colors.white),
+      _showSystemDialog(
+        title: 'CAPACITY OVERLOAD',
+        message: 'Allocated spots exceed total facility capacity. Reduce allocations by ${remainingSpots.abs()} before proceeding.',
+        isError: true,
       );
       return;
     }
 
-    // ONBOARDING COMPLETE: Save state globally
+    // 2. Save settings locally for the Review screen to read
     final box = GetStorage();
-    await box.write('isConfigured', true);
-    await box.write('totalFacilityCapacity', totalCapacity.value); // Optional: save settings
+    await box.write('totalFacilityCapacity', totalCapacity.value); 
 
-    Get.snackbar(
-      'SYSTEM_ARMED',
-      'Parking system successfully initialized and armed.',
-      backgroundColor: AppColors.success,
-      colorText: AppColors.backgroundDark,
-      borderRadius: 0,
-      margin: const EdgeInsets.all(16),
-      icon: const Icon(Icons.check_circle_outline, color: AppColors.backgroundDark),
-    );
-    
-    // Route to Dashboard, clearing the navigation stack so they can't go back
+    // 3. Seamlessly route to the Review & Arm page (No popup needed here)
     Get.toNamed(Routes.REVIEW_ARM);
   }
 
   void returnToConfig() {
     Get.back();
+  }
+
+  // -----------------------------------------------------------------
+  // CUSTOM SYSTEM DIALOG (POP-UP)
+  // -----------------------------------------------------------------
+  void _showSystemDialog({
+    required String title,
+    required String message,
+    required bool isError,
+    VoidCallback? onAcknowledge,
+  }) {
+    final Color bgColor = AppColors.surface; 
+    final Color borderColor = isError ? AppColors.danger : AppColors.success;
+    final Color textColor = isError ? Colors.white : AppColors.backgroundDark;
+
+    Get.dialog(
+      Dialog(
+        backgroundColor: bgColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero, // Sharp SCADA edges
+          side: BorderSide(color: borderColor.withOpacity(0.5), width: 2),
+        ),
+        child: Container(
+          width: 400,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header Row
+              Row(
+                children: [
+                  Icon(
+                    isError ? Icons.warning_amber_rounded : Icons.check_circle_outline,
+                    color: borderColor,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: GoogleFonts.ibmPlexSans(
+                        color: borderColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(color: AppColors.border),
+              const SizedBox(height: 16),
+              
+              // Message Body
+              Text(
+                message,
+                style: GoogleFonts.ibmPlexMono(
+                  color: AppColors.textMain,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Action Button
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.back(); // Close the dialog
+                    if (onAcknowledge != null) {
+                      onAcknowledge(); // Execute routing if provided
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: borderColor,
+                    foregroundColor: textColor,
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  ),
+                  child: Text(
+                    '[ ACKNOWLEDGE ]',
+                    style: GoogleFonts.ibmPlexMono(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false, // Forces the user to click the acknowledge button
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart'; // Added for SCADA typography
 import '../models/device_registration_model.dart';
 // import '../../../core/routes/app_routes.dart'; // Uncomment if you want to use Routes.LOGIN
 
@@ -24,13 +25,10 @@ class DeviceRegistrationController extends GetxController {
     // 1. Basic Validation MUST happen first!
     if (facilityCodeController.text.trim().isEmpty ||
         securityTokenController.text.trim().isEmpty) {
-      Get.snackbar(
-        'Validation Error',
-        'Facility Code and Security Token are required.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF93000A),
-        colorText: const Color(0xFFFFDAD6),
-        margin: const EdgeInsets.all(16),
+      _showSystemDialog(
+        title: 'VALIDATION ERROR',
+        message: 'Facility Code and Security Token are required to proceed.',
+        isError: true,
       );
       return;
     }
@@ -54,28 +52,23 @@ class DeviceRegistrationController extends GetxController {
       final box = GetStorage();
       await box.write('isDeviceRegistered', true);
 
-      // 6. Success Handling
-      Get.snackbar(
-        'Success',
-        'Terminal Registered Successfully.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF05E777),
-        colorText: const Color(0xFF003918),
-        margin: const EdgeInsets.all(16),
+      // 6. Success Handling & Navigation
+      _showSystemDialog(
+        title: 'SYSTEM REGISTERED',
+        message: 'Terminal has been authenticated and registered successfully on the local network.',
+        isError: false,
+        onAcknowledge: () {
+          // 7. Navigate to Login ONLY AFTER they close the success dialog
+          Get.offAllNamed('/login'); 
+          // Note: If you use app_routes.dart, change to Get.offAllNamed(Routes.LOGIN);
+        },
       );
-
-      // 7. Navigate directly to Login
-      Get.offAllNamed('/login');
-      // Note: If you are using your app_routes.dart, you can change the above to Get.offAllNamed(Routes.LOGIN);
     } catch (e) {
       // Error handling for API failures
-      Get.snackbar(
-        'Registration Failed',
-        'An error occurred: ${e.toString()}',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF93000A),
-        colorText: const Color(0xFFFFDAD6),
-        margin: const EdgeInsets.all(16),
+      _showSystemDialog(
+        title: 'REGISTRATION FAILED',
+        message: 'An error occurred during authentication: ${e.toString()}',
+        isError: true,
       );
     } finally {
       // 8. Reset loading state
@@ -88,5 +81,104 @@ class DeviceRegistrationController extends GetxController {
     facilityCodeController.dispose();
     securityTokenController.dispose();
     super.onClose();
+  }
+
+  // -----------------------------------------------------------------
+  // CUSTOM SYSTEM DIALOG (POP-UP)
+  // -----------------------------------------------------------------
+  void _showSystemDialog({
+    required String title,
+    required String message,
+    required bool isError,
+    VoidCallback? onAcknowledge,
+  }) {
+    // Define SCADA Colors based on your provided hex codes
+    final Color bgColor = const Color(0xFF1E2226); // Surface color
+    final Color borderColor = isError ? const Color(0xFF93000A) : const Color(0xFF05E777);
+    final Color textColor = isError ? const Color(0xFFFFDAD6) : const Color(0xFF003918);
+
+    Get.dialog(
+      Dialog(
+        backgroundColor: bgColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero, // Sharp edges
+          side: BorderSide(color: borderColor.withOpacity(0.5), width: 2),
+        ),
+        child: Container(
+          width: 400,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header Row
+              Row(
+                children: [
+                  Icon(
+                    isError ? Icons.warning_amber_rounded : Icons.check_circle_outline,
+                    color: borderColor,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: GoogleFonts.ibmPlexSans(
+                        color: borderColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(color: Color(0xFF3A414A)),
+              const SizedBox(height: 16),
+              
+              // Message Body
+              Text(
+                message,
+                style: GoogleFonts.ibmPlexMono(
+                  color: const Color(0xFFE8ECEF),
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Action Button
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.back(); // Close the dialog
+                    if (onAcknowledge != null) {
+                      onAcknowledge(); // Execute routing if provided
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: borderColor,
+                    foregroundColor: textColor,
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  ),
+                  child: Text(
+                    '[ ACKNOWLEDGE ]',
+                    style: GoogleFonts.ibmPlexMono(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false, // Forces the user to click the acknowledge button
+    );
   }
 }

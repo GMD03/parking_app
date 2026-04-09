@@ -137,6 +137,7 @@ class TicketEntryView extends StatelessWidget {
     );
   }
 
+  // Paste this method into ticket_entry_view.dart
   Widget _buildZoneSelector(TicketEntryController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,21 +148,26 @@ class TicketEntryView extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(color: AppColors.backgroundDark, border: Border.all(color: AppColors.border)),
-          child: Obx(() => DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: controller.selectedZone.value.isEmpty ? null : controller.selectedZone.value,
-              dropdownColor: AppColors.surface,
-              icon: const Icon(Icons.arrow_drop_down, color: AppColors.muted),
-              isExpanded: true,
-              style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 14),
-              onChanged: (String? newValue) {
-                if (newValue != null) controller.selectZone(newValue);
-              },
-              items: controller.availableZones.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(value: value, child: Text(value));
-              }).toList(),
-            ),
-          )),
+          child: Obx(() {
+            if (controller.availableZones.isEmpty) {
+              return Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Text('NO ZONES CONFIGURED', style: GoogleFonts.ibmPlexMono(color: AppColors.danger, fontSize: 14)));
+            }
+            return DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: controller.selectedZone.value.isEmpty ? null : controller.selectedZone.value,
+                dropdownColor: AppColors.surface,
+                icon: const Icon(Icons.arrow_drop_down, color: AppColors.muted),
+                isExpanded: true,
+                style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 14),
+                onChanged: (String? value) {
+                  if (value != null) controller.selectZone(value);
+                },
+                items: controller.availableZones.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(value: value, child: Text(value));
+                }).toList(),
+              ),
+            );
+          }),
         ),
       ],
     );

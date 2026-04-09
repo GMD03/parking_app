@@ -63,7 +63,7 @@ class ZoneSetupController extends GetxController {
       return;
     }
 
-    // 1. Bundle the data
+    // Bundle the zones and capacity
     final zoneData = zoneRows.map((row) => {
       'name': row.nameController.text.trim().isEmpty ? 'UNNAMED' : row.nameController.text.trim().toUpperCase(),
       'capacity': int.tryParse(row.spotsController.text) ?? 0,
@@ -76,7 +76,7 @@ class ZoneSetupController extends GetxController {
 
     Get.snackbar('SYSTEM_ARMED', 'Parking system successfully initialized and armed.', backgroundColor: AppColors.success, colorText: AppColors.backgroundDark, borderRadius: 0, margin: const EdgeInsets.all(16));
     
-    // 2. Pass the bundled data to the dashboard
+    // Send data to the dashboard!
     Get.offAllNamed('/review-arm', arguments: setupData);
   }
   

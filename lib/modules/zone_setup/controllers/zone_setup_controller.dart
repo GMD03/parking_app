@@ -1,28 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import '../models/zone_setup_model.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/routes/app_routes.dart';
 
 class ZoneSetupController extends GetxController {
-  // Total Capacity Input
   final totalCapacityController = TextEditingController(text: '500');
   final totalCapacity = 500.obs;
 
-  // Dynamic list of Zone Rows
   final zoneRows = <ZoneRowData>[].obs;
-  
-  // Computed values
   final allocatedSpots = 0.obs;
   int get remainingSpots => totalCapacity.value - allocatedSpots.value;
 
   @override
   void onInit() {
     super.onInit();
-    
-    // Listen to Total Capacity changes
     totalCapacityController.addListener(_calculateTotals);
-
-    // Initialize with default zones from the PRD
     _addZoneRow('LEVEL_A', '200');
     _addZoneRow('LEVEL_B', '150');
   }
@@ -38,15 +32,12 @@ class ZoneSetupController extends GetxController {
 
   void _addZoneRow(String name, String spots) {
     final newRow = ZoneRowData(name: name, spots: spots);
-    // Add listener to recalculate when spots change
     newRow.spotsController.addListener(_calculateTotals);
     zoneRows.add(newRow);
     _calculateTotals();
   }
 
-  void addNewZone() {
-    _addZoneRow('NEW_ZONE', '0');
-  }
+  void addNewZone() => _addZoneRow('NEW_ZONE', '0');
 
   void removeZone(int index) {
     final row = zoneRows[index];
@@ -58,7 +49,6 @@ class ZoneSetupController extends GetxController {
 
   void _calculateTotals() {
     totalCapacity.value = int.tryParse(totalCapacityController.text) ?? 0;
-    
     int currentAllocated = 0;
     for (var row in zoneRows) {
       currentAllocated += int.tryParse(row.spotsController.text) ?? 0;
@@ -66,7 +56,7 @@ class ZoneSetupController extends GetxController {
     allocatedSpots.value = currentAllocated;
   }
 
-  void armSystem() {
+  Future<void> armSystem() async {
     if (remainingSpots < 0) {
       Get.snackbar(
         'CAPACITY_OVERLOAD',
@@ -80,6 +70,11 @@ class ZoneSetupController extends GetxController {
       return;
     }
 
+    // ONBOARDING COMPLETE: Save state globally
+    final box = GetStorage();
+    await box.write('isConfigured', true);
+    await box.write('totalFacilityCapacity', totalCapacity.value); // Optional: save settings
+
     Get.snackbar(
       'SYSTEM_ARMED',
       'Parking system successfully initialized and armed.',
@@ -90,8 +85,8 @@ class ZoneSetupController extends GetxController {
       icon: const Icon(Icons.check_circle_outline, color: AppColors.backgroundDark),
     );
     
-    // TODO: Route to Main Dashboard
-    // Get.offAllNamed(Routes.DASHBOARD);
+    // Route to Dashboard, clearing the navigation stack so they can't go back
+    Get.offAllNamed(Routes.DASHBOARD);
   }
 
   void returnToConfig() {

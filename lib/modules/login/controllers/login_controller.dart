@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart'; // Required to check setup status
+import 'package:get_storage/get_storage.dart'; 
 import '../models/user_model.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/routes/app_routes.dart'; // Added Routes import
+import '../../../core/routes/app_routes.dart'; 
 
 class LoginController extends GetxController {
   // UI Controls
   final operatorIdController = TextEditingController();
   final passcodeController = TextEditingController();
 
-  // Reactive State Variables (The .obs makes them observable)
+  // Reactive State Variables
   final isLoading = false.obs;
   final nodeStatus = 'NODE_ONLINE'.obs;
   final isStatusSuccess = true.obs;
@@ -51,18 +51,14 @@ class LoginController extends GetxController {
 
       nodeStatus.value = 'ACCESS_GRANTED';
 
-      // --- DYNAMIC ROUTING USING APP ROUTES ---
       final box = GetStorage();
       bool isConfigured = box.read('isConfigured') ?? false;
 
       if (!isConfigured) {
-        // Route to Config Setup View using the Route constant
+        // First-time setup flow
         Get.offAllNamed(Routes.CONFIG_SETUP, arguments: user);
       } else {
-        // Skip setup and route to Dashboard (Assuming you will create a Routes.DASHBOARD)
-        // Get.offAllNamed(Routes.DASHBOARD, arguments: user);
-
-        // Placeholder success alert until Dashboard is built
+        // App is already configured, proceed to main dashboard
         Get.snackbar(
           'ACCESS_GRANTED',
           'Routing to Main Dashboard...',
@@ -70,9 +66,10 @@ class LoginController extends GetxController {
           colorText: AppColors.backgroundDark,
           borderRadius: 0,
         );
-        Get.offAllNamed(Routes.CONFIG_SETUP, arguments: user);
+        Get.offAllNamed(Routes.DASHBOARD, arguments: user);
       }
     } else {
+      // THIS is the block that got accidentally deleted!
       _showSystemAlert('AUTH_FAILED', 'Invalid Operator ID or Passcode.');
       nodeStatus.value = 'NODE_ONLINE';
       isStatusSuccess.value = false;

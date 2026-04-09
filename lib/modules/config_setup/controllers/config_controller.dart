@@ -1,13 +1,12 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart'; // Added GetStorage import
+// GetStorage removed from here as we save state in Zone Setup instead
 import '../models/config_model.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
 
 class ConfigController extends GetxController {
-  // Reactive States
   final syncMode = SyncMode.cloud.obs;
   final apiKeyController = TextEditingController(
     text: "SCADA-8F92-K29M-XQ11-PZLV",
@@ -24,19 +23,13 @@ class ConfigController extends GetxController {
   }
 
   void generateNewKey() {
-    // Generates a fake industrial-looking API key
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = Random();
-    String segment() =>
-        List.generate(4, (index) => chars[random.nextInt(chars.length)]).join();
-
-    apiKeyController.text =
-        'SCADA-${segment()}-${segment()}-${segment()}-${segment()}';
+    String segment() => List.generate(4, (index) => chars[random.nextInt(chars.length)]).join();
+    apiKeyController.text = 'SCADA-${segment()}-${segment()}-${segment()}-${segment()}';
   }
 
-  // Changed to Future<void> to allow awaiting the GetStorage write
-  Future<void> nextStage() async {
-    // 1. Validate API Key
+  void nextStage() {
     if (apiKeyController.text.trim().isEmpty) {
       Get.snackbar(
         'CONFIG_ERROR',
@@ -49,22 +42,7 @@ class ConfigController extends GetxController {
       return;
     }
 
-    // 2. Save configuration state locally
-    // This tells the SplashController to skip this page on the next app launch
-    final box = GetStorage();
-    await box.write('isConfigured', true);
-
-    // 3. Show Success Feedback
-    Get.snackbar(
-      'SYSTEM_CONFIGURED',
-      'Parameters saved. Proceeding to Login portal.',
-      backgroundColor: AppColors.success,
-      colorText: AppColors.backgroundDark,
-      borderRadius: 2,
-      margin: const EdgeInsets.all(16),
-    );
-
-    // 4. Complete the One-Time Setup by routing to Login
-    Get.offAllNamed(Routes.LOGIN);
+    // Move to the next onboarding step (Do not set isConfigured true yet)
+    Get.toNamed(Routes.ZONE_SETUP);
   }
 }

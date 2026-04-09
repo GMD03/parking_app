@@ -7,6 +7,8 @@ import '../../modules/device_registration/bindings/device_registration_binding.d
 import '../../modules/config_setup/views/config_view.dart';
 import '../../modules/config_setup/bindings/config_binding.dart';
 import '../../modules/splash/views/splash_view.dart';
+import '../../modules/dashboard/views/dashboard_view.dart';
+import '../../modules/dashboard/bindings/dashboard_binding.dart';
 
 class AppPages {
   static final pages = [
@@ -25,6 +27,12 @@ class AppPages {
       page: () => const ConfigView(),
       binding: ConfigBinding(),
     ),
-    GetPage(name: Routes.SPLASH, page: () => const SplashView()),
+    GetPage(name: Routes.SPLASH, page: () => const SplashView()
+    ),
+    GetPage(
+      name: Routes.DASHBOARD,
+      page: () => const DashboardView(),
+      binding: DashboardBinding(),
+    ),
   ];
 }

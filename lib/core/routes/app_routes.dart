@@ -3,4 +3,5 @@ abstract class Routes {
   static const DEVICE_REGISTRATION = '/device-registration';
   static const CONFIG_SETUP = '/config-setup';
   static const SPLASH = '/splash';
+  static const DASHBOARD = '/dashboard';
 }

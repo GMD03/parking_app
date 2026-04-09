@@ -159,7 +159,12 @@ class TicketEntryView extends StatelessWidget {
                 icon: const Icon(Icons.arrow_drop_down, color: AppColors.muted),
                 isExpanded: true,
                 style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 14),
-                onChanged: controller.selectZone,
+                // THE FIX IS HERE: Handling the nullable String
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    controller.selectZone(newValue);
+                  }
+                },
                 items: controller.availableZones.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(value: value, child: Text(value));
                 }).toList(),

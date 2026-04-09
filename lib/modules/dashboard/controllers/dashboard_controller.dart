@@ -1,36 +1,46 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import '../models/ticket_model.dart';
 import '../../ticket_entry/views/ticket_entry_view.dart';
 import '../../ticket_entry/controllers/ticket_entry_controller.dart';
 
+// Helper class for Zone UI mapping
 class ZoneStats {
   final String name;
   final int capacity;
-  final RxInt occupied;
-  ZoneStats({required this.name, required this.capacity, int initialOccupied = 0}) : occupied = initialOccupied.obs;
+  final int occupied;
+  ZoneStats(this.name, this.capacity, this.occupied);
+  double get fillPercentage => capacity == 0 ? 0 : occupied / capacity;
 }
 
 class DashboardController extends GetxController {
   final currentTime = ''.obs;
   Timer? _timer;
 
+  // Dynamic Telemetry Stats
   late int totalCapacity;
   final availableSlots = 0.obs;
   final occupiedSlots = 0.obs;
   final ticketsToday = 0.obs;
 
-  final RxList<ZoneStats> zones = <ZoneStats>[].obs;
   final searchController = TextEditingController();
   final searchQuery = ''.obs;
 
-  // Dynamic Ticket List
-  final RxList<TicketModel> allTickets = <TicketModel>[].obs;
+  // Real data structure replacing hardcoded dummy zones
+  final RxList<ZoneStats> zones = <ZoneStats>[].obs;
+
+  final RxList<TicketModel> allTickets = <TicketModel>[
+    TicketModel(id: '#78901', plate: 'OVR-9999', timeIn: '06:00:00', duration: '08:32:15', status: TicketStatus.overstay, zone: 'LEVEL_A'), // Added zone
+  ].obs;
 
   List<TicketModel> get filteredTickets {
     if (searchQuery.value.isEmpty) return allTickets;
-    return allTickets.where((t) => t.plate.toLowerCase().contains(searchQuery.value.toLowerCase()) || t.id.toLowerCase().contains(searchQuery.value.toLowerCase())).toList();
+    return allTickets.where((t) => 
+      t.plate.toLowerCase().contains(searchQuery.value.toLowerCase()) || 
+      t.id.toLowerCase().contains(searchQuery.value.toLowerCase())
+    ).toList();
   }
 
   @override
@@ -39,21 +49,33 @@ class DashboardController extends GetxController {
     _startClock();
     searchController.addListener(() => searchQuery.value = searchController.text);
     
-    // Receive setup data
-    final args = Get.arguments as Map<String, dynamic>?;
-    if (args != null) {
-      totalCapacity = args['totalCapacity'] ?? 500;
-      final zoneList = args['zones'] as List<dynamic>? ?? [];
-      for (var z in zoneList) {
-        zones.add(ZoneStats(name: z['name'], capacity: z['capacity']));
-      }
-    } else {
-      // Fallback if testing directly
-      totalCapacity = 500;
-      zones.add(ZoneStats(name: 'LEVEL_A', capacity: 200));
-    }
+    _loadPersistedSetupData();
+    
+    // Initialize global stats based on tickets (1 hardcoded overstay currently)
+    occupiedSlots.value = allTickets.length;
+    availableSlots.value = totalCapacity - occupiedSlots.value;
+    ticketsToday.value = allTickets.length; 
+  }
 
-    availableSlots.value = totalCapacity;
+  void _loadPersistedSetupData() {
+    final box = GetStorage();
+    
+    // 1. Get Global Capacity
+    totalCapacity = box.read('totalFacilityCapacity') ?? 500;
+    
+    // 2. Hydrate the Zones List from local storage
+    List<dynamic>? storedZones = box.read('configuredZones');
+    
+    if (storedZones != null && storedZones.isNotEmpty) {
+      zones.value = storedZones.map((z) => ZoneStats(
+        z['name'] as String,
+        z['capacity'] as int,
+        z['occupied'] as int,
+      )).toList();
+    } else {
+      // Fallback fail-safe if data is corrupted
+      zones.value = [ZoneStats('SYSTEM_ERR', totalCapacity, 0)];
+    }
   }
 
   @override
@@ -70,53 +92,69 @@ class DashboardController extends GetxController {
 
   void _updateTime() {
     final now = DateTime.now();
-    currentTime.value = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+    final h = now.hour.toString().padLeft(2, '0');
+    final m = now.minute.toString().padLeft(2, '0');
+    final s = now.second.toString().padLeft(2, '0');
+    final ms = (now.millisecond ~/ 10).toString().padLeft(2, '0');
+    currentTime.value = '$h:$m:$s:$ms';
   }
 
-  // --- ADD & REMOVE TICKETS ---
   void addTicket(String plate, String vehicleClass, String zoneName) {
+    final now = DateTime.now();
+    final timeString = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+    
     final newId = '#${78900 + ticketsToday.value + 1}';
+
+    final newTicket = TicketModel(
+      id: newId,
+      plate: plate.toUpperCase(),
+      timeIn: timeString,
+      duration: '00:00:00', 
+      status: TicketStatus.active,
+      zone: zoneName, // <-- Save the zone to the ticket
+    );
+
+    allTickets.insert(0, newTicket); 
     
-    // 1. Add to table
-    allTickets.insert(0, TicketModel(
-      id: newId, plate: plate.toUpperCase(), timeIn: currentTime.value, duration: '00:00:00', zone: zoneName, status: TicketStatus.active,
-    )); 
-    
-    // 2. Update global stats
     ticketsToday.value++;
     occupiedSlots.value++;
     availableSlots.value--;
-
-    // 3. Update specific zone stats
-    final z = zones.firstWhereOrNull((z) => z.name == zoneName);
-    if (z != null) z.occupied.value++;
-  }
-
-  void checkoutTicket(String ticketId) {
-    final ticket = allTickets.firstWhereOrNull((t) => t.id == ticketId);
-    if (ticket != null) {
-      final z = zones.firstWhereOrNull((z) => z.name == ticket.zone);
-      if (z != null) z.occupied.value--;
-
-      allTickets.remove(ticket);
-      occupiedSlots.value--;
-      availableSlots.value++;
+    
+    // Dynamically update the specific Zone's occupied count!
+    final zoneIndex = zones.indexWhere((z) => z.name == zoneName);
+    if (zoneIndex != -1) {
+      final z = zones[zoneIndex];
+      // Create a new ZoneStats object with the updated occupied count to trigger the RxList update
+      zones[zoneIndex] = ZoneStats(z.name, z.capacity, z.occupied + 1);
     }
   }
 
-  void logout() => Get.offAllNamed('/login');
+  void checkoutTicket(String ticketId) {
+    allTickets.removeWhere((t) => t.id == ticketId);
+    occupiedSlots.value--;
+    availableSlots.value++;
+  }
+
+  void logout() {
+    Get.offAllNamed('/login');
+  }
+  
   void syncNow() {}
 
   void openNewTicketPanel() {
-    Get.lazyPut(() => TicketEntryController());
     Get.generalDialog(
       barrierColor: Colors.black.withOpacity(0.6),
-      barrierDismissible: true, barrierLabel: 'TicketEntry',
+      barrierDismissible: true,
+      barrierLabel: 'TicketEntry',
       transitionDuration: const Duration(milliseconds: 250),
-      pageBuilder: (context, anim1, anim2) => const TicketEntryView(),
-      transitionBuilder: (context, anim1, anim2, child) {
-        return SlideTransition(position: Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(CurvedAnimation(parent: anim1, curve: Curves.easeOut)), child: child);
+      pageBuilder: (context, animation, secondaryAnimation) => const TicketEntryView(),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero)
+              .animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+          child: child,
+        );
       },
-    ).then((_) => Get.delete<TicketEntryController>());
+    ); 
   }
 }

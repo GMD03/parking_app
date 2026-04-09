@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:google_fonts/google_fonts.dart'; // Added for SCADA typography
+import 'package:google_fonts/google_fonts.dart'; 
 import '../models/zone_setup_model.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
@@ -57,29 +57,39 @@ class ZoneSetupController extends GetxController {
     allocatedSpots.value = currentAllocated;
   }
 
-  void armSystem() {
+  Future<void> armSystem() async {
+    // 1. Validation: Prevent proceeding if overloaded
     if (remainingSpots < 0) {
-      Get.snackbar('CAPACITY_OVERLOAD', 'Allocated spots exceed total facility capacity.', backgroundColor: AppColors.danger, colorText: Colors.white, borderRadius: 0, margin: const EdgeInsets.all(16));
+      _showSystemDialog(
+        title: 'CAPACITY OVERLOAD',
+        message: 'Allocated spots exceed total facility capacity. Reduce allocations by ${remainingSpots.abs()} before proceeding.',
+        isError: true,
+      );
       return;
     }
 
-    // Bundle the zones and capacity
-    final zoneData = zoneRows.map((row) => {
-      'name': row.nameController.text.trim().isEmpty ? 'UNNAMED' : row.nameController.text.trim().toUpperCase(),
+    // 2. Prepare the Zone Data for storage
+    final box = GetStorage();
+    
+    // Create a list of maps from the dynamic UI rows
+    List<Map<String, dynamic>> serializedZones = zoneRows.map((row) => {
+      'name': row.nameController.text.trim().isEmpty ? 'UNNAMED_ZONE' : row.nameController.text.trim(),
       'capacity': int.tryParse(row.spotsController.text) ?? 0,
+      'occupied': 0, // Initial state for a new system
     }).toList();
 
-    final setupData = {
-      'totalCapacity': totalCapacity.value,
-      'zones': zoneData,
-    };
+    // 3. Save ALL settings locally for the Review and Dashboard screens
+    await box.write('totalFacilityCapacity', totalCapacity.value); 
+    await box.write('configuredZones', serializedZones);
+    await box.write('totalZonesCount', serializedZones.length);
 
-    Get.snackbar('SYSTEM_ARMED', 'Parking system successfully initialized and armed.', backgroundColor: AppColors.success, colorText: AppColors.backgroundDark, borderRadius: 0, margin: const EdgeInsets.all(16));
-    
-    // Send data to the dashboard!
-    Get.offAllNamed('/review-arm', arguments: setupData);
+    // 4. Seamlessly route to the Review & Arm page
+    Get.toNamed(Routes.REVIEW_ARM);
   }
-  
+
+  void returnToConfig() {
+    Get.back();
+  }
 
   // -----------------------------------------------------------------
   // CUSTOM SYSTEM DIALOG (POP-UP)
@@ -108,7 +118,6 @@ class ZoneSetupController extends GetxController {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Row
               Row(
                 children: [
                   Icon(
@@ -133,8 +142,6 @@ class ZoneSetupController extends GetxController {
               const SizedBox(height: 16),
               const Divider(color: AppColors.border),
               const SizedBox(height: 16),
-              
-              // Message Body
               Text(
                 message,
                 style: GoogleFonts.ibmPlexMono(
@@ -143,10 +150,7 @@ class ZoneSetupController extends GetxController {
                   height: 1.5,
                 ),
               ),
-              
               const SizedBox(height: 32),
-              
-              // Action Button
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
@@ -175,7 +179,7 @@ class ZoneSetupController extends GetxController {
           ),
         ),
       ),
-      barrierDismissible: false, // Forces the user to click the acknowledge button
+      barrierDismissible: false,
     );
   }
 }

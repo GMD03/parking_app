@@ -1,21 +1,25 @@
+// lib/modules/review_arm/controllers/review_arm_controller.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:google_fonts/google_fonts.dart'; // Added for SCADA typography
+import 'package:google_fonts/google_fonts.dart'; 
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 
 class ReviewArmController extends GetxController {
   final isArming = false.obs;
   
-  // You can load these from GetStorage if needed
   final totalCapacity = 0.obs;
+  final totalZones = 0.obs; // NEW: Track total zones for display
 
   @override
   void onInit() {
     super.onInit();
     final box = GetStorage();
+    // Retrieve data saved during Zone Setup
     totalCapacity.value = box.read('totalFacilityCapacity') ?? 0;
+    totalZones.value = box.read('totalZonesCount') ?? 0;
   }
 
   void returnToZoneSetup() {
@@ -26,10 +30,9 @@ class ReviewArmController extends GetxController {
     isArming.value = true;
     
     try {
-      // Simulate hardware locking and API handshake
       await Future.delayed(const Duration(seconds: 2)); 
 
-      // ONBOARDING COMPLETE: Save state globally
+      // ONBOARDING COMPLETE: Lock the system state
       final box = GetStorage();
       await box.write('isConfigured', true);
 
@@ -39,7 +42,6 @@ class ReviewArmController extends GetxController {
         message: 'Global parking perimeter engaged successfully. Hardware locks are now active.',
         isError: false,
         onAcknowledge: () {
-          // Clear navigation stack and go to Dashboard ONLY after acknowledgment
           Get.offAllNamed(Routes.DASHBOARD);
         },
       );
@@ -50,11 +52,9 @@ class ReviewArmController extends GetxController {
         isError: true,
       );
     } finally {
-      // Stop the loading spinner on the button
       isArming.value = false;
     }
   }
-
   // -----------------------------------------------------------------
   // CUSTOM SYSTEM DIALOG (POP-UP)
   // -----------------------------------------------------------------

@@ -10,16 +10,32 @@ class TicketEntryController extends GetxController {
   final selectedClass = VehicleClass.car.obs;
   final isSubmitting = false.obs;
 
-  final dashboardCtrl = Get.find<DashboardController>();
-  final RxString selectedZone = ''.obs;
-  final RxList<String> availableZones = <String>[].obs;
+  // NEW: Zone Selection Variables
+  final availableZones = <String>[].obs;
+  final selectedZone = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    // Grab zones from dashboard
-    availableZones.assignAll(dashboardCtrl.zones.map((z) => z.name).toList());
-    if (availableZones.isNotEmpty) selectedZone.value = availableZones.first;
+    _loadAvailableZones();
+  }
+
+  // NEW: Pull the active zones from the Dashboard Controller
+  void _loadAvailableZones() {
+    try {
+      final dashboardCtrl = Get.find<DashboardController>();
+      if (dashboardCtrl.zones.isNotEmpty) {
+        availableZones.value = dashboardCtrl.zones.map((z) => z.name).toList();
+        selectedZone.value = availableZones.first; // Default to the first zone
+      } else {
+        availableZones.add('DEFAULT_ZONE');
+        selectedZone.value = 'DEFAULT_ZONE';
+      }
+    } catch (e) {
+      // Fallback if Dashboard isn't found for some reason
+      availableZones.add('DEFAULT_ZONE');
+      selectedZone.value = 'DEFAULT_ZONE';
+    }
   }
 
   @override
@@ -29,24 +45,44 @@ class TicketEntryController extends GetxController {
   }
 
   void selectClass(VehicleClass vClass) => selectedClass.value = vClass;
-  void selectZone(String? zone) { if (zone != null) selectedZone.value = zone; }
+  
+  // NEW: Method for the UI to update the selected zone
+  void selectZone(String zoneName) => selectedZone.value = zoneName;
 
   Future<void> issueTicket() async {
     final plate = plateController.text.trim();
     
-    if (plate.isEmpty || selectedZone.value.isEmpty) {
-      Get.snackbar('VALIDATION ERROR', 'License Plate and Zone are required.', backgroundColor: AppColors.danger, colorText: Colors.white, borderRadius: 0, margin: const EdgeInsets.all(16));
+    if (plate.isEmpty) {
+      Get.snackbar(
+        'VALIDATION ERROR', 
+        'License Plate is required.', 
+        backgroundColor: AppColors.danger.withOpacity(0.9), 
+        colorText: Colors.white, 
+        borderRadius: 0.0, 
+        margin: const EdgeInsets.all(16)
+      );
       return;
     }
 
     isSubmitting.value = true;
     await Future.delayed(const Duration(milliseconds: 600));
 
-    // Send the ticket TO THE DASHBOARD!
+    // CONNECT TO DASHBOARD AND PASS THE ZONE
+    final dashboardCtrl = Get.find<DashboardController>();
+    // Note: We are passing the selected zone here. We will need to update
+    // the DashboardController's addTicket method slightly to accept this.
     dashboardCtrl.addTicket(plate, selectedClass.value.name, selectedZone.value);
 
     isSubmitting.value = false;
-    Get.back(); // Closes the drawer
-    Get.snackbar('TICKET ISSUED', 'Vehicle $plate assigned to ${selectedZone.value}.', backgroundColor: AppColors.success, colorText: AppColors.backgroundDark, borderRadius: 0, margin: const EdgeInsets.all(16));
+    Get.back(); // Closes drawer
+    
+    Get.snackbar(
+      'TICKET ISSUED', 
+      'Entry logged successfully.',
+      backgroundColor: AppColors.success,
+      colorText: AppColors.backgroundDark,
+      borderRadius: 0.0,
+      margin: const EdgeInsets.all(16)
+    );
   }
 }

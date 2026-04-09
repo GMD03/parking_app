@@ -140,7 +140,7 @@ class DashboardView extends GetView<DashboardController> {
             text: TextSpan(
               style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12),
               children: [
-                TextSpan(text: '${zone.occupied.value}', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                TextSpan(text: '${zone.occupied}', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
                 TextSpan(text: ' / ${zone.capacity}'),
               ],
             ),

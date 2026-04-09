@@ -25,8 +25,11 @@ class TicketEntryView extends GetView<TicketEntryController> {
             ],
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildHeader(),
+              
+              // THE FIX: Wrap the body in Expanded + SingleChildScrollView
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
@@ -36,12 +39,14 @@ class TicketEntryView extends GetView<TicketEntryController> {
                       _buildLicensePlateInput(),
                       const SizedBox(height: 32),
                       _buildVehicleClassSelector(),
-                      const SizedBox(height: 48),
-                      _buildSessionLog(),
+                      const SizedBox(height: 32),
+                      _buildRecentLogSection(),
                     ],
                   ),
                 ),
               ),
+              
+              // The footer containing the Obx action button stays pinned to the bottom
               _buildFooter(),
             ],
           ),
@@ -52,32 +57,27 @@ class TicketEntryView extends GetView<TicketEntryController> {
 
   Widget _buildHeader() {
     return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
       decoration: const BoxDecoration(
-        color: AppColors.backgroundDark,
         border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            'CREATE_TICKET',
-            style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 18, fontWeight: FontWeight.w500, letterSpacing: 2),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('NEW ENTRY LOG', style: GoogleFonts.ibmPlexSans(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+              const SizedBox(height: 4),
+              Text('MANUAL OVERRIDE', style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 10, letterSpacing: 2)),
+            ],
           ),
           IconButton(
-            icon: const Text('[ X ]'),
             onPressed: () => Get.back(),
-            color: AppColors.muted,
-            hoverColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            style: IconButton.styleFrom(
-              foregroundColor: AppColors.muted,
-            ).copyWith(
-              foregroundColor: MaterialStateProperty.resolveWith((states) => states.contains(MaterialState.hovered) ? AppColors.primary : AppColors.muted),
-            ),
-          ),
+            icon: const Icon(Icons.close, color: AppColors.muted, size: 20),
+            splashRadius: 24,
+            hoverColor: AppColors.danger.withOpacity(0.1),
+          )
         ],
       ),
     );
@@ -85,53 +85,31 @@ class TicketEntryView extends GetView<TicketEntryController> {
 
   Widget _buildLicensePlateInput() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('LICENSE PLATE', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 1.5)),
-            Text('AUTO-FOCUS', style: GoogleFonts.ibmPlexMono(color: AppColors.primary.withOpacity(0.7), fontSize: 10)),
+            const Icon(Icons.qr_code_scanner, color: AppColors.textMain, size: 14),
+            const SizedBox(width: 8),
+            Text('LICENSE PLATE', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           ],
         ),
         const SizedBox(height: 12),
         TextField(
           controller: controller.plateController,
           autofocus: true,
+          style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 4),
           textCapitalization: TextCapitalization.characters,
-          style: GoogleFonts.ibmPlexMono(color: Colors.white, fontSize: 28),
-          onSubmitted: (_) => controller.issueTicket(),
           decoration: InputDecoration(
-            hintText: 'ENTER PLATE...',
-            hintStyle: GoogleFonts.ibmPlexMono(color: AppColors.border),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             filled: true,
             fillColor: AppColors.backgroundDark,
-            enabledBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.border)),
+            hintText: 'ENTER PLATE...',
+            hintStyle: GoogleFonts.ibmPlexMono(color: AppColors.border, fontSize: 18, letterSpacing: 2),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.border.withOpacity(0.5))),
             focusedBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.primary)),
           ),
         ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerRight,
-          child: RichText(
-            text: TextSpan(
-              style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10),
-              children: [
-                const TextSpan(text: 'PRESS '),
-                WidgetSpan(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(color: AppColors.backgroundDark, border: Border.all(color: AppColors.border)),
-                    child: const Text('ENTER', style: TextStyle(fontSize: 10, color: AppColors.muted)),
-                  ),
-                ),
-                const TextSpan(text: ' TO SUBMIT'),
-              ],
-            ),
-          ),
-        )
       ],
     );
   }
@@ -140,79 +118,78 @@ class TicketEntryView extends GetView<TicketEntryController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('VEHICLE CLASS', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 1.5)),
+        Text('VEHICLE CLASSIFICATION', style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
         const SizedBox(height: 12),
-        Container(
-          height: 56,
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: AppColors.backgroundDark,
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            children: [
-              Expanded(child: _buildClassOption('CAR', VehicleClass.car)),
-              Expanded(child: _buildClassOption('TRUCK', VehicleClass.truck)),
-              Expanded(child: _buildClassOption('MOTO', VehicleClass.moto)),
-            ],
-          ),
+        Row(
+          children: [
+            Expanded(child: _buildClassOption(VehicleClass.car, 'CLASS A', 'SEDAN/SUV')),
+            const SizedBox(width: 12),
+            Expanded(child: _buildClassOption(VehicleClass.truck, 'CLASS B', 'TRUCK/VAN')),
+          ],
         ),
+        const SizedBox(height: 12),
+        _buildClassOption(VehicleClass.moto, 'CLASS C', 'MOTORCYCLE'),
       ],
     );
   }
 
-  Widget _buildClassOption(String label, VehicleClass vClass) {
+  Widget _buildClassOption(VehicleClass vClass, String title, String subtitle) {
     return Obx(() {
       final isSelected = controller.selectedClass.value == vClass;
       return InkWell(
         onTap: () => controller.selectClass(vClass),
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 2),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.surface : Colors.transparent,
-            border: Border.all(color: isSelected ? AppColors.primary : Colors.transparent),
+            color: isSelected ? AppColors.primary.withOpacity(0.1) : AppColors.backgroundDark,
+            border: Border.all(color: isSelected ? AppColors.primary : AppColors.border.withOpacity(0.5)),
           ),
-          child: Center(
-            child: Text(
-              label,
-              style: GoogleFonts.ibmPlexMono(
-                color: isSelected ? AppColors.primary : AppColors.muted,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 1.5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(title, style: GoogleFonts.ibmPlexSans(color: isSelected ? AppColors.primary : AppColors.textMain, fontSize: 12, fontWeight: FontWeight.bold)),
+                  if (isSelected) const Icon(Icons.check_circle, color: AppColors.primary, size: 14),
+                ],
               ),
-            ),
+              const SizedBox(height: 4),
+              Text(subtitle, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+            ],
           ),
         ),
       );
     });
   }
 
-  Widget _buildSessionLog() {
+  Widget _buildRecentLogSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.backgroundDark,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.border.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.only(bottom: 8),
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
-            child: Text('SESSION LOG', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10, letterSpacing: 1.5)),
+          Row(
+            children: [
+              const Icon(Icons.history, color: AppColors.muted, size: 14),
+              const SizedBox(width: 8),
+              Text('LOCAL BUFFER', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10, letterSpacing: 1.5)),
+            ],
           ),
-          _buildLogEntry('14:31:22', 'XYZ-987'),
-          const SizedBox(height: 8),
-          _buildLogEntry('14:28:05', 'ABC-123'),
+          const SizedBox(height: 12),
+          _buildLogItem('14:32:05', 'XYZ-9876'),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Divider(color: AppColors.border, height: 1)),
+          _buildLogItem('14:31:12', 'ABC-1234'),
         ],
       ),
     );
   }
 
-  Widget _buildLogEntry(String time, String plate) {
+  Widget _buildLogItem(String time, String plate) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -242,7 +219,7 @@ class TicketEntryView extends GetView<TicketEntryController> {
         ),
         child: controller.isSubmitting.value
             ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: AppColors.backgroundDark, strokeWidth: 2))
-            : Text('[ ISSUE TICKET ]', style: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1.5)),
+            : Text('[ ISSUE PARKING TICKET ]', style: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1.5)),
       )),
     );
   }

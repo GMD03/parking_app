@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart'; // Added GetStorage import
 import '../models/ticket_model.dart';
 import '../../ticket_entry/views/ticket_entry_view.dart';
 import '../../ticket_entry/controllers/ticket_entry_controller.dart';
@@ -37,8 +38,9 @@ class DashboardController extends GetxController {
     _startClock();
     searchController.addListener(() => searchQuery.value = searchController.text);
     
-    // Retrieve capacity from Zone Setup (default to 500 if bypassed)
-    totalCapacity = Get.arguments ?? 500;
+    // THE FIX: Retrieve capacity from GetStorage instead of Get.arguments
+    final box = GetStorage();
+    totalCapacity = box.read('totalFacilityCapacity') ?? 500;
     
     // Initialize stats based on the 1 overstay ticket
     occupiedSlots.value = allTickets.length;
@@ -100,11 +102,17 @@ class DashboardController extends GetxController {
     availableSlots.value++;
   }
 
-  void logout() => Get.offAllNamed('/login');
+  void logout() {
+    // Optional: You might want to clear Get.arguments here depending on your auth flow
+    Get.offAllNamed('/login');
+  }
+  
   void syncNow() {}
 
-  void openNewTicketPanel() {
-    Get.lazyPut(() => TicketEntryController());
+void openNewTicketPanel() {
+    // THE FIX: Use Get.put() instead of Get.lazyPut() to inject it into memory instantly
+    Get.put(TicketEntryController());
+    
     Get.generalDialog(
       barrierColor: Colors.black.withOpacity(0.6),
       barrierDismissible: true,
@@ -118,6 +126,6 @@ class DashboardController extends GetxController {
           child: child,
         );
       },
-    ).then((_) => Get.delete<TicketEntryController>());
+    ).then((_) => Get.delete<TicketEntryController>()); // Cleans up when dialog closes
   }
 }

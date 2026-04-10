@@ -1,20 +1,25 @@
+// lib/modules/login/controllers/login_controller.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart'; 
-import 'package:google_fonts/google_fonts.dart'; // Added for SCADA typography
+import 'package:google_fonts/google_fonts.dart'; 
 import '../models/user_model.dart';
+// We import the Device Registration controller to access its static helper
+import '../../device_registration/controllers/device_registration_controller.dart'; 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/routes/app_routes.dart'; 
 
 class LoginController extends GetxController {
-  // UI Controls
   final operatorIdController = TextEditingController();
   final passcodeController = TextEditingController();
 
-  // Reactive State Variables
   final isLoading = false.obs;
   final nodeStatus = 'NODE_ONLINE'.obs;
   final isStatusSuccess = true.obs;
+
+  // --- Storage Key Constant ---
+  static const String _sessionKey = 'currentUserSession';
 
   @override
   void onClose() {
@@ -23,12 +28,10 @@ class LoginController extends GetxController {
     super.onClose();
   }
 
-  // Business Logic
   Future<void> authenticate() async {
     final operatorId = operatorIdController.text.trim();
     final passcode = passcodeController.text;
 
-    // Simple Validation
     if (operatorId.isEmpty || passcode.isEmpty) {
       _showSystemDialog(
         title: 'ACCESS DENIED', 
@@ -38,43 +41,49 @@ class LoginController extends GetxController {
       return;
     }
 
-    // Simulate Network Request
     isLoading.value = true;
     nodeStatus.value = 'AUTHENTICATING...';
     isStatusSuccess.value = true;
 
-    await Future.delayed(const Duration(seconds: 2)); // Fake API delay
+    await Future.delayed(const Duration(seconds: 2)); 
 
-    // Dummy Auth Check
+    // Keeping your requested current credentials
     if (operatorId == 'ADMIN_01' && passcode == '12345678') {
-      // Create Model instance
+      
+      // 1. Fetch the REAL terminal ID from the device registration storage!
+      final registeredDevice = DeviceRegistrationController.getRegisteredDevice();
+      final actualTerminalId = registeredDevice?.terminalId ?? 'UNKNOWN-TERMINAL';
+
       final user = UserModel(
         operatorId: operatorId,
-        terminalId: 'LCL-4A',
-        token: 'xyz123',
+        terminalId: actualTerminalId, // Using the real data!
+        token: 'AUTH-${DateTime.now().millisecondsSinceEpoch}', // Pseudo-dynamic token
       );
 
       nodeStatus.value = 'ACCESS_GRANTED';
 
       final box = GetStorage();
+      
+      // 2. PERSISTENCE: Save the active user session
+      await box.write(_sessionKey, user.toJson());
+
       bool isConfigured = box.read('isConfigured') ?? false;
 
       if (!isConfigured) {
-        // First-time setup flow: Route directly to config without pop-up interruption
-        Get.offAllNamed(Routes.CONFIG_SETUP, arguments: user);
+        // First-time setup flow
+        Get.offAllNamed(Routes.CONFIG_SETUP);
       } else {
-        // App is already configured: Show Success Dialog, then proceed to Dashboard
+        // App is configured, proceed to dashboard
         _showSystemDialog(
           title: 'ACCESS GRANTED',
-          message: 'Authentication verified. Routing to Main Dashboard...',
+          message: 'Authentication verified for $actualTerminalId. Routing to Main Dashboard...',
           isError: false,
           onAcknowledge: () {
-            Get.offAllNamed(Routes.DASHBOARD, arguments: user);
+            Get.offAllNamed(Routes.DASHBOARD);
           }
         );
       }
     } else {
-      // Failed Auth Check
       _showSystemDialog(
         title: 'AUTH FAILED', 
         message: 'Invalid Operator ID or Passcode.', 
@@ -87,7 +96,18 @@ class LoginController extends GetxController {
     isLoading.value = false;
   }
 
-  // -----------------------------------------------------------------
+  // --- GLOBAL ACCESS HELPER ---
+  // The Dashboard can now call LoginController.getCurrentUser() to show the Operator ID
+  static UserModel? getCurrentUser() {
+    final box = GetStorage();
+    final data = box.read(_sessionKey);
+    if (data != null) {
+      return UserModel.fromJson(data);
+    }
+    return null;
+  }
+
+    // -----------------------------------------------------------------
   // CUSTOM SYSTEM DIALOG (POP-UP)
   // -----------------------------------------------------------------
   void _showSystemDialog({

@@ -1,3 +1,5 @@
+// lib/modules/login/models/user_model.dart
+
 class UserModel {
   final String operatorId;
   final String terminalId;
@@ -9,12 +11,15 @@ class UserModel {
     required this.token,
   });
 
-  // Example factory for parsing JSON from a real API later
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel(
-      operatorId: json['operator_id'],
-      terminalId: json['terminal_id'],
-      token: json['token'],
-    );
-  }
+  Map<String, dynamic> toJson() => {
+        'operatorId': operatorId,
+        'terminalId': terminalId,
+        'token': token,
+      };
+
+  factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
+        operatorId: json['operatorId'],
+        terminalId: json['terminalId'],
+        token: json['token'],
+      );
 }

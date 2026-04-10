@@ -6,6 +6,7 @@ import '../controllers/dashboard_controller.dart';
 import '../models/ticket_model.dart';
 import '../../ticket_inspector/controllers/ticket_inspector_controller.dart';
 import '../../ticket_inspector/views/ticket_inspector_view.dart';
+import '../../login/controllers/login_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -38,10 +39,16 @@ class DashboardView extends GetView<DashboardController> {
 
   // --- TOP NAVBAR ---
   Widget _buildTopNavBar() {
+    // 1. Retrieve the current user from the LoginController
+    final currentUser = LoginController.getCurrentUser();
+    
+    // 2. Set a fallback display value if the user isn't found
+    final operatorDisplay = currentUser?.operatorId ?? 'GUEST';
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: const BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.backgroundDark,
         border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Row(
@@ -49,56 +56,34 @@ class DashboardView extends GetView<DashboardController> {
         children: [
           Row(
             children: [
-              const Icon(Icons.shield, color: AppColors.muted, size: 20),
-              const SizedBox(width: 12),
-              Obx(() => Text(
-                controller.currentTime.value,
-                style: GoogleFonts.inter(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              )),
+              const Icon(Icons.grid_4x4, color: AppColors.primary, size: 16),
+              const SizedBox(width: 16),
+              Text('SYS.DASHBOARD.V2.0', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 2)),
             ],
           ),
           Row(
             children: [
-              Row(
-                children: [
-                  Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle)),
-                  const SizedBox(width: 8),
-                  Text('SYNC: ONLINE', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 1.5)),
-                ],
-              ),
-              const SizedBox(width: 24),
+              Text('Operator ID: ', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
+              // 3. Dynamically inject the operator ID here
+              Text(operatorDisplay, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
+              const SizedBox(width: 16),
               OutlinedButton.icon(
-                onPressed: controller.logout,
-                icon: const Icon(Icons.power_settings_new, size: 16),
+                onPressed: controller.logout, // Uses the logout method from DashboardController
+                icon: const Icon(Icons.logout, size: 14),
                 label: const Text('[ LOGOUT ]'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.muted,
                   side: const BorderSide(color: AppColors.border),
+                  backgroundColor: AppColors.surface.withOpacity(0.5),
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  textStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  textStyle: GoogleFonts.ibmPlexMono(fontSize: 12),
+                ).copyWith(
+                  foregroundColor: MaterialStateProperty.resolveWith((states) => states.contains(MaterialState.hovered) ? AppColors.danger : AppColors.muted),
                 ),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: controller.syncNow,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.backgroundDark,
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  elevation: 0,
-                ),
-                child: Text('[ SYNC NOW ]', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-              ),
+              )
             ],
-          ),
+          )
         ],
       ),
     );

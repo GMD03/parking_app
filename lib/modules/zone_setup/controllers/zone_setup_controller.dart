@@ -1,3 +1,5 @@
+// lib/modules/zone_setup/controllers/zone_setup_controller.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -13,6 +15,11 @@ class ZoneSetupController extends GetxController {
   final zoneRows = <ZoneRowData>[].obs;
   final allocatedSpots = 0.obs;
   int get remainingSpots => totalCapacity.value - allocatedSpots.value;
+
+  // --- Storage Key Constants ---
+  static const String _storageKeyTotalCapacity = 'totalFacilityCapacity';
+  static const String _storageKeyZones = 'configuredZones';
+  static const String _storageKeyZoneCount = 'totalZonesCount';
 
   @override
   void onInit() {
@@ -68,20 +75,14 @@ class ZoneSetupController extends GetxController {
       return;
     }
 
-    // 2. Prepare the Zone Data for storage
-    final box = GetStorage();
-    
-    // Create a list of maps from the dynamic UI rows
-    List<Map<String, dynamic>> serializedZones = zoneRows.map((row) => {
-      'name': row.nameController.text.trim().isEmpty ? 'UNNAMED_ZONE' : row.nameController.text.trim(),
-      'capacity': int.tryParse(row.spotsController.text) ?? 0,
-      'occupied': 0, // Initial state for a new system
-    }).toList();
+    // 2. Prepare the Zone Data for storage using the Model's toJson method
+    List<Map<String, dynamic>> serializedZones = zoneRows.map((row) => row.toJson()).toList();
 
-    // 3. Save ALL settings locally for the Review and Dashboard screens
-    await box.write('totalFacilityCapacity', totalCapacity.value); 
-    await box.write('configuredZones', serializedZones);
-    await box.write('totalZonesCount', serializedZones.length);
+    // 3. PERSISTENCE: Save ALL settings locally
+    final box = GetStorage();
+    await box.write(_storageKeyTotalCapacity, totalCapacity.value); 
+    await box.write(_storageKeyZones, serializedZones);
+    await box.write(_storageKeyZoneCount, serializedZones.length);
 
     // 4. Seamlessly route to the Review & Arm page
     Get.toNamed(Routes.REVIEW_ARM);
@@ -89,6 +90,27 @@ class ZoneSetupController extends GetxController {
 
   void returnToConfig() {
     Get.back();
+  }
+
+  // --- GLOBAL ACCESS HELPERS ---
+  // The Dashboard can now call ZoneSetupController.getTotalCapacity()
+  // and ZoneSetupController.getConfiguredZones() to retrieve the persisted setup.
+
+  static int getTotalCapacity() {
+    final box = GetStorage();
+    return box.read(_storageKeyTotalCapacity) ?? 500; // Fallback to 500
+  }
+
+  static List<Map<String, dynamic>> getConfiguredZones() {
+    final box = GetStorage();
+    List<dynamic>? storedZones = box.read(_storageKeyZones);
+    
+    if (storedZones != null && storedZones.isNotEmpty) {
+      // Cast the dynamic list back to the expected map structure
+      return storedZones.cast<Map<String, dynamic>>();
+    }
+    // Fallback if data is missing or corrupted
+    return [{'name': 'SYSTEM_ERR', 'capacity': getTotalCapacity(), 'occupied': 0}];
   }
 
   // -----------------------------------------------------------------

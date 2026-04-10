@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/zone_setup_controller.dart';
-import '../models/zone_setup_model.dart';
+import '../../login/controllers/login_controller.dart'; // Added to fetch the current user session
 
 class ZoneSetupView extends GetView<ZoneSetupController> {
   const ZoneSetupView({super.key});
@@ -17,39 +18,29 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
           _buildTopAppBar(),
           Expanded(
             child: Row(
-              // THE FIX: Stretch the Row vertically to prevent RenderFlex crash
-              crossAxisAlignment: CrossAxisAlignment.stretch, 
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildSidebar(context),
                 Expanded(
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.fromLTRB(48, 48, 48, 120), // Padding for sticky footer
-                          child: Center(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 900),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildHeader(),
-                                  const SizedBox(height: 48),
-                                  _buildTotalCapacitySection(),
-                                  const SizedBox(height: 48),
-                                  _buildZoneMatrixSection(),
-                                ],
-                              ),
-                            ),
-                          ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(48),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 800),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildHeader(),
+                            const SizedBox(height: 48),
+                            _buildTotalCapacityCard(),
+                            const SizedBox(height: 32),
+                            _buildZoneList(),
+                            const SizedBox(height: 48),
+                            _buildActionArea(),
+                          ],
                         ),
                       ),
-                      // Sticky Footer
-                      Positioned(
-                        bottom: 0, left: 0, right: 0,
-                        child: _buildStickyFooter(),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -62,6 +53,11 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
 
   // --- TOP APP BAR ---
   Widget _buildTopAppBar() {
+    // 1. Retrieve the current user from the LoginController
+    final currentUser = LoginController.getCurrentUser();
+    // 2. Set a fallback display value if the user isn't found
+    final operatorDisplay = currentUser?.operatorId ?? 'GUEST';
+
     return Container(
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -76,13 +72,14 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
             children: [
               const Icon(Icons.grid_4x4, color: AppColors.primary, size: 16),
               const SizedBox(width: 16),
-              Text('SYS.INITIALIZATION.V1.4', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 2)),
+              Text('SYS.INITIALIZATION.V2.0', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 2)),
             ],
           ),
           Row(
             children: [
               Text('Operator ID: ', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
-              Text('ADMIN_01', style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
+              // 3. Dynamically inject the operator ID here
+              Text(operatorDisplay, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
               const SizedBox(width: 16),
               OutlinedButton.icon(
                 onPressed: () => Get.offAllNamed('/login'),
@@ -96,7 +93,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   textStyle: GoogleFonts.ibmPlexMono(fontSize: 12),
                 ).copyWith(
-                  foregroundColor: MaterialStateProperty.resolveWith((states) => states.contains(MaterialState.hovered) ? AppColors.danger : AppColors.muted),
+                  foregroundColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.hovered) ? AppColors.danger : AppColors.muted),
                 ),
               )
             ],
@@ -137,11 +134,11 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
                     children: [
-                      _buildStepItem(step: '01', title: 'System Config', status: 2), // 2 = Completed
+                      _buildStepItem(step: '01', title: 'System Config', status: 2), 
                       const SizedBox(height: 32),
-                      _buildStepItem(step: '02', title: 'Zone Setup', status: 1),    // 1 = Active
+                      _buildStepItem(step: '02', title: 'Zone Setup', status: 1),    
                       const SizedBox(height: 32),
-                      _buildStepItem(step: '03', title: 'Review & Arm', status: 0),  // 0 = Pending
+                      _buildStepItem(step: '03', title: 'Review & Arm', status: 0),  
                     ],
                   ),
                 ),
@@ -158,15 +155,15 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
     Color bgColor;
     Widget iconChild;
 
-    if (status == 2) { // Completed
+    if (status == 2) { 
       iconColor = AppColors.border;
       bgColor = AppColors.surface;
       iconChild = const Icon(Icons.check, color: AppColors.muted, size: 16);
-    } else if (status == 1) { // Active
+    } else if (status == 1) { 
       iconColor = AppColors.primary;
       bgColor = AppColors.primary;
-      iconChild = const Icon(Icons.dns, color: AppColors.backgroundDark, size: 16);
-    } else { // Pending
+      iconChild = const Icon(Icons.map, color: AppColors.backgroundDark, size: 16);
+    } else { 
       iconColor = AppColors.border;
       bgColor = AppColors.backgroundDark;
       iconChild = Text(step, style: GoogleFonts.ibmPlexMono(color: AppColors.border, fontSize: 12));
@@ -202,258 +199,223 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('ZONE SETUP & CAPACITY', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 32, fontWeight: FontWeight.w600, letterSpacing: 2)),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text('FACILITY MAPPING', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 32, fontWeight: FontWeight.w600, letterSpacing: 2)),
+            const SizedBox(width: 16),
+            Text('[ ZONE_ALLOCATION ]', style: GoogleFonts.ibmPlexMono(color: AppColors.primary.withOpacity(0.6), fontSize: 14, letterSpacing: 2)),
+          ],
+        ),
         const SizedBox(height: 8),
-        Text('Define physical parking parameters prior to system arming.', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14)),
+        Text('Define the physical structure of the parking facility. Allocated zones must not exceed total physical capacity.', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14)),
       ],
     );
   }
 
-  Widget _buildTotalCapacitySection() {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.only(bottom: 8),
-          decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.storage, color: AppColors.primary, size: 18),
-                  const SizedBox(width: 8),
-                  Text('TOTAL FACILITY CAPACITY', style: GoogleFonts.ibmPlexSans(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                ],
-              ),
-              Text('MAX SPOTS AVAILABLE', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: controller.totalCapacityController,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 32),
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 16),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildZoneMatrixSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.only(bottom: 8),
-          decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.grid_view, color: AppColors.textMain, size: 18),
-                  const SizedBox(width: 8),
-                  Text('LEVEL / ZONE MATRIX', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                ],
-              ),
-              Row(
-                children: [
-                  Obx(() => RichText(
-                    text: TextSpan(
-                      style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12),
-                      children: [
-                        const TextSpan(text: 'ALLOCATED: '),
-                        TextSpan(text: '${controller.allocatedSpots.value}', style: const TextStyle(color: AppColors.textMain)),
-                        TextSpan(text: ' / ${controller.totalCapacity.value}'),
-                      ],
-                    ),
-                  )),
-                  const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    onPressed: controller.addNewZone,
-                    icon: const Icon(Icons.add, size: 14),
-                    label: const Text('ADD ZONE'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary.withOpacity(0.1),
-                      foregroundColor: AppColors.primary,
-                      elevation: 0,
-                      side: BorderSide(color: AppColors.primary.withOpacity(0.3)),
-                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    ),
-                  )
-                ],
-              )
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        // The Data Table Grid
-        Container(
-          decoration: BoxDecoration(color: AppColors.backgroundDark, border: Border.all(color: AppColors.border)),
-          child: Column(
-            children: [
-              // Header Row
-              Container(
-                
-                decoration: const BoxDecoration(
-                  color: AppColors.surface,
-                  border: Border(bottom: BorderSide(color: AppColors.border))
-                  ),
-                child: Row(
-                  children: [
-                    Expanded(child: _buildGridHeaderCell('Zone ID / Name')),
-                    Expanded(child: _buildGridHeaderCell('Allocated Spots', alignRight: true)),
-                    Container(width: 80, padding: const EdgeInsets.all(12), child: Center(child: Text('Actions', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)))),
-                  ],
-                ),
-              ),
-              // Dynamic Rows
-              Obx(() => Column(
-                children: controller.zoneRows.asMap().entries.map((entry) {
-                  return _buildGridRow(entry.key, entry.value);
-                }).toList(),
-              )),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        // Validation Warning
-        Obx(() {
-          final rem = controller.remainingSpots;
-          final isError = rem < 0;
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: isError ? AppColors.danger.withOpacity(0.1) : AppColors.primary.withOpacity(0.1),
-              border: Border.all(color: isError ? AppColors.danger.withOpacity(0.3) : AppColors.primary.withOpacity(0.2)),
-            ),
-            child: Row(
-              children: [
-                Icon(isError ? Icons.warning : Icons.info, color: isError ? AppColors.danger : AppColors.primary, size: 16),
-                const SizedBox(width: 12),
-                Text(
-                  isError ? 'OVERCAPACITY: Reduce allocated spots by ${rem.abs()}.' 
-                          : '$rem unallocated spots remaining. System can arm with partial allocation.',
-                  style: GoogleFonts.ibmPlexMono(color: isError ? AppColors.danger : AppColors.primary, fontSize: 12),
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _buildGridHeaderCell(String title, {bool alignRight = false}) {
+  Widget _buildTotalCapacityCard() {
     return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: const BoxDecoration(border: Border(right: BorderSide(color: AppColors.border))),
-      child: Text(
-        title.toUpperCase(),
-        textAlign: alignRight ? TextAlign.right : TextAlign.left,
-        style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 1),
-      ),
-    );
-  }
-
-  Widget _buildGridRow(int index, ZoneRowData rowData) {
-    return Container(
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(border: Border(right: BorderSide(color: AppColors.border))),
-              child: TextField(
-                controller: rowData.nameController,
-                style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 14),
-                decoration: const InputDecoration(
-                  border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.all(12),
-                  fillColor: Colors.transparent,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(border: Border(right: BorderSide(color: AppColors.border))),
-              child: TextField(
-                controller: rowData.spotsController,
-                textAlign: TextAlign.right,
-                style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 14),
-                decoration: const InputDecoration(
-                  border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.all(12),
-                  fillColor: Colors.transparent,
-                ),
-              ),
-            ),
-          ),
-          Container(
-            width: 80,
-            alignment: Alignment.center,
-            child: IconButton(
-              icon: const Icon(Icons.close, color: AppColors.muted, size: 18),
-              onPressed: () => controller.removeZone(index),
-              hoverColor: AppColors.danger.withOpacity(0.1),
-              color: AppColors.danger,
-              splashRadius: 20,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStickyFooter() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.backgroundDark,
-        border: Border(top: BorderSide(color: AppColors.border)),
-        boxShadow: [BoxShadow(color: Colors.black45, blurRadius: 20, offset: Offset(0, -5))],
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          TextButton.icon(
-            onPressed: () => Get.back(),
-            icon: const Icon(Icons.arrow_back, size: 18),
-            label: const Text('RETURN TO CONFIG'),
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.muted,
-              textStyle: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, letterSpacing: 1.5),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('TOTAL PHYSICAL CAPACITY', style: GoogleFonts.ibmPlexSans(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                const SizedBox(height: 8),
+                Text('The absolute maximum number of parking spots available across all zones.', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
+              ],
             ),
           ),
-          ElevatedButton(
-            onPressed: controller.armSystem,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.backgroundDark,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-              shadowColor: AppColors.primary.withOpacity(0.5),
-              elevation: 8,
-            ),
-            child: Row(
-              children: [
-                Text('[ ARM PARKING SYSTEM ]', style: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-                const SizedBox(width: 12),
-                const Icon(Icons.power_settings_new, size: 20),
-              ],
+          const SizedBox(width: 32),
+          SizedBox(
+            width: 200,
+            child: TextField(
+              controller: controller.totalCapacityController,
+              style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 2),
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.backgroundDark,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                enabledBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.border)),
+                focusedBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.primary, width: 2)),
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildZoneList() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Table Header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            color: AppColors.surface,
+            child: Row(
+              children: [
+                Expanded(flex: 3, child: Text('ZONE IDENTIFIER', style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5))),
+                Expanded(flex: 2, child: Text('ALLOCATED SPOTS', style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5))),
+                const SizedBox(width: 48), // Space for delete button
+              ],
+            ),
+          ),
+          const Divider(color: AppColors.border, height: 1),
+          // Dynamic List
+          Obx(() => ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: controller.zoneRows.length,
+                separatorBuilder: (context, index) => const Divider(color: AppColors.border, height: 1),
+                itemBuilder: (context, index) {
+                  final rowData = controller.zoneRows[index];
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    color: AppColors.backgroundDark,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: TextField(
+                            controller: rowData.nameController,
+                            style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 14),
+                            decoration: const InputDecoration(
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.border)),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.primary)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          flex: 2,
+                          child: TextField(
+                            controller: rowData.spotsController,
+                            style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.bold),
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            decoration: const InputDecoration(
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.border)),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.primary)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        IconButton(
+                          onPressed: () => controller.removeZone(index),
+                          icon: const Icon(Icons.delete_outline, color: AppColors.danger, size: 20),
+                          tooltip: 'Remove Zone',
+                          splashRadius: 20,
+                        )
+                      ],
+                    ),
+                  );
+                },
+              )),
+          const Divider(color: AppColors.border, height: 1),
+          
+          // Add Zone Button
+          InkWell(
+            onTap: controller.addNewZone,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              color: AppColors.surface,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.add, color: AppColors.primary, size: 16),
+                  const SizedBox(width: 8),
+                  Text('[ APPEND NEW ZONE ]', style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionArea() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        TextButton.icon(
+          onPressed: controller.returnToConfig,
+          icon: const Icon(Icons.arrow_back, size: 14),
+          label: const Text('RETURN TO CONFIG'),
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.muted,
+            textStyle: GoogleFonts.ibmPlexMono(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
+          ),
+        ),
+        Row(
+          children: [
+            Obx(() {
+              final remaining = controller.remainingSpots;
+              final isOver = remaining < 0;
+              return Row(
+                children: [
+                  Text('REMAINING CAPACITY:', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
+                  const SizedBox(width: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isOver ? AppColors.danger.withOpacity(0.1) : AppColors.surface,
+                      border: Border.all(color: isOver ? AppColors.danger : AppColors.border),
+                    ),
+                    child: Text(
+                      remaining.toString(),
+                      style: GoogleFonts.ibmPlexMono(
+                        color: isOver ? AppColors.danger : AppColors.primary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                ],
+              );
+            }),
+            const SizedBox(width: 32),
+            ElevatedButton(
+              onPressed: controller.armSystem,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.backgroundDark,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                elevation: 0,
+              ),
+              child: Row(
+                children: [
+                  Text('[ VALIDATE & PROCEED ]', style: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14)),
+                  const SizedBox(width: 12),
+                  const Icon(Icons.arrow_forward, size: 18),
+                ],
+              ),
+            ),
+          ],
+        )
+      ],
     );
   }
 }

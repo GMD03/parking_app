@@ -97,7 +97,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
           ),
           const SizedBox(height: 8),
           Text(
-            'SYS.NODE.REG.V1.4',
+            'SYS.NODE.REG.V2.0',
             style: TextStyle(
               fontFamily: 'monospace',
               fontSize: 10,

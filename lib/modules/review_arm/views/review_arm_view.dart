@@ -86,7 +86,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
             children: [
               const Icon(Icons.grid_4x4, color: AppColors.primary, size: 16),
               const SizedBox(width: 16),
-              Text('SYS.INITIALIZATION.V1.4', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 2)),
+              Text('SYS.INITIALIZATION.V2.0', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 2)),
             ],
           ),
           Row(

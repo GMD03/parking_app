@@ -151,7 +151,7 @@ class LoginView extends GetView<LoginController> {
           ),
           const SizedBox(height: 4),
           Text(
-            'SYS.LOGIN.V1.4',
+            'SYS.LOGIN.V2.0',
             style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2.5),
           ),
           const SizedBox(height: 16),

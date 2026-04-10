@@ -1,8 +1,10 @@
+// lib/modules/config_setup/controllers/config_controller.dart
+
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart'; // Added for SCADA typography
-// GetStorage removed from here as we save state in Zone Setup instead
+import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart'; 
 import '../models/config_model.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
@@ -12,6 +14,9 @@ class ConfigController extends GetxController {
   final apiKeyController = TextEditingController(
     text: "SCADA-8F92-K29M-XQ11-PZLV",
   );
+
+  // --- Storage Key Constant ---
+  static const String _storageKey = 'systemConfiguration';
 
   @override
   void onClose() {
@@ -30,7 +35,8 @@ class ConfigController extends GetxController {
     apiKeyController.text = 'SCADA-${segment()}-${segment()}-${segment()}-${segment()}';
   }
 
-  void nextStage() {
+  Future<void> nextStage() async {
+    // 1. Validation
     if (apiKeyController.text.trim().isEmpty) {
       _showSystemDialog(
         title: 'CONFIG ERROR',
@@ -40,8 +46,30 @@ class ConfigController extends GetxController {
       return;
     }
 
-    // Move to the next onboarding step (Do not set isConfigured true yet)
+    // 2. Package data into the model
+    final configData = ConfigModel(
+      syncMode: syncMode.value,
+      apiKey: apiKeyController.text.trim(),
+    );
+
+    // 3. PERSISTENCE: Save to GetStorage
+    final box = GetStorage();
+    await box.write(_storageKey, configData.toJson());
+
+    // 4. Route to next onboarding step
     Get.toNamed(Routes.ZONE_SETUP);
+  }
+
+  // --- GLOBAL ACCESS HELPER ---
+  // Any service in the app can call ConfigController.getSystemConfig()
+  // to check if the app should be syncing to the cloud or staying local.
+  static ConfigModel? getSystemConfig() {
+    final box = GetStorage();
+    final data = box.read(_storageKey);
+    if (data != null) {
+      return ConfigModel.fromJson(data);
+    }
+    return null;
   }
 
   // -----------------------------------------------------------------
@@ -53,7 +81,6 @@ class ConfigController extends GetxController {
     required bool isError,
     VoidCallback? onAcknowledge,
   }) {
-    // Using your AppColors for consistent theming
     final Color bgColor = AppColors.surface; 
     final Color borderColor = isError ? AppColors.danger : AppColors.success;
     final Color textColor = isError ? Colors.white : AppColors.backgroundDark;
@@ -62,7 +89,7 @@ class ConfigController extends GetxController {
       Dialog(
         backgroundColor: bgColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero, // Sharp SCADA edges
+          borderRadius: BorderRadius.zero, 
           side: BorderSide(color: borderColor.withOpacity(0.5), width: 2),
         ),
         child: Container(
@@ -72,7 +99,6 @@ class ConfigController extends GetxController {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Row
               Row(
                 children: [
                   Icon(
@@ -97,8 +123,6 @@ class ConfigController extends GetxController {
               const SizedBox(height: 16),
               const Divider(color: AppColors.border),
               const SizedBox(height: 16),
-              
-              // Message Body
               Text(
                 message,
                 style: GoogleFonts.ibmPlexMono(
@@ -107,17 +131,14 @@ class ConfigController extends GetxController {
                   height: 1.5,
                 ),
               ),
-              
               const SizedBox(height: 32),
-              
-              // Action Button
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.back(); // Close the dialog
+                    Get.back(); 
                     if (onAcknowledge != null) {
-                      onAcknowledge(); // Execute routing if provided
+                      onAcknowledge(); 
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -139,7 +160,7 @@ class ConfigController extends GetxController {
           ),
         ),
       ),
-      barrierDismissible: false, // Forces the user to click the acknowledge button
+      barrierDismissible: false, 
     );
   }
 }

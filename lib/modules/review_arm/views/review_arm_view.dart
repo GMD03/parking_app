@@ -1,8 +1,11 @@
+// lib/modules/review_arm/views/review_arm_view.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/review_arm_controller.dart';
+import '../../login/controllers/login_controller.dart';
 
 class ReviewArmView extends GetView<ReviewArmController> {
   const ReviewArmView({super.key});
@@ -16,7 +19,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
           _buildTopAppBar(),
           Expanded(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch, // Prevents RenderFlex crash
+              crossAxisAlignment: CrossAxisAlignment.stretch, 
               children: [
                 _buildSidebar(context),
                 Expanded(
@@ -30,11 +33,9 @@ class ReviewArmView extends GetView<ReviewArmController> {
                           children: [
                             _buildHeader(),
                             const SizedBox(height: 48),
-                            // 2-Column Layout for Desktop
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Left Column (Summary Info)
                                 Expanded(
                                   flex: 3,
                                   child: Column(
@@ -46,7 +47,6 @@ class ReviewArmView extends GetView<ReviewArmController> {
                                   ),
                                 ),
                                 const SizedBox(width: 48),
-                                // Right Column (Arming Action)
                                 Expanded(
                                   flex: 2,
                                   child: _buildActionArea(),
@@ -69,6 +69,9 @@ class ReviewArmView extends GetView<ReviewArmController> {
 
   // --- TOP APP BAR (Shared) ---
   Widget _buildTopAppBar() {
+    final currentUser = LoginController.getCurrentUser();
+    final operatorDisplay = currentUser?.operatorId ?? 'GUEST';
+
     return Container(
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -89,7 +92,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
           Row(
             children: [
               Text('Operator ID: ', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
-              Text('ADMIN_01', style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
+              Text(operatorDisplay, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
               const SizedBox(width: 16),
               OutlinedButton.icon(
                 onPressed: () => Get.offAllNamed('/login'),
@@ -111,7 +114,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
     );
   }
 
-  // --- SIDEBAR (Updated statuses) ---
+  // --- SIDEBAR ---
   Widget _buildSidebar(BuildContext context) {
     return Container(
       width: 256,
@@ -142,11 +145,11 @@ class ReviewArmView extends GetView<ReviewArmController> {
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
                     children: [
-                      _buildStepItem(step: '01', title: 'System Config', status: 2), // 2 = Completed
+                      _buildStepItem(step: '01', title: 'System Config', status: 2), 
                       const SizedBox(height: 32),
-                      _buildStepItem(step: '02', title: 'Zone Setup', status: 2),    // 2 = Completed
+                      _buildStepItem(step: '02', title: 'Zone Setup', status: 2),    
                       const SizedBox(height: 32),
-                      _buildStepItem(step: '03', title: 'Review & Arm', status: 1),  // 1 = Active
+                      _buildStepItem(step: '03', title: 'Review & Arm', status: 1),  
                     ],
                   ),
                 ),
@@ -222,6 +225,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
     );
   }
 
+  // CHANGED: Wrapped data rows in Obx to dynamically display controller values
   Widget _buildSystemParameters() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -239,22 +243,22 @@ class ReviewArmView extends GetView<ReviewArmController> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 color: AppColors.backgroundDark,
-                child: Text('REF_ID: 992-X', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+                child: Obx(() => Text('REF_ID: ${controller.terminalId.value}', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10))),
               )
             ],
           ),
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(child: _buildDataReadout('Sync Mode', 'CLOUD_SYNC')),
-              Expanded(child: _buildDataReadout('API Key Status', 'AUTHENTICATED', isVerified: true)),
+              Expanded(child: Obx(() => _buildDataReadout('Sync Mode', controller.syncMode.value))),
+              Expanded(child: Obx(() => _buildDataReadout('API Key Status', controller.apiKeyStatus.value, isVerified: controller.apiKeyStatus.value == 'AUTHENTICATED'))),
             ],
           ),
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(child: _buildDataReadout('Telemetry Rate', '10ms / 60Hz')),
-              Expanded(child: _buildDataReadout('Encryption', 'AES-256-SCADA')),
+              Expanded(child: _buildDataReadout('Telemetry Rate', '10ms / 60Hz')), // Usually fixed
+              Expanded(child: _buildDataReadout('Encryption', 'AES-256-SCADA')), // Usually fixed
             ],
           ),
         ],
@@ -262,6 +266,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
     );
   }
 
+  // CHANGED: Wrapped Zone data in Obx to dynamically display values
   Widget _buildFacilityMapping() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -280,11 +285,11 @@ class ReviewArmView extends GetView<ReviewArmController> {
             ],
           ),
           const SizedBox(height: 24),
-          _buildRowItem('Total Zones', '2'),
+          Obx(() => _buildRowItem('Total Zones', controller.totalZones.value.toString())),
           const Divider(color: AppColors.border, height: 24),
           Obx(() => _buildRowItem('Total Capacity', controller.totalCapacity.value.toString())),
           const Divider(color: AppColors.border, height: 24),
-          _buildRowItem('Gate Nodes', '2'),
+          _buildRowItem('Gate Nodes', '2'), // Keep static or link to Device Model later
         ],
       ),
     );

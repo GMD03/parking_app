@@ -7,19 +7,41 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 
+// Import our Global Access Helpers
+import '../../device_registration/controllers/device_registration_controller.dart';
+import '../../config_setup/controllers/config_controller.dart';
+import '../../zone_setup/controllers/zone_setup_controller.dart';
+
 class ReviewArmController extends GetxController {
   final isArming = false.obs;
   
+  // --- Observables for UI Display ---
+  final terminalId = ''.obs;
+  final syncMode = ''.obs;
+  final apiKeyStatus = ''.obs;
   final totalCapacity = 0.obs;
-  final totalZones = 0.obs; // NEW: Track total zones for display
+  final totalZones = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
-    final box = GetStorage();
-    // Retrieve data saved during Zone Setup
-    totalCapacity.value = box.read('totalFacilityCapacity') ?? 0;
-    totalZones.value = box.read('totalZonesCount') ?? 0;
+    _loadSystemData();
+  }
+
+  void _loadSystemData() {
+    // 1. Fetch Device Data
+    final device = DeviceRegistrationController.getRegisteredDevice();
+    terminalId.value = device?.terminalId ?? 'UNKNOWN-TERMINAL';
+
+    // 2. Fetch Config Data
+    final config = ConfigController.getSystemConfig();
+    syncMode.value = config?.syncMode.name.toUpperCase() ?? 'LOCAL_ONLY';
+    apiKeyStatus.value = config?.apiKey.isNotEmpty == true ? 'AUTHENTICATED' : 'UNVERIFIED';
+
+    // 3. Fetch Zone Data
+    totalCapacity.value = ZoneSetupController.getTotalCapacity();
+    final zones = ZoneSetupController.getConfiguredZones();
+    totalZones.value = zones.length;
   }
 
   void returnToZoneSetup() {
@@ -30,6 +52,7 @@ class ReviewArmController extends GetxController {
     isArming.value = true;
     
     try {
+      // Simulate hardware locking and API handshake
       await Future.delayed(const Duration(seconds: 2)); 
 
       // ONBOARDING COMPLETE: Lock the system state
@@ -42,6 +65,7 @@ class ReviewArmController extends GetxController {
         message: 'Global parking perimeter engaged successfully. Hardware locks are now active.',
         isError: false,
         onAcknowledge: () {
+          // Clear navigation stack and go to Dashboard ONLY after acknowledgment
           Get.offAllNamed(Routes.DASHBOARD);
         },
       );
@@ -52,9 +76,11 @@ class ReviewArmController extends GetxController {
         isError: true,
       );
     } finally {
+      // Stop the loading spinner on the button
       isArming.value = false;
     }
   }
+
   // -----------------------------------------------------------------
   // CUSTOM SYSTEM DIALOG (POP-UP)
   // -----------------------------------------------------------------
@@ -82,7 +108,6 @@ class ReviewArmController extends GetxController {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Row
               Row(
                 children: [
                   Icon(
@@ -107,8 +132,6 @@ class ReviewArmController extends GetxController {
               const SizedBox(height: 16),
               const Divider(color: AppColors.border),
               const SizedBox(height: 16),
-              
-              // Message Body
               Text(
                 message,
                 style: GoogleFonts.ibmPlexMono(
@@ -117,17 +140,14 @@ class ReviewArmController extends GetxController {
                   height: 1.5,
                 ),
               ),
-              
               const SizedBox(height: 32),
-              
-              // Action Button
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.back(); // Close the dialog
+                    Get.back(); 
                     if (onAcknowledge != null) {
-                      onAcknowledge(); // Execute routing if provided
+                      onAcknowledge(); 
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -149,7 +169,7 @@ class ReviewArmController extends GetxController {
           ),
         ),
       ),
-      barrierDismissible: false, // Forces the user to click the acknowledge button
+      barrierDismissible: false, 
     );
   }
 }

@@ -5,13 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/ticket_model.dart';
 import '../../ticket_entry/views/ticket_entry_view.dart';
-// Import all our Global Helpers
 import '../../login/controllers/login_controller.dart';
 import '../../device_registration/controllers/device_registration_controller.dart';
 import '../../config_setup/controllers/config_controller.dart';
 import '../../zone_setup/controllers/zone_setup_controller.dart';
 
-// Helper class for Zone UI mapping
 class ZoneStats {
   final String name;
   final int capacity;
@@ -21,28 +19,31 @@ class ZoneStats {
 }
 
 class DashboardController extends GetxController {
-  // --- UI & Clock State ---
   final currentTime = ''.obs;
   Timer? _timer;
   final searchController = TextEditingController();
   final searchQuery = ''.obs;
 
-  // --- Global System State (Loaded from Storage) ---
   final operatorId = 'GUEST'.obs;
   final terminalId = 'UNKNOWN'.obs;
   final syncMode = 'LOCAL'.obs;
   
-  // --- Dynamic Telemetry Stats ---
   late int totalCapacity;
   final availableSlots = 0.obs;
   final occupiedSlots = 0.obs;
   final ticketsToday = 0.obs;
 
-  // Real data structure replacing hardcoded dummy zones
   final RxList<ZoneStats> zones = <ZoneStats>[].obs;
 
+  // CHANGED: Dummy ticket now uses absolute DateTime (3 hours ago)
   final RxList<TicketModel> allTickets = <TicketModel>[
-    TicketModel(id: '#78901', plate: 'OVR-9999', timeIn: '06:00:00', duration: '08:32:15', status: TicketStatus.overstay, zone: 'LEVEL_A'),
+    TicketModel(
+      id: '#78901', 
+      plate: 'OVR-999', 
+      timeIn: DateTime.now().subtract(const Duration(hours: 3, minutes: 15)), 
+      status: TicketStatus.overstay, 
+      zone: 'LEVEL_A'
+    ),
   ].obs;
 
   List<TicketModel> get filteredTickets {
@@ -58,31 +59,24 @@ class DashboardController extends GetxController {
     super.onInit();
     _startClock();
     searchController.addListener(() => searchQuery.value = searchController.text);
-    
-    // Boot up the system data!
     _initializeSystemData();
     
-    // Initialize global stats based on tickets (1 hardcoded overstay currently)
     occupiedSlots.value = allTickets.length;
     availableSlots.value = totalCapacity - occupiedSlots.value;
     ticketsToday.value = allTickets.length; 
   }
 
   void _initializeSystemData() {
-    // 1. Load User & Device
     final user = LoginController.getCurrentUser();
     operatorId.value = user?.operatorId ?? 'GUEST';
     
     final device = DeviceRegistrationController.getRegisteredDevice();
     terminalId.value = device?.terminalId ?? 'UNKNOWN';
 
-    // 2. Load Config
     final config = ConfigController.getSystemConfig();
     syncMode.value = config?.syncMode.name.toUpperCase() ?? 'LOCAL';
 
-    // 3. Load Zones & Capacity
     totalCapacity = ZoneSetupController.getTotalCapacity();
-    
     final storedZones = ZoneSetupController.getConfiguredZones();
     zones.value = storedZones.map((z) => ZoneStats(
       z['name'] as String,
@@ -100,8 +94,11 @@ class DashboardController extends GetxController {
 
   void _startClock() {
     _updateTime();
+    // Updates every 100ms for the clock, but triggers table refresh every 1 second
     _timer = Timer.periodic(const Duration(milliseconds: 100), (_) => _updateTime());
   }
+
+  int _lastSecond = -1;
 
   void _updateTime() {
     final now = DateTime.now();
@@ -110,19 +107,22 @@ class DashboardController extends GetxController {
     final s = now.second.toString().padLeft(2, '0');
     final ms = (now.millisecond ~/ 10).toString().padLeft(2, '0');
     currentTime.value = '$h:$m:$s:$ms';
+
+    // NEW: Only force the Ticket list to redraw once per second to save CPU
+    if (now.second != _lastSecond) {
+      _lastSecond = now.second;
+      allTickets.refresh(); // This tells GetX: "Recalculate durations!"
+    }
   }
 
   void addTicket(String plate, String vehicleClass, String zoneName) {
-    final now = DateTime.now();
-    final timeString = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
-    
     final newId = '#${78900 + ticketsToday.value + 1}';
 
+    // CHANGED: timeIn is now absolute DateTime.now()
     final newTicket = TicketModel(
       id: newId,
       plate: plate.toUpperCase(),
-      timeIn: timeString,
-      duration: '00:00:00', 
+      timeIn: DateTime.now(),
       status: TicketStatus.active,
       zone: zoneName, 
     );
@@ -133,7 +133,6 @@ class DashboardController extends GetxController {
     occupiedSlots.value++;
     availableSlots.value--;
     
-    // Dynamically update the specific Zone's occupied count
     final zoneIndex = zones.indexWhere((z) => z.name == zoneName);
     if (zoneIndex != -1) {
       final z = zones[zoneIndex];
@@ -141,17 +140,28 @@ class DashboardController extends GetxController {
     }
   }
 
-  void checkoutTicket(String ticketId) {
+  // CHANGED: Instead of immediately deleting, we change status to PROCESSING
+  void initiateCheckout(String ticketId) {
+    final ticketIndex = allTickets.indexWhere((t) => t.id == ticketId);
+    if (ticketIndex == -1) return;
+
+    final ticket = allTickets[ticketIndex];
+    ticket.status = TicketStatus.processing;
+    ticket.timeOut = DateTime.now(); // Freezes the duration!
+    
+    allTickets.refresh();
+  }
+
+  // Finalizes checkout and removes from local buffer
+  void finalizeCheckout(String ticketId) {
     final ticketIndex = allTickets.indexWhere((t) => t.id == ticketId);
     if (ticketIndex == -1) return;
 
     final ticket = allTickets[ticketIndex];
     
-    // Free up the specific zone
     final zoneIndex = zones.indexWhere((z) => z.name == ticket.zone);
     if (zoneIndex != -1) {
       final z = zones[zoneIndex];
-      // Prevent dropping below zero just in case
       final newOccupied = (z.occupied - 1) < 0 ? 0 : (z.occupied - 1);
       zones[zoneIndex] = ZoneStats(z.name, z.capacity, newOccupied);
     }
@@ -161,13 +171,9 @@ class DashboardController extends GetxController {
     availableSlots.value++;
   }
 
-  void logout() {
-    Get.offAllNamed('/login');
-  }
+  void logout() => Get.offAllNamed('/login');
   
-  void syncNow() {
-    // Future API logic using ConfigController.getSystemConfig() goes here
-  }
+  void syncNow() {}
 
   void openNewTicketPanel() {
     Get.generalDialog(

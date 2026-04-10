@@ -96,12 +96,9 @@ class TicketInspectorView extends StatelessWidget {
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
       child: Column(
         children: [
-          _buildTimelineRow('TIME IN', controller.ticket.timeIn),
-          const SizedBox(height: 16),
-          // Using current time as dummy time out
-          _buildTimelineRow('TIME OUT', '14:30:45'), 
-          const SizedBox(height: 16),
-          _buildTimelineRow('DURATION', controller.ticket.duration),
+          _buildTimelineRow('TIME IN', controller.ticket.formattedTimeIn),
+
+          _buildTimelineRow('DURATION', controller.ticket.currentDuration),
         ],
       ),
     );

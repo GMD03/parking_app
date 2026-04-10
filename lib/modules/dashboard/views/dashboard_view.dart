@@ -342,11 +342,16 @@ Widget _buildSystemStatus() {
     );
   }
 
+// lib/modules/dashboard/views/dashboard_view.dart
+
   Widget _buildTableRow(TicketModel ticket) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
+          // Optional: Don't allow inspecting a ticket that is already checking out
+          if(ticket.status == TicketStatus.processing) return;
+          
           Get.generalDialog(
             barrierColor: Colors.black.withOpacity(0.8),
             barrierDismissible: true,
@@ -369,8 +374,9 @@ Widget _buildSystemStatus() {
             children: [
               Expanded(flex: 1, child: Text(ticket.id, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14))),
               Expanded(flex: 2, child: Text(ticket.plate, style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5))),
-              Expanded(flex: 2, child: Text(ticket.timeIn, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14))),
-              Expanded(flex: 2, child: Text(ticket.duration, style: GoogleFonts.ibmPlexMono(color: Colors.white, fontSize: 14))),
+              // CHANGED: Use the new helper getters from TicketModel
+              Expanded(flex: 2, child: Text(ticket.formattedTimeIn, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14))),
+              Expanded(flex: 2, child: Text(ticket.currentDuration, style: GoogleFonts.ibmPlexMono(color: Colors.white, fontSize: 14))),
               Expanded(flex: 1, child: Align(alignment: Alignment.centerRight, child: _buildStatusBadge(ticket.status))),
             ],
           ),

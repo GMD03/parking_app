@@ -244,7 +244,7 @@ class TicketEntryView extends StatelessWidget {
               return Column(
                 children: recentTickets.map((ticket) => Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
-                  child: _buildLogItem(ticket.timeIn, ticket.plate, ticket.zone),
+                  child: _buildLogItem(ticket.formattedTimeIn, ticket.plate, ticket.zone),
                 )).toList(),
               );
             }),

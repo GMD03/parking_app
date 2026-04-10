@@ -355,6 +355,9 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
     );
   }
 
+// lib/modules/zone_setup/views/zone_setup_view.dart
+// (Only the _buildActionArea method needs to be replaced)
+
   Widget _buildActionArea() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -372,21 +375,43 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
           children: [
             Obx(() {
               final remaining = controller.remainingSpots;
-              final isOver = remaining < 0;
+              
+              // Determine visual state based on allocation accuracy
+              bool isPerfect = remaining == 0;
+              bool isOverload = remaining < 0;
+              
+              Color boxColor;
+              Color textColor;
+              
+              if (isPerfect) {
+                boxColor = AppColors.success.withOpacity(0.1);
+                textColor = AppColors.success;
+              } else if (isOverload) {
+                boxColor = AppColors.danger.withOpacity(0.1);
+                textColor = AppColors.danger;
+              } else {
+                // Incomplete allocation gets a muted/amber treatment
+                boxColor = AppColors.surface;
+                textColor = const Color(0xFFF9AC06); // Amber/Warning
+              }
+
               return Row(
                 children: [
-                  Text('REMAINING CAPACITY:', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
+                  Text(
+                    isPerfect ? 'ALLOCATION COMPLETE:' : 'REMAINING CAPACITY:', 
+                    style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)
+                  ),
                   const SizedBox(width: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: isOver ? AppColors.danger.withOpacity(0.1) : AppColors.surface,
-                      border: Border.all(color: isOver ? AppColors.danger : AppColors.border),
+                      color: boxColor,
+                      border: Border.all(color: textColor),
                     ),
                     child: Text(
                       remaining.toString(),
                       style: GoogleFonts.ibmPlexMono(
-                        color: isOver ? AppColors.danger : AppColors.primary,
+                        color: textColor,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -396,23 +421,31 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
               );
             }),
             const SizedBox(width: 32),
-            ElevatedButton(
-              onPressed: controller.armSystem,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.backgroundDark,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                elevation: 0,
-              ),
-              child: Row(
-                children: [
-                  Text('[ VALIDATE & PROCEED ]', style: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14)),
-                  const SizedBox(width: 12),
-                  const Icon(Icons.arrow_forward, size: 18),
-                ],
-              ),
-            ),
+            Obx(() {
+               // Only enable the button if the allocation is perfectly 0
+               final isReady = controller.remainingSpots == 0;
+               
+               return ElevatedButton(
+                // Passing null to onPressed disables the button in Flutter
+                onPressed: isReady ? controller.armSystem : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  disabledBackgroundColor: AppColors.primary.withOpacity(0.3),
+                  foregroundColor: AppColors.backgroundDark,
+                  disabledForegroundColor: AppColors.backgroundDark.withOpacity(0.5),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  elevation: 0,
+                ),
+                child: Row(
+                  children: [
+                    Text('[ VALIDATE & PROCEED ]', style: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14)),
+                    const SizedBox(width: 12),
+                    const Icon(Icons.arrow_forward, size: 18),
+                  ],
+                ),
+              );
+            }),
           ],
         )
       ],

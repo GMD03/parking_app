@@ -14,6 +14,8 @@ class ZoneSetupController extends GetxController {
 
   final zoneRows = <ZoneRowData>[].obs;
   final allocatedSpots = 0.obs;
+  
+  // Getter remains the same
   int get remainingSpots => totalCapacity.value - allocatedSpots.value;
 
   // --- Storage Key Constants ---
@@ -65,7 +67,7 @@ class ZoneSetupController extends GetxController {
   }
 
   Future<void> armSystem() async {
-    // 1. Validation: Prevent proceeding if overloaded
+    // 1. Validation A: Capacity Overload (Too many spots allocated)
     if (remainingSpots < 0) {
       _showSystemDialog(
         title: 'CAPACITY OVERLOAD',
@@ -75,16 +77,26 @@ class ZoneSetupController extends GetxController {
       return;
     }
 
-    // 2. Prepare the Zone Data for storage using the Model's toJson method
+    // 2. Validation B: Incomplete Allocation (Not all spots assigned to a zone)
+    if (remainingSpots > 0) {
+      _showSystemDialog(
+        title: 'INCOMPLETE ALLOCATION',
+        message: 'There are still $remainingSpots unallocated spots. All physical capacity must be assigned to a zone before the system can be armed.',
+        isError: true,
+      );
+      return;
+    }
+
+    // 3. Prepare the Zone Data for storage
     List<Map<String, dynamic>> serializedZones = zoneRows.map((row) => row.toJson()).toList();
 
-    // 3. PERSISTENCE: Save ALL settings locally
+    // 4. PERSISTENCE: Save ALL settings locally
     final box = GetStorage();
     await box.write(_storageKeyTotalCapacity, totalCapacity.value); 
     await box.write(_storageKeyZones, serializedZones);
     await box.write(_storageKeyZoneCount, serializedZones.length);
 
-    // 4. Seamlessly route to the Review & Arm page
+    // 5. Seamlessly route to the Review & Arm page
     Get.toNamed(Routes.REVIEW_ARM);
   }
 
@@ -93,12 +105,9 @@ class ZoneSetupController extends GetxController {
   }
 
   // --- GLOBAL ACCESS HELPERS ---
-  // The Dashboard can now call ZoneSetupController.getTotalCapacity()
-  // and ZoneSetupController.getConfiguredZones() to retrieve the persisted setup.
-
   static int getTotalCapacity() {
     final box = GetStorage();
-    return box.read(_storageKeyTotalCapacity) ?? 500; // Fallback to 500
+    return box.read(_storageKeyTotalCapacity) ?? 500; 
   }
 
   static List<Map<String, dynamic>> getConfiguredZones() {
@@ -106,16 +115,12 @@ class ZoneSetupController extends GetxController {
     List<dynamic>? storedZones = box.read(_storageKeyZones);
     
     if (storedZones != null && storedZones.isNotEmpty) {
-      // Cast the dynamic list back to the expected map structure
       return storedZones.cast<Map<String, dynamic>>();
     }
-    // Fallback if data is missing or corrupted
     return [{'name': 'SYSTEM_ERR', 'capacity': getTotalCapacity(), 'occupied': 0}];
   }
 
-  // -----------------------------------------------------------------
-  // CUSTOM SYSTEM DIALOG (POP-UP)
-  // -----------------------------------------------------------------
+  // --- CUSTOM SYSTEM DIALOG ---
   void _showSystemDialog({
     required String title,
     required String message,
@@ -130,7 +135,7 @@ class ZoneSetupController extends GetxController {
       Dialog(
         backgroundColor: bgColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero, // Sharp SCADA edges
+          borderRadius: BorderRadius.zero, 
           side: BorderSide(color: borderColor.withOpacity(0.5), width: 2),
         ),
         child: Container(
@@ -177,9 +182,9 @@ class ZoneSetupController extends GetxController {
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.back(); // Close the dialog
+                    Get.back(); 
                     if (onAcknowledge != null) {
-                      onAcknowledge(); // Execute routing if provided
+                      onAcknowledge(); 
                     }
                   },
                   style: ElevatedButton.styleFrom(

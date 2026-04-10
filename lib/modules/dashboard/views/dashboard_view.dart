@@ -369,9 +369,10 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildStatusBadge(TicketStatus status) {
+Widget _buildStatusBadge(TicketStatus status) {
     Color color;
     String label;
+    
     switch (status) {
       case TicketStatus.active:
         color = AppColors.success;
@@ -381,9 +382,10 @@ class DashboardView extends GetView<DashboardController> {
         color = AppColors.danger;
         label = 'OVERSTAY';
         break;
-      case TicketStatus.voided:
-        color = AppColors.muted;
-        label = 'VOID';
+      // CHANGED: Removed .voided and added .processing to match the model
+      case TicketStatus.processing: 
+        color = AppColors.primary;
+        label = 'PROCESSING';
         break;
     }
 

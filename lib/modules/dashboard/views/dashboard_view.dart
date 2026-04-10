@@ -430,15 +430,6 @@ Widget _buildStatusBadge(TicketStatus status) {
             const SizedBox(width: 12),
             Text('[ NEW TICKET ]', style: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14)),
             const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: AppColors.backgroundDark.withOpacity(0.2),
-                border: Border.all(color: AppColors.backgroundDark.withOpacity(0.3)),
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: Text('kbd: F2', style: GoogleFonts.ibmPlexMono(fontWeight: FontWeight.bold, fontSize: 10, color: AppColors.backgroundDark)),
-            )
           ],
         ),
       ),

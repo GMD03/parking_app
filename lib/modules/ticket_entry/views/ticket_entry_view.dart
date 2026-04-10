@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/ticket_entry_controller.dart';
+import '../../dashboard/controllers/dashboard_controller.dart';
+import '../../dashboard/models/ticket_model.dart';
 
 // CHANGED: From GetView<TicketEntryController> to StatelessWidget
 class TicketEntryView extends StatelessWidget {
@@ -14,7 +16,6 @@ class TicketEntryView extends StatelessWidget {
       alignment: Alignment.centerRight,
       child: Material(
         color: Colors.transparent,
-        // THE FIX: GetBuilder handles init and dispose safely synced with the widget lifecycle
         child: GetBuilder<TicketEntryController>(
           init: TicketEntryController(), 
           builder: (controller) {
@@ -43,7 +44,9 @@ class TicketEntryView extends StatelessWidget {
                           const SizedBox(height: 32),
                           _buildVehicleClassSelector(controller),
                           const SizedBox(height: 32),
-                          _buildRecentLogSection(),
+                          _buildZoneSelector(controller),
+                          const SizedBox(height: 32),
+                          _buildRecentLogSection(controller),
                         ],
                       ),
                     ),
@@ -206,39 +209,57 @@ class TicketEntryView extends StatelessWidget {
     });
   }
 
-  Widget _buildRecentLogSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundDark,
-        border: Border.all(color: AppColors.border.withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.history, color: AppColors.muted, size: 14),
-              const SizedBox(width: 8),
-              Text('LOCAL BUFFER', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10, letterSpacing: 1.5)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _buildLogItem('14:32:05', 'XYZ-9876'),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Divider(color: AppColors.border, height: 1)),
-          _buildLogItem('14:31:12', 'ABC-1234'),
-        ],
-      ),
-    );
-  }
+  Widget _buildRecentLogSection(TicketEntryController controller) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundDark,
+          border: Border.all(color: AppColors.border.withOpacity(0.3)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.history, color: AppColors.muted, size: 14),
+                const SizedBox(width: 8),
+                Text('RECENTLY ADDED', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10, letterSpacing: 1.5)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            
+            Obx(() {
+              // THE FIX: You must define 'recentTickets' here so the UI knows what list to build!
+              // We grab the DashboardController, look at allTickets, and take the first 3.
+              final DashboardController dashboardCtrl = Get.find<DashboardController>();
+              final recentTickets = dashboardCtrl.allTickets.take(3).toList();
+              
+              if (recentTickets.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Text('NO RECENT ACTIVITY', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
+                );
+              }
+
+              return Column(
+                children: recentTickets.map((ticket) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: _buildLogItem(ticket.timeIn, ticket.plate, ticket.zone),
+                )).toList(),
+              );
+            }),
+          ],
+        ),
+      );
+    }
 
   Widget _buildLogItem(String time, String plate, String zone) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(time, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
-        Text(plate, style: GoogleFonts.ibmPlexMono(color: Colors.white, fontSize: 12)),
-        Text('LOGGED', style: GoogleFonts.ibmPlexMono(color: AppColors.success, fontSize: 12)),
+        Text(plate, style: GoogleFonts.ibmPlexMono(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+        Text(zone, style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 12)), 
       ],
     );
   }

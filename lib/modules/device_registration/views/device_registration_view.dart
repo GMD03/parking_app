@@ -7,10 +7,6 @@ import '../../../core/theme/app_colors.dart'; // Imported your AppColors
 class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
   const DeviceRegistrationView({Key? key}) : super(key: key);
 
-  // Kept your custom colors that aren't in AppColors
-  static const Color primaryFixedDim = Color(0xFFFFBA43);
-  static const Color secondaryFixedDim = Color(0xFF00E475);
-  static const Color outline = Color(0xFF9F8E78);
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +41,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
                   // Replaced local surfaceContainer color with AppColors.surface
                   color: AppColors.surface,
                   border: Border.all(
-                    color: outline.withOpacity(0.3),
+                    color: AppColors.border,
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -107,7 +103,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: outline.withOpacity(0.3)),
+          bottom: BorderSide(color: AppColors.border),
         ),
       ),
       child: Row(
@@ -134,7 +130,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
                   fontFamily: 'monospace',
                   fontSize: 10,
                   letterSpacing: 1.5,
-                  color: primaryFixedDim,
+                  color: AppColors.primary,
                 ),
               ),
             ],
@@ -142,12 +138,12 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: primaryFixedDim.withOpacity(0.1),
-              border: Border.all(color: primaryFixedDim.withOpacity(0.5)),
+              color: AppColors.primary.withOpacity(0.1),
+              border: Border.all(color: AppColors.primary.withOpacity(0.5)),
             ),
             child: const Icon(
               Icons.router,
-              color: primaryFixedDim,
+              color: AppColors.primary,
               size: 20,
             ),
           )
@@ -166,7 +162,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
             fontFamily: 'monospace',
             fontSize: 10,
             letterSpacing: 1.5,
-            color: outline.withOpacity(0.8),
+            color: AppColors.muted,
           ),
         ),
         const SizedBox(height: 8),
@@ -176,7 +172,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
           decoration: BoxDecoration(
             // Replaced local surfaceContainerLow color with AppColors.backgroundDark
             color: AppColors.backgroundDark,
-            border: Border.all(color: outline.withOpacity(0.2)),
+            border: Border.all(color: AppColors.border),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -188,12 +184,12 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 3,
-                      color: secondaryFixedDim,
+                      color: AppColors.success,
                     ),
                   )),
               const Icon(
                 Icons.check_circle,
-                color: secondaryFixedDim,
+                color: AppColors.success,
                 size: 16,
               )
             ],
@@ -226,12 +222,12 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
           color: AppColors.textMain,
         ),
         decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: outline.withOpacity(0.6), size: 18),
+          prefixIcon: Icon(icon, color: AppColors.muted, size: 18),
           suffixIcon: isObscure
               ? IconButton(
                   icon: Icon(
                     isHidden ? Icons.visibility_off : Icons.visibility,
-                    color: outline.withOpacity(0.6),
+                    color: AppColors.muted,
                     size: 18,
                   ),
                   onPressed: controller.toggleTokenVisibility,
@@ -243,11 +239,11 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.zero,
-            borderSide: BorderSide(color: outline.withOpacity(0.3)),
+            borderSide: BorderSide(color: AppColors.border),
           ),
           focusedBorder: const OutlineInputBorder(
             borderRadius: BorderRadius.zero,
-            borderSide: BorderSide(color: primaryFixedDim, width: 1),
+            borderSide: BorderSide(color: AppColors.primary, width: 1),
           ),
         ),
       );
@@ -262,7 +258,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
             fontFamily: 'monospace',
             fontSize: 10,
             letterSpacing: 1.5,
-            color: outline.withOpacity(0.8),
+            color: AppColors.muted,
           ),
         ),
         const SizedBox(height: 8),
@@ -279,9 +275,9 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
     return Obx(() => ElevatedButton(
           onPressed: controller.isRegistering.value ? null : controller.registerTerminal,
           style: ElevatedButton.styleFrom(
-            backgroundColor: primaryFixedDim,
-            foregroundColor: const Color(0xFF281800), // onPrimaryFixed equivalent
-            disabledBackgroundColor: primaryFixedDim.withOpacity(0.3),
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.backgroundDark, // onPrimaryFixed equivalent
+            disabledBackgroundColor: AppColors.primary.withOpacity(0.3),
             padding: const EdgeInsets.symmetric(vertical: 20),
             shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             elevation: 0,
@@ -292,7 +288,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
-                      color: Color(0xFF281800),
+                      color: AppColors.backgroundDark,
                       strokeWidth: 2,
                     ),
                   )
@@ -322,7 +318,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
       decoration: BoxDecoration(
         color: AppColors.backgroundDark,
         border: Border(
-          top: BorderSide(color: outline.withOpacity(0.3)),
+          top: BorderSide(color: AppColors.border),
         ),
       ),
       child: Row(
@@ -338,7 +334,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
                     style: TextStyle(
                       fontFamily: 'monospace',
                       fontSize: 9,
-                      color: outline.withOpacity(0.4),
+                      color: AppColors.muted,
                     ),
                   ),
                   const Text(
@@ -346,7 +342,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
                     style: TextStyle(
                       fontFamily: 'monospace',
                       fontSize: 9,
-                      color: secondaryFixedDim,
+                      color: AppColors.success,
                     ),
                   ),
                 ],
@@ -360,7 +356,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
                     style: TextStyle(
                       fontFamily: 'monospace',
                       fontSize: 9,
-                      color: outline.withOpacity(0.4),
+                      color: AppColors.muted,
                     ),
                   ),
                   const Text(
@@ -368,7 +364,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
                     style: TextStyle(
                       fontFamily: 'monospace',
                       fontSize: 9,
-                      color: primaryFixedDim,
+                      color: AppColors.primary,
                     ),
                   ),
                 ],
@@ -380,7 +376,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
             style: TextStyle(
               fontFamily: 'monospace',
               fontSize: 9,
-              color: outline.withOpacity(0.4),
+              color: AppColors.muted,
             ),
           ),
         ],

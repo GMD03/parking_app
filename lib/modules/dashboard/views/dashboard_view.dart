@@ -99,7 +99,7 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildSystemStatus() {
+Widget _buildSystemStatus() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -130,7 +130,6 @@ class DashboardView extends GetView<DashboardController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('TERMINAL', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
-              // Bind Terminal ID
               Obx(() => Text(controller.terminalId.value, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 10))),
             ],
           ),
@@ -139,8 +138,19 @@ class DashboardView extends GetView<DashboardController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('SYNC MODE', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
-              // Bind Sync Mode
               Obx(() => Text(controller.syncMode.value, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 10))),
+            ],
+          ),
+          // --- ADDED TICKETS TODAY TRACKER HERE ---
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('TICKETS TODAY', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
+              Obx(() => Text(
+                controller.ticketsToday.value.toString().padLeft(3, '0'), // Pads with zeros (e.g., '005')
+                style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 24, fontWeight: FontWeight.bold)
+              )),
             ],
           ),
         ],
@@ -196,7 +206,7 @@ class DashboardView extends GetView<DashboardController> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('${(fillRatio * 100).toStringAsFixed(1)}% FILLED', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
-                    Text('${controller.occupiedSlots.value} OCCUPIED', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+                    Text('${controller.occupiedSlots.value} OCCUPIED', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 16, fontWeight: FontWeight.bold)),
                   ],
                 )
               ],

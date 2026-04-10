@@ -232,7 +232,7 @@ class TicketEntryView extends StatelessWidget {
     );
   }
 
-  Widget _buildLogItem(String time, String plate) {
+  Widget _buildLogItem(String time, String plate, String zone) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

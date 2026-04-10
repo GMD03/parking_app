@@ -1,5 +1,3 @@
-// lib/modules/ticket_inspector/controllers/ticket_inspector_controller.dart
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/theme/app_colors.dart';

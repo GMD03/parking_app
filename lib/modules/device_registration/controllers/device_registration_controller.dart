@@ -1,28 +1,34 @@
+// lib/modules/device_registration/controllers/device_registration_controller.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:google_fonts/google_fonts.dart'; // Added for SCADA typography
+import 'package:google_fonts/google_fonts.dart';
 import '../models/device_registration_model.dart';
-// import '../../../core/routes/app_routes.dart'; // Uncomment if you want to use Routes.LOGIN
+import '../../../core/theme/app_colors.dart';
+import '../../../core/routes/app_routes.dart'; // Ensure this points to your routes file
 
 class DeviceRegistrationController extends GetxController {
-  // Observables for UI State
+  // --- Observables for UI State ---
   final terminalId = '8842-X-ALPHA'.obs;
   final isTokenObscured = true.obs;
   final isRegistering = false.obs;
 
-  // Text Controllers for input fields
+  // --- Text Controllers ---
   final facilityCodeController = TextEditingController();
   final securityTokenController = TextEditingController();
 
-  // Toggles the visibility of the security token field
+  // --- Storage Key Constant ---
+  // Using a constant prevents typo bugs when saving/reading from other files
+  static const String _storageKey = 'deviceRegistrationData';
+
   void toggleTokenVisibility() {
     isTokenObscured.value = !isTokenObscured.value;
   }
 
-  // Core registration logic
+  // --- Core Registration Logic ---
   Future<void> registerTerminal() async {
-    // 1. Basic Validation MUST happen first!
+    // 1. Validation
     if (facilityCodeController.text.trim().isEmpty ||
         securityTokenController.text.trim().isEmpty) {
       _showSystemDialog(
@@ -33,47 +39,58 @@ class DeviceRegistrationController extends GetxController {
       return;
     }
 
-    // 2. Set loading state
     isRegistering.value = true;
 
     try {
-      // 3. Package the data using the Model
+      // 2. Create the Model instance
       final registrationData = DeviceRegistrationModel(
         terminalId: terminalId.value,
         facilityCode: facilityCodeController.text.trim(),
         securityToken: securityTokenController.text.trim(),
       );
 
-      // 4. Simulate API Call
+      // 3. Simulate API Call
       print('Sending Payload: ${registrationData.toJson()}');
       await Future.delayed(const Duration(seconds: 2));
 
-      // 5. Save state locally ONLY AFTER API is successful
+      // 4. PERSISTENCE: Save the data locally
       final box = GetStorage();
+      // We save the boolean for the Splash screen routing logic
       await box.write('isDeviceRegistered', true);
+      // We save the serialized model so global controllers can access the specific Terminal ID/Facility Code later
+      await box.write(_storageKey, registrationData.toJson());
 
-      // 6. Success Handling & Navigation
+      // 5. Success Handling & Navigation
       _showSystemDialog(
         title: 'SYSTEM REGISTERED',
         message: 'Terminal has been authenticated and registered successfully on the local network.',
         isError: false,
         onAcknowledge: () {
-          // 7. Navigate to Login ONLY AFTER they close the success dialog
-          Get.offAllNamed('/login'); 
-          // Note: If you use app_routes.dart, change to Get.offAllNamed(Routes.LOGIN);
+          // Route to Login Control
+          Get.offAllNamed(Routes.LOGIN); 
         },
       );
     } catch (e) {
-      // Error handling for API failures
       _showSystemDialog(
         title: 'REGISTRATION FAILED',
         message: 'An error occurred during authentication: ${e.toString()}',
         isError: true,
       );
     } finally {
-      // 8. Reset loading state
       isRegistering.value = false;
     }
+  }
+
+  // --- GLOBAL ACCESS HELPER ---
+  // Any controller in the app can call DeviceRegistrationController.getRegisteredDevice()
+  // to get the persisted data without needing to inject this controller.
+  static DeviceRegistrationModel? getRegisteredDevice() {
+    final box = GetStorage();
+    final data = box.read(_storageKey);
+    if (data != null) {
+      return DeviceRegistrationModel.fromJson(data);
+    }
+    return null; // Returns null if the device hasn't been registered yet
   }
 
   @override
@@ -83,17 +100,14 @@ class DeviceRegistrationController extends GetxController {
     super.onClose();
   }
 
-  // -----------------------------------------------------------------
-  // CUSTOM SYSTEM DIALOG (POP-UP)
-  // -----------------------------------------------------------------
+  // --- Custom SCADA Pop-up Dialog ---
   void _showSystemDialog({
     required String title,
     required String message,
     required bool isError,
     VoidCallback? onAcknowledge,
   }) {
-    // Define SCADA Colors based on your provided hex codes
-    final Color bgColor = const Color(0xFF1E2226); // Surface color
+    final Color bgColor = const Color(0xFF1E2226); 
     final Color borderColor = isError ? const Color(0xFF93000A) : const Color(0xFF05E777);
     final Color textColor = isError ? const Color(0xFFFFDAD6) : const Color(0xFF003918);
 
@@ -101,7 +115,7 @@ class DeviceRegistrationController extends GetxController {
       Dialog(
         backgroundColor: bgColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero, // Sharp edges
+          borderRadius: BorderRadius.zero,
           side: BorderSide(color: borderColor.withOpacity(0.5), width: 2),
         ),
         child: Container(
@@ -111,7 +125,6 @@ class DeviceRegistrationController extends GetxController {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Row
               Row(
                 children: [
                   Icon(
@@ -136,8 +149,6 @@ class DeviceRegistrationController extends GetxController {
               const SizedBox(height: 16),
               const Divider(color: Color(0xFF3A414A)),
               const SizedBox(height: 16),
-              
-              // Message Body
               Text(
                 message,
                 style: GoogleFonts.ibmPlexMono(
@@ -146,17 +157,14 @@ class DeviceRegistrationController extends GetxController {
                   height: 1.5,
                 ),
               ),
-              
               const SizedBox(height: 32),
-              
-              // Action Button
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.back(); // Close the dialog
+                    Get.back(); 
                     if (onAcknowledge != null) {
-                      onAcknowledge(); // Execute routing if provided
+                      onAcknowledge(); 
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -178,7 +186,7 @@ class DeviceRegistrationController extends GetxController {
           ),
         ),
       ),
-      barrierDismissible: false, // Forces the user to click the acknowledge button
+      barrierDismissible: false, 
     );
   }
 }

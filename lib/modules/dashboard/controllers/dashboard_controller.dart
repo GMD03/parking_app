@@ -1,10 +1,15 @@
+// lib/modules/dashboard/controllers/dashboard_controller.dart
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import '../models/ticket_model.dart';
 import '../../ticket_entry/views/ticket_entry_view.dart';
-import '../../ticket_entry/controllers/ticket_entry_controller.dart';
+// Import all our Global Helpers
+import '../../login/controllers/login_controller.dart';
+import '../../device_registration/controllers/device_registration_controller.dart';
+import '../../config_setup/controllers/config_controller.dart';
+import '../../zone_setup/controllers/zone_setup_controller.dart';
 
 // Helper class for Zone UI mapping
 class ZoneStats {
@@ -16,23 +21,28 @@ class ZoneStats {
 }
 
 class DashboardController extends GetxController {
+  // --- UI & Clock State ---
   final currentTime = ''.obs;
   Timer? _timer;
+  final searchController = TextEditingController();
+  final searchQuery = ''.obs;
 
-  // Dynamic Telemetry Stats
+  // --- Global System State (Loaded from Storage) ---
+  final operatorId = 'GUEST'.obs;
+  final terminalId = 'UNKNOWN'.obs;
+  final syncMode = 'LOCAL'.obs;
+  
+  // --- Dynamic Telemetry Stats ---
   late int totalCapacity;
   final availableSlots = 0.obs;
   final occupiedSlots = 0.obs;
   final ticketsToday = 0.obs;
 
-  final searchController = TextEditingController();
-  final searchQuery = ''.obs;
-
   // Real data structure replacing hardcoded dummy zones
   final RxList<ZoneStats> zones = <ZoneStats>[].obs;
 
   final RxList<TicketModel> allTickets = <TicketModel>[
-    TicketModel(id: '#78901', plate: 'OVR-9999', timeIn: '06:00:00', duration: '08:32:15', status: TicketStatus.overstay, zone: 'LEVEL_A'), // Added zone
+    TicketModel(id: '#78901', plate: 'OVR-9999', timeIn: '06:00:00', duration: '08:32:15', status: TicketStatus.overstay, zone: 'LEVEL_A'),
   ].obs;
 
   List<TicketModel> get filteredTickets {
@@ -49,7 +59,8 @@ class DashboardController extends GetxController {
     _startClock();
     searchController.addListener(() => searchQuery.value = searchController.text);
     
-    _loadPersistedSetupData();
+    // Boot up the system data!
+    _initializeSystemData();
     
     // Initialize global stats based on tickets (1 hardcoded overstay currently)
     occupiedSlots.value = allTickets.length;
@@ -57,25 +68,27 @@ class DashboardController extends GetxController {
     ticketsToday.value = allTickets.length; 
   }
 
-  void _loadPersistedSetupData() {
-    final box = GetStorage();
+  void _initializeSystemData() {
+    // 1. Load User & Device
+    final user = LoginController.getCurrentUser();
+    operatorId.value = user?.operatorId ?? 'GUEST';
     
-    // 1. Get Global Capacity
-    totalCapacity = box.read('totalFacilityCapacity') ?? 500;
+    final device = DeviceRegistrationController.getRegisteredDevice();
+    terminalId.value = device?.terminalId ?? 'UNKNOWN';
+
+    // 2. Load Config
+    final config = ConfigController.getSystemConfig();
+    syncMode.value = config?.syncMode.name.toUpperCase() ?? 'LOCAL';
+
+    // 3. Load Zones & Capacity
+    totalCapacity = ZoneSetupController.getTotalCapacity();
     
-    // 2. Hydrate the Zones List from local storage
-    List<dynamic>? storedZones = box.read('configuredZones');
-    
-    if (storedZones != null && storedZones.isNotEmpty) {
-      zones.value = storedZones.map((z) => ZoneStats(
-        z['name'] as String,
-        z['capacity'] as int,
-        z['occupied'] as int,
-      )).toList();
-    } else {
-      // Fallback fail-safe if data is corrupted
-      zones.value = [ZoneStats('SYSTEM_ERR', totalCapacity, 0)];
-    }
+    final storedZones = ZoneSetupController.getConfiguredZones();
+    zones.value = storedZones.map((z) => ZoneStats(
+      z['name'] as String,
+      z['capacity'] as int,
+      z['occupied'] as int,
+    )).toList();
   }
 
   @override
@@ -111,7 +124,7 @@ class DashboardController extends GetxController {
       timeIn: timeString,
       duration: '00:00:00', 
       status: TicketStatus.active,
-      zone: zoneName, // <-- Save the zone to the ticket
+      zone: zoneName, 
     );
 
     allTickets.insert(0, newTicket); 
@@ -120,17 +133,30 @@ class DashboardController extends GetxController {
     occupiedSlots.value++;
     availableSlots.value--;
     
-    // Dynamically update the specific Zone's occupied count!
+    // Dynamically update the specific Zone's occupied count
     final zoneIndex = zones.indexWhere((z) => z.name == zoneName);
     if (zoneIndex != -1) {
       final z = zones[zoneIndex];
-      // Create a new ZoneStats object with the updated occupied count to trigger the RxList update
       zones[zoneIndex] = ZoneStats(z.name, z.capacity, z.occupied + 1);
     }
   }
 
   void checkoutTicket(String ticketId) {
-    allTickets.removeWhere((t) => t.id == ticketId);
+    final ticketIndex = allTickets.indexWhere((t) => t.id == ticketId);
+    if (ticketIndex == -1) return;
+
+    final ticket = allTickets[ticketIndex];
+    
+    // Free up the specific zone
+    final zoneIndex = zones.indexWhere((z) => z.name == ticket.zone);
+    if (zoneIndex != -1) {
+      final z = zones[zoneIndex];
+      // Prevent dropping below zero just in case
+      final newOccupied = (z.occupied - 1) < 0 ? 0 : (z.occupied - 1);
+      zones[zoneIndex] = ZoneStats(z.name, z.capacity, newOccupied);
+    }
+
+    allTickets.removeAt(ticketIndex);
     occupiedSlots.value--;
     availableSlots.value++;
   }
@@ -139,7 +165,9 @@ class DashboardController extends GetxController {
     Get.offAllNamed('/login');
   }
   
-  void syncNow() {}
+  void syncNow() {
+    // Future API logic using ConfigController.getSystemConfig() goes here
+  }
 
   void openNewTicketPanel() {
     Get.generalDialog(

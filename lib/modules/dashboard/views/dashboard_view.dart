@@ -1,12 +1,12 @@
+// lib/modules/dashboard/views/dashboard_view.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/dashboard_controller.dart';
 import '../models/ticket_model.dart';
-import '../../ticket_inspector/controllers/ticket_inspector_controller.dart';
 import '../../ticket_inspector/views/ticket_inspector_view.dart';
-import '../../login/controllers/login_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -39,12 +39,6 @@ class DashboardView extends GetView<DashboardController> {
 
   // --- TOP NAVBAR ---
   Widget _buildTopNavBar() {
-    // 1. Retrieve the current user from the LoginController
-    final currentUser = LoginController.getCurrentUser();
-    
-    // 2. Set a fallback display value if the user isn't found
-    final operatorDisplay = currentUser?.operatorId ?? 'GUEST';
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: const BoxDecoration(
@@ -64,11 +58,11 @@ class DashboardView extends GetView<DashboardController> {
           Row(
             children: [
               Text('Operator ID: ', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
-              // 3. Dynamically inject the operator ID here
-              Text(operatorDisplay, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
+              // Read directly from the controller's observable
+              Obx(() => Text(controller.operatorId.value, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12))),
               const SizedBox(width: 16),
               OutlinedButton.icon(
-                onPressed: controller.logout, // Uses the logout method from DashboardController
+                onPressed: controller.logout,
                 icon: const Icon(Icons.logout, size: 14),
                 label: const Text('[ LOGOUT ]'),
                 style: OutlinedButton.styleFrom(
@@ -89,186 +83,265 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-// --- TELEMETRY SIDEBAR ---
+  // --- SIDEBAR: TELEMETRY ---
   Widget _buildTelemetrySidebar() {
     return SizedBox(
-      width: 280,
+      width: 320,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTelemetryCard('AVAILABLE SLOTS', controller.availableSlots, AppColors.success),
+          _buildSystemStatus(),
           const SizedBox(height: 16),
-          _buildTelemetryCard('OCCUPIED SLOTS', controller.occupiedSlots, Colors.white),
+          _buildGlobalCapacity(),
           const SizedBox(height: 16),
-          _buildTelemetryCard('TICKETS TODAY', controller.ticketsToday, AppColors.primary),
-          
-          const SizedBox(height: 32),
-          Text('ZONE OCCUPANCY', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 1.5)),
+          Expanded(child: _buildZoneBreakdown()), 
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSystemStatus() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('SYSTEM STATUS', style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+              Row(
+                children: [
+                  Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle)),
+                  const SizedBox(width: 8),
+                  Text('ONLINE', style: GoogleFonts.ibmPlexMono(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.bold)),
+                ],
+              )
+            ],
+          ),
+          const SizedBox(height: 16),
+          Obx(() => Text(controller.currentTime.value, style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2))),
+          const SizedBox(height: 16),
+          const Divider(color: AppColors.border),
           const SizedBox(height: 12),
-          
-          // THE FIX: Listen to the zones list here, and allow it to scroll
-          Expanded(
-            child: SingleChildScrollView(
-              child: Obx(() => Column(
-                children: controller.zones.map((zone) => _buildZoneStatCard(zone)).toList(),
-              )),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('TERMINAL', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+              // Bind Terminal ID
+              Obx(() => Text(controller.terminalId.value, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 10))),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('SYNC MODE', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+              // Bind Sync Mode
+              Obx(() => Text(controller.syncMode.value, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 10))),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildZoneStatCard(ZoneStats zone) {
+  Widget _buildGlobalCapacity() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppColors.backgroundDark, border: Border.all(color: AppColors.border)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(zone.name, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
-          RichText(
-            text: TextSpan(
-              style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12),
-              children: [
-                TextSpan(text: '${zone.occupied}', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                TextSpan(text: ' / ${zone.capacity}'),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTelemetryCard(String title, RxInt value, Color valueColor) {
-    return Container(
-      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.surface,
         border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 1.5)),
-          const SizedBox(height: 8),
-          Obx(() => Text(
-            value.value.toString(),
-            style: GoogleFonts.inter(
-              color: valueColor,
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-              letterSpacing: -1,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-          )),
+          Text('GLOBAL CAPACITY', style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Obx(() => Text(controller.availableSlots.value.toString().padLeft(3, '0'), style: GoogleFonts.ibmPlexMono(color: AppColors.success, fontSize: 36, fontWeight: FontWeight.bold))),
+                  Text('AVAILABLE', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+                ],
+              ),
+              Container(width: 1, height: 40, color: AppColors.border),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(controller.totalCapacity.toString(), style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 24)),
+                  Text('TOTAL', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Obx(() {
+            final fillRatio = controller.totalCapacity > 0 ? controller.occupiedSlots.value / controller.totalCapacity : 0.0;
+            return Column(
+              children: [
+                LinearProgressIndicator(
+                  value: fillRatio,
+                  backgroundColor: AppColors.backgroundDark,
+                  color: fillRatio > 0.9 ? AppColors.danger : AppColors.primary,
+                  minHeight: 4,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('${(fillRatio * 100).toStringAsFixed(1)}% FILLED', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+                    Text('${controller.occupiedSlots.value} OCCUPIED', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+                  ],
+                )
+              ],
+            );
+          }),
         ],
       ),
     );
   }
 
-  // --- DATA TABLE SECTION ---
+  Widget _buildZoneBreakdown() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('ZONE TELEMETRY', style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+          const SizedBox(height: 16),
+          Expanded(
+            child: Obx(() => ListView.builder(
+              itemCount: controller.zones.length,
+              itemBuilder: (context, index) {
+                final zone = controller.zones[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(zone.name, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
+                          Text('${zone.occupied} / ${zone.capacity}', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      LinearProgressIndicator(
+                        value: zone.fillPercentage,
+                        backgroundColor: AppColors.backgroundDark,
+                        color: zone.fillPercentage > 0.9 ? AppColors.danger : AppColors.success,
+                        minHeight: 2,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            )),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- MAIN DATATABLE SECTION ---
   Widget _buildDataTableSection() {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
         border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(2),
       ),
       child: Column(
         children: [
-          // Table Controls (Search)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  width: 256,
-                  height: 40,
-                  child: TextField(
-                    controller: controller.searchController,
-                    style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1.5),
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search, color: AppColors.muted, size: 18),
-                      hintText: 'QUERY PLATE...',
-                      hintStyle: GoogleFonts.inter(color: AppColors.muted),
-                      filled: true,
-                      fillColor: AppColors.backgroundDark,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                      border: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.border)),
-                      enabledBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.border)),
-                      focusedBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.primary)),
-                    ),
-                  ),
-                ),
-                Obx(() => Text(
-                  'Showing ${controller.filteredTickets.length} active records',
-                  style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, fontWeight: FontWeight.w500, letterSpacing: 1.5),
-                )),
-              ],
-            ),
-          ),
-          
-          // Table Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
-           child: Row(
-              children: [
-                Expanded(flex: 1, child: _tableHeader('ID')),
-                Expanded(flex: 2, child: _tableHeader('PLATE')),
-                Expanded(flex: 1, child: _tableHeader('ZONE')), // <-- Added
-                Expanded(flex: 2, child: _tableHeader('TIME_IN')),
-                Expanded(flex: 2, child: _tableHeader('DURATION')),
-                Expanded(flex: 1, child: Align(alignment: Alignment.centerRight, child: _tableHeader('STATUS'))),
-              ],
-            ),
-          ),
-
-          // Table Body
+          _buildTableHeader(),
+          _buildTableColumns(),
           Expanded(
-            child: Container(
-              color: AppColors.backgroundDark,
-              child: Obx(() => ListView.builder(
-                itemCount: controller.filteredTickets.length,
-                itemBuilder: (context, index) {
-                  final ticket = controller.filteredTickets[index];
-                  return _buildTableRow(ticket);
-                },
-              )),
-            ),
+            child: Obx(() => ListView.builder(
+              itemCount: controller.filteredTickets.length,
+              itemBuilder: (context, index) => _buildTableRow(controller.filteredTickets[index]),
+            )),
           ),
         ],
       ),
     );
   }
 
-  Widget _tableHeader(String text) {
-    return Text(
-      text,
-      style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 1.5),
+  Widget _buildTableHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.list_alt, color: AppColors.textMain, size: 18),
+              const SizedBox(width: 12),
+              Text('ACTIVE LOGS', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            ],
+          ),
+          SizedBox(
+            width: 250,
+            height: 36,
+            child: TextField(
+              controller: controller.searchController,
+              style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12),
+              decoration: InputDecoration(
+                hintText: 'SEARCH PLATES / IDS...',
+                hintStyle: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10),
+                prefixIcon: const Icon(Icons.search, color: AppColors.muted, size: 16),
+                filled: true,
+                fillColor: AppColors.backgroundDark,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                enabledBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.border)),
+                focusedBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.primary)),
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 
-Widget _buildTableRow(TicketModel ticket) {
+  Widget _buildTableColumns() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundDark.withOpacity(0.5),
+        border: const Border(bottom: BorderSide(color: AppColors.border)),
+      ),
+      child: Row(
+        children: [
+          Expanded(flex: 1, child: Text('TICKET ID', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold))),
+          Expanded(flex: 2, child: Text('LICENSE PLATE', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold))),
+          Expanded(flex: 2, child: Text('TIME IN', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold))),
+          Expanded(flex: 2, child: Text('DURATION', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold))),
+          Expanded(flex: 1, child: Align(alignment: Alignment.centerRight, child: Text('STATUS', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold)))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTableRow(TicketModel ticket) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          // THE FIX: Do not use lazyPut or delete here. 
-          // Just open the dialog and pass the ticket to the View.
           Get.generalDialog(
-            barrierColor: Colors.black.withOpacity(0.8), // Dark blurred backdrop
+            barrierColor: Colors.black.withOpacity(0.8),
             barrierDismissible: true,
             barrierLabel: 'Inspector',
             transitionDuration: const Duration(milliseconds: 200),
-            // Pass the ticket explicitly
             pageBuilder: (context, animation, secondaryAnimation) => TicketInspectorView(ticket: ticket),
             transitionBuilder: (context, animation, secondaryAnimation, child) {
               return FadeTransition(
@@ -286,7 +359,6 @@ Widget _buildTableRow(TicketModel ticket) {
             children: [
               Expanded(flex: 1, child: Text(ticket.id, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14))),
               Expanded(flex: 2, child: Text(ticket.plate, style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5))),
-              Expanded(flex: 1, child: Text(ticket.zone, style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 12))), // <-- Added
               Expanded(flex: 2, child: Text(ticket.timeIn, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14))),
               Expanded(flex: 2, child: Text(ticket.duration, style: GoogleFonts.ibmPlexMono(color: Colors.white, fontSize: 14))),
               Expanded(flex: 1, child: Align(alignment: Alignment.centerRight, child: _buildStatusBadge(ticket.status))),
@@ -299,37 +371,33 @@ Widget _buildTableRow(TicketModel ticket) {
 
   Widget _buildStatusBadge(TicketStatus status) {
     Color color;
-    String text;
-
+    String label;
     switch (status) {
       case TicketStatus.active:
         color = AppColors.success;
-        text = 'Active';
+        label = 'ACTIVE';
         break;
       case TicketStatus.overstay:
         color = AppColors.danger;
-        text = 'Overstay';
+        label = 'OVERSTAY';
         break;
-      case TicketStatus.processing:
-        color = AppColors.primary;
-        text = 'Processing';
+      case TicketStatus.voided:
+        color = AppColors.muted;
+        label = 'VOID';
         break;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        border: Border.all(color: color),
+        color: color.withOpacity(0.1),
+        border: Border.all(color: color.withOpacity(0.5)),
         borderRadius: BorderRadius.circular(2),
       ),
-      child: Text(
-        text.toUpperCase(),
-        style: GoogleFonts.inter(color: color, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5),
-      ),
+      child: Text(label, style: GoogleFonts.ibmPlexMono(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
     );
   }
 
-  // --- FLOATING ACTION BUTTON ---
   Widget _buildFAB() {
     return Padding(
       padding: const EdgeInsets.only(right: 16, bottom: 16),
@@ -357,8 +425,8 @@ Widget _buildTableRow(TicketModel ticket) {
                 border: Border.all(color: AppColors.backgroundDark.withOpacity(0.3)),
                 borderRadius: BorderRadius.circular(2),
               ),
-              child: Text('kbd: F2', style: GoogleFonts.ibmPlexMono(fontWeight: FontWeight.bold, fontSize: 10)),
-            ),
+              child: Text('kbd: F2', style: GoogleFonts.ibmPlexMono(fontWeight: FontWeight.bold, fontSize: 10, color: AppColors.backgroundDark)),
+            )
           ],
         ),
       ),

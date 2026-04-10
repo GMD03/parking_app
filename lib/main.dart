@@ -14,7 +14,7 @@ void main() async {
   // Initialize GetStorage
   await GetStorage.init();
 
-  await GetStorage().erase();
+  // await GetStorage().erase();
 
   runApp(const SystemAccessPortal());
 }

@@ -5,8 +5,8 @@ enum TicketStatus { active, overstay, processing }
 class TicketModel {
   final String id;
   final String plate;
-  final DateTime timeIn;    // CHANGED: From String to DateTime
-  DateTime? timeOut;        // NEW: To freeze the duration calculation on checkout
+  final DateTime timeIn;
+  DateTime? timeOut;
   final String zone;
   TicketStatus status;
 
@@ -26,7 +26,6 @@ class TicketModel {
 
   // Helper method to calculate live duration
   String get currentDuration {
-    // If the ticket is checked out, calculate based on timeOut. Otherwise, use current time.
     final endTime = timeOut ?? DateTime.now();
     final difference = endTime.difference(timeIn);
     
@@ -37,7 +36,31 @@ class TicketModel {
     return "$hours:$minutes:$seconds";
   }
 
-  // --- Persistence Methods (For future local storage support) ---
+  // NEW: Helper method to calculate total due dynamically
+  double get totalDue {
+    final endTime = timeOut ?? DateTime.now();
+    final difference = endTime.difference(timeIn);
+    
+    // Example Pricing Logic (Feel free to adjust the rates)
+    double baseRate = 50.0; // Flat rate for the first 2 hours
+    double hourlyOverstayRate = 20.0; // Penalty rate per extra hour
+    
+    // Check if duration is 2 hours (7200 seconds) or more
+    if (difference.inSeconds >= 7200) { 
+      // Calculate how many hours they overstayed. 
+      // Using .ceil() ensures that even 1 minute over 2 hours charges for a full extra hour.
+      int overstayHours = ((difference.inSeconds - 7200) / 3600).ceil();
+      
+      // If exactly 2 hours, overstay is 0. Anything over 2 hours becomes at least 1.
+      int billableOverstay = overstayHours == 0 ? 1 : overstayHours;
+      
+      return baseRate + (billableOverstay * hourlyOverstayRate);
+    }
+    
+    return baseRate;
+  }
+
+  // --- Persistence Methods ---
   Map<String, dynamic> toJson() => {
     'id': id,
     'plate': plate,

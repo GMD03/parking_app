@@ -35,7 +35,6 @@ class DashboardController extends GetxController {
 
   final RxList<ZoneStats> zones = <ZoneStats>[].obs;
 
-  // CHANGED: Dummy ticket now uses absolute DateTime (3 hours ago)
   final RxList<TicketModel> allTickets = <TicketModel>[
     TicketModel(
       id: '#78901', 
@@ -94,7 +93,6 @@ class DashboardController extends GetxController {
 
   void _startClock() {
     _updateTime();
-    // Updates every 100ms for the clock, but triggers table refresh every 1 second
     _timer = Timer.periodic(const Duration(milliseconds: 100), (_) => _updateTime());
   }
 
@@ -108,17 +106,28 @@ class DashboardController extends GetxController {
     final ms = (now.millisecond ~/ 10).toString().padLeft(2, '0');
     currentTime.value = '$h:$m:$s:$ms';
 
-    // NEW: Only force the Ticket list to redraw once per second to save CPU
     if (now.second != _lastSecond) {
       _lastSecond = now.second;
-      allTickets.refresh(); // This tells GetX: "Recalculate durations!"
+      
+      // NEW LOGIC: Scan for tickets that have crossed the 2-hour mark
+      for (var ticket in allTickets) {
+        if (ticket.status == TicketStatus.active) {
+          final difference = now.difference(ticket.timeIn);
+          // 7200 seconds == exactly 2 hours
+          if (difference.inSeconds >= 7200) {
+            ticket.status = TicketStatus.overstay;
+          }
+        }
+      }
+
+      // This tells GetX to recalculate durations, statuses, and due amounts!
+      allTickets.refresh(); 
     }
   }
 
   void addTicket(String plate, String vehicleClass, String zoneName) {
     final newId = '#${78900 + ticketsToday.value + 1}';
 
-    // CHANGED: timeIn is now absolute DateTime.now()
     final newTicket = TicketModel(
       id: newId,
       plate: plate.toUpperCase(),
@@ -140,19 +149,17 @@ class DashboardController extends GetxController {
     }
   }
 
-  // CHANGED: Instead of immediately deleting, we change status to PROCESSING
   void initiateCheckout(String ticketId) {
     final ticketIndex = allTickets.indexWhere((t) => t.id == ticketId);
     if (ticketIndex == -1) return;
 
     final ticket = allTickets[ticketIndex];
     ticket.status = TicketStatus.processing;
-    ticket.timeOut = DateTime.now(); // Freezes the duration!
+    ticket.timeOut = DateTime.now(); // Freezes the duration & totalDue calculation!
     
     allTickets.refresh();
   }
 
-  // Finalizes checkout and removes from local buffer
   void finalizeCheckout(String ticketId) {
     final ticketIndex = allTickets.indexWhere((t) => t.id == ticketId);
     if (ticketIndex == -1) return;

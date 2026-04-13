@@ -6,6 +6,8 @@ import '../controllers/config_controller.dart';
 import '../models/config_model.dart';
 import '../../../core/widgets/aerostatic_button.dart';
 import '../../login/controllers/login_controller.dart';
+import '../../../core/services/database_service.dart';
+import '../../../core/routes/app_routes.dart';
 
 class ConfigView extends GetView<ConfigController> {
   const ConfigView({super.key});
@@ -483,9 +485,21 @@ class ConfigView extends GetView<ConfigController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           OutlinedButton.icon(
-            onPressed: () => Get.offAllNamed('/login'),
+            onPressed: () {
+              // Context-aware abort:
+              // If already configured (reconfiguring from Dashboard) → go back to Dashboard
+              // If first-time setup → log out
+              final isReconfiguring = DatabaseService.getState('isConfigured') ?? false;
+              if (isReconfiguring) {
+                Get.offAllNamed(Routes.DASHBOARD);
+              } else {
+                Get.offAllNamed(Routes.LOGIN);
+              }
+            },
             icon: const Icon(Icons.close, size: 18),
-            label: const Text('ABORT SETUP'),
+            label: Text(
+              (DatabaseService.getState('isConfigured') ?? false) ? 'BACK TO DASHBOARD' : 'ABORT SETUP',
+            ),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.muted,
               side: const BorderSide(color: AppColors.border),

@@ -1,4 +1,4 @@
-﻿// lib/modules/review_arm/views/review_arm_view.dart
+// lib/modules/review_arm/views/review_arm_view.dart
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/review_arm_controller.dart';
 import '../../login/controllers/login_controller.dart';
+import '../../../core/widgets/aerostatic_button.dart';
 
 class ReviewArmView extends GetView<ReviewArmController> {
   const ReviewArmView({super.key});
@@ -229,9 +230,10 @@ class ReviewArmView extends GetView<ReviewArmController> {
   Widget _buildSystemParameters() {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(left: BorderSide(color: AppColors.primary, width: 3)),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.surfaceContainerLow),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,8 +273,9 @@ class ReviewArmView extends GetView<ReviewArmController> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.border),
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.surfaceContainerLow),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,8 +357,9 @@ class ReviewArmView extends GetView<ReviewArmController> {
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.surface,
-            border: Border.all(color: AppColors.border),
+            color: AppColors.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.surfaceContainerLow),
           ),
           child: Column(
             children: [
@@ -381,31 +385,11 @@ class ReviewArmView extends GetView<ReviewArmController> {
               ),
               const SizedBox(height: 24),
               
-              Obx(() => ElevatedButton(
+              Obx(() => AerostaticButton(
+                label: 'ARM PARKING SYSTEM',
+                icon: Icons.power_settings_new,
+                isLoading: controller.isArming.value,
                 onPressed: controller.isArming.value ? null : controller.executeSystemArm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.backgroundDark,
-                  padding: const EdgeInsets.symmetric(vertical: 32),
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  elevation: 8,
-                  shadowColor: AppColors.primary.withOpacity(0.5),
-                  disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
-                ),
-                child: Center(
-                  child: controller.isArming.value 
-                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: AppColors.backgroundDark, strokeWidth: 2))
-                    : Column(
-                        children: [
-                          const Icon(Icons.power_settings_new, size: 32),
-                          const SizedBox(height: 12),
-                          Text(
-                            '[ ARM PARKING SYSTEM ]', 
-                            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 2),
-                          ),
-                        ],
-                      ),
-                ),
               )),
               
               const SizedBox(height: 24),

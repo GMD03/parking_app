@@ -1,9 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/config_controller.dart';
 import '../models/config_model.dart';
+import '../../../core/widgets/aerostatic_button.dart';
 
 class ConfigView extends GetView<ConfigController> {
   const ConfigView({super.key});
@@ -194,7 +195,7 @@ class ConfigView extends GetView<ConfigController> {
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
       child: Text(
         'SYNCHRONIZATION SETUP',
-        style: GoogleFonts.inter(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: -0.5),
+        style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: -0.5),
       ),
     );
   }
@@ -235,7 +236,8 @@ class ConfigView extends GetView<ConfigController> {
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.surface : AppColors.backgroundDark,
+            color: isSelected ? AppColors.surface : AppColors.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
           ),
           child: Row(
@@ -255,7 +257,7 @@ class ConfigView extends GetView<ConfigController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: GoogleFonts.inter(color: isSelected ? Colors.white : AppColors.textMain, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                    Text(title, style: GoogleFonts.inter(color: isSelected ? AppColors.primary : AppColors.textMain, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
                     const SizedBox(height: 4),
                     Text(description, style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
                   ],
@@ -284,7 +286,7 @@ class ConfigView extends GetView<ConfigController> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('SYSTEM API KEY', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                  Text('SYSTEM API KEY', style: GoogleFonts.inter(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
                   const SizedBox(height: 4),
                   Text('Required for secure handshake with central command.', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
                 ],
@@ -312,9 +314,9 @@ class ConfigView extends GetView<ConfigController> {
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.key, color: AppColors.muted),
               filled: true,
-              fillColor: AppColors.backgroundDark,
-              enabledBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.border)),
-              focusedBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.primary)),
+              fillColor: AppColors.surfaceContainerLowest,
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
               hintText: 'ENTER 32-CHAR KEY...',
               hintStyle: GoogleFonts.inter(color: AppColors.border, fontSize: 14, letterSpacing: 2.0),
             ),
@@ -367,23 +369,11 @@ class ConfigView extends GetView<ConfigController> {
               ),
             ],
           ),
-          ElevatedButton(
+          AerostaticButton(
+            width: 240,
+            label: 'NEXT STAGE',
+            icon: Icons.arrow_forward,
             onPressed: controller.nextStage,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.backgroundDark,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-              elevation: 8,
-              shadowColor: AppColors.primary.withOpacity(0.5),
-            ),
-            child: Row(
-              children: [
-                Text('[ NEXT STAGE ]', style: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-                const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward, size: 18),
-              ],
-            ),
           ),
         ],
       ),

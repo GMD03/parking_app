@@ -1,4 +1,6 @@
-﻿// lib/modules/dashboard/models/ticket_model.dart
+// lib/modules/dashboard/models/ticket_model.dart
+import '../../../core/models/pricing_config.dart';
+import '../../../core/utils/billing_engine.dart';
 
 enum TicketStatus { active, overstay, processing }
 
@@ -38,27 +40,14 @@ class TicketModel {
     return "$hours:$minutes:$seconds";
   }
 
-  // NEW: Helper method to calculate total due dynamically
+  // NEW: Helper method to calculate total due dynamically via BillingEngine
   double get totalDue {
     final endTime = timeOut ?? DateTime.now();
-    final difference = endTime.difference(timeIn);
     
-    // Example Pricing Logic 
-    double baseRate = 50.0; 
-    double hourlyOverstayRate = 20.0; // Penalty rate per extra hour
+    // Using the 24 hour default configuration as the primary engine rule
+    final config = PricingConfig.default24Hour(); 
     
-    // Check if duration is 2 hours (7200 seconds) or more
-    if (difference.inSeconds >= 7200) { 
-      // Using .ceil() ensures that even 1 minute over 2 hours charges for a full extra hour.
-      int overstayHours = ((difference.inSeconds - 7200) / 3600).ceil();
-      
-      // If exactly 2 hours, overstay is 0. Anything over 2 hours becomes at least 1.
-      int billableOverstay = overstayHours == 0 ? 1 : overstayHours;
-      
-      return baseRate + (billableOverstay * hourlyOverstayRate);
-    }
-    
-    return baseRate;
+    return BillingEngine.calculateDue(timeIn, endTime, config);
   }
 
   // --- Persistence Methods ---

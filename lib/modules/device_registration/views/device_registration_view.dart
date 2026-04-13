@@ -1,9 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Needed for LogicalKeyboardKey
 import 'package:get/get.dart';
 import '../controllers/device_registration_controller.dart';
-import '../../../core/theme/app_colors.dart'; // Imported your AppColors
-
+import '../../../core/theme/app_colors.dart'; 
+import '../../../core/widgets/aerostatic_button.dart';
 class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
   const DeviceRegistrationView({Key? key}) : super(key: key);
 
@@ -38,10 +38,10 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
                   maxWidth: 450,
                 ),
                 decoration: BoxDecoration(
-                  // Replaced local surfaceContainer color with AppColors.surface
-                  color: AppColors.surface,
+                  color: AppColors.surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppColors.border,
+                    color: AppColors.surfaceContainerLow,
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -238,12 +238,12 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
           fillColor: AppColors.backgroundDark,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.zero,
-            borderSide: BorderSide(color: AppColors.border),
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
           ),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.zero,
-            borderSide: BorderSide(color: AppColors.primary, width: 1),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: AppColors.primary, width: 2),
           ),
         ),
       );
@@ -272,44 +272,12 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
   }
 
   Widget _buildRegisterButton() {
-    return Obx(() => ElevatedButton(
-          onPressed: controller.isRegistering.value ? null : controller.registerTerminal,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.backgroundDark, // onPrimaryFixed equivalent
-            disabledBackgroundColor: AppColors.primary.withOpacity(0.3),
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-            elevation: 0,
-          ),
-          child: Center(
-            child: controller.isRegistering.value
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      color: AppColors.backgroundDark,
-                      strokeWidth: 2,
-                    ),
-                  )
-                : const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '[ AUTHENTICATE DEVICE ]',
-                        style: TextStyle(
-                          fontFamily: 'sans-serif',
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                          fontSize: 12,
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Icon(Icons.arrow_forward, size: 16),
-                    ],
-                  ),
-          ),
-        ));
+    return Obx(() => AerostaticButton(
+      label: 'AUTHENTICATE DEVICE',
+      icon: Icons.hub,
+      isLoading: controller.isRegistering.value,
+      onPressed: controller.isRegistering.value ? null : controller.registerTerminal,
+    ));
   }
 
   Widget _buildFooter() {

@@ -37,12 +37,8 @@ class SystemAccessPortal extends StatelessWidget {
         inputDecorationTheme: const InputDecorationTheme(
           filled: true,
           fillColor: AppColors.surfaceContainerLow,
-          border: UnderlineInputBorder(
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide.none,
-          ),
+          border: UnderlineInputBorder(borderSide: BorderSide.none),
+          enabledBorder: UnderlineInputBorder(borderSide: BorderSide.none),
           focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: AppColors.primary, width: 2),
           ),

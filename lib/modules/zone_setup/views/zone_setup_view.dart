@@ -1,10 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/zone_setup_controller.dart';
-import '../../login/controllers/login_controller.dart'; // Added to fetch the current user session
+import '../../login/controllers/login_controller.dart';
+import '../../../core/widgets/aerostatic_button.dart';
 
 class ZoneSetupView extends GetView<ZoneSetupController> {
   const ZoneSetupView({super.key});
@@ -218,8 +219,9 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.border),
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.surfaceContainerLow),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -245,10 +247,10 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 filled: true,
-                fillColor: AppColors.backgroundDark,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                enabledBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.border)),
-                focusedBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.primary, width: 2)),
+                fillColor: AppColors.surfaceContainerLow,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
               ),
             ),
           ),
@@ -260,7 +262,9 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
   Widget _buildZoneList() {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.surfaceContainerLow),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -288,7 +292,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                   final rowData = controller.zoneRows[index];
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    color: AppColors.backgroundDark,
+                    color: Colors.transparent,
                     child: Row(
                       children: [
                         Expanded(
@@ -339,7 +343,10 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
             onTap: controller.addNewZone,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 16),
-              color: AppColors.surface,
+              decoration: const BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -406,6 +413,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: boxColor,
+                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: textColor),
                     ),
                     child: Text(
@@ -425,26 +433,14 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                // Only enable the button if the allocation is perfectly 0
                final isReady = controller.remainingSpots == 0;
                
-               return ElevatedButton(
-                // Passing null to onPressed disables the button in Flutter
-                onPressed: isReady ? controller.armSystem : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  disabledBackgroundColor: AppColors.primary.withOpacity(0.3),
-                  foregroundColor: AppColors.backgroundDark,
-                  disabledForegroundColor: AppColors.backgroundDark.withOpacity(0.5),
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  elevation: 0,
+               return SizedBox(
+                 width: 250,
+                 child: AerostaticButton(
+                  label: 'VALIDATE & PROCEED',
+                  icon: Icons.arrow_forward,
+                  onPressed: isReady ? controller.armSystem : null,
                 ),
-                child: Row(
-                  children: [
-                    Text('[ VALIDATE & PROCEED ]', style: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14)),
-                    const SizedBox(width: 12),
-                    const Icon(Icons.arrow_forward, size: 18),
-                  ],
-                ),
-              );
+               );
             }),
           ],
         )

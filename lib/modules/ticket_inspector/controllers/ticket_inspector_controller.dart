@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../dashboard/models/ticket_model.dart';
@@ -24,12 +24,8 @@ class TicketInspectorController extends GetxController {
   String get calculatedTotal {
     dashboardCtrl.currentTime.value; 
     
-    final end = ticket.timeOut ?? DateTime.now();
-    final diff = end.difference(ticket.timeIn);
-    
-    final totalHours = diff.inMinutes / 60.0;
-    final billableHours = totalHours < 1.0 ? 1.0 : totalHours; // Minimum 1 hr charge
-    return 'P${(billableHours * ratePerHour).toStringAsFixed(2)}';
+    // Delegates calculation entirely to the active TicketModel BillingEngine
+    return 'P${ticket.totalDue.toStringAsFixed(2)}';
   }
 
   Future<void> processCheckout() async {

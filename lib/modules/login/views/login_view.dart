@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/login_controller.dart';
+import '../../../core/widgets/aerostatic_button.dart';
 
 class LoginView extends GetView<LoginController> {
   const LoginView({super.key});
@@ -242,53 +243,11 @@ class LoginView extends GetView<LoginController> {
   }
 
   Widget _buildLoginButton() {
-    return Obx(() => Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryContainer],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: ElevatedButton(
-        onPressed: controller.isLoading.value ? null : controller.authenticate,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          foregroundColor: AppColors.surfaceContainerLowest,
-          disabledBackgroundColor: AppColors.primary.withOpacity(0.3),
-          disabledForegroundColor: AppColors.surfaceContainerLowest,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          elevation: 0,
-        ),
-        child: Center(
-          child: controller.isLoading.value
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    color: AppColors.surfaceContainerLowest,
-                    strokeWidth: 2,
-                  ),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Access Console',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Icon(Icons.arrow_forward_rounded, size: 20),
-                  ],
-                ),
-        ),
-      ),
+    return Obx(() => AerostaticButton(
+      label: 'Access Console',
+      icon: Icons.arrow_forward_rounded,
+      isLoading: controller.isLoading.value,
+      onPressed: controller.isLoading.value ? null : controller.authenticate,
     ));
   }
 }

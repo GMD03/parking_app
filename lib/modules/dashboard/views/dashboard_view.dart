@@ -64,17 +64,42 @@ class DashboardView extends GetView<DashboardController> {
               Text('Operator ID: ', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14)),
               Obx(() => Text(controller.operatorId.value, style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 14, fontWeight: FontWeight.w600))),
               const SizedBox(width: 24),
-              TextButton.icon(
-                onPressed: controller.logout,
-                icon: const Icon(Icons.logout, size: 18),
-                label: const Text('Logout'),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.onSurface,
-                  backgroundColor: AppColors.surfaceContainerLow,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
-                ),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.settings, color: AppColors.muted),
+                tooltip: 'System Options',
+                color: AppColors.surfaceContainerLowest,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                position: PopupMenuPosition.under,
+                onSelected: (value) {
+                  if (value == 'reconfig') {
+                    controller.reconfigure();
+                  } else if (value == 'logout') {
+                    controller.logout();
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'reconfig',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.build_circle_outlined, size: 18, color: AppColors.primary),
+                        const SizedBox(width: 12),
+                        Text('Change Configuration', style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 14, fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  PopupMenuItem(
+                    value: 'logout',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.logout, size: 18, color: AppColors.danger),
+                        const SizedBox(width: 12),
+                        Text('Logout', style: GoogleFonts.inter(color: AppColors.danger, fontSize: 14, fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  ),
+                ],
               )
             ],
           )

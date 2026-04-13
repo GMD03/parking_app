@@ -3,12 +3,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import '../../../core/services/database_service.dart';
 import '../models/ticket_model.dart';
 import '../../ticket_entry/views/ticket_entry_view.dart';
+import '../../login/controllers/login_controller.dart';
 import '../../device_registration/controllers/device_registration_controller.dart';
 import '../../config_setup/controllers/config_controller.dart';
 import '../../zone_setup/controllers/zone_setup_controller.dart';
-import '../../../core/services/database_service.dart';
 
 class ZoneStats {
   final String name;
@@ -35,7 +37,6 @@ class DashboardController extends GetxController {
 
   final RxList<ZoneStats> zones = <ZoneStats>[].obs;
 
-  // Dynamic SQLite DB binding
   final RxList<TicketModel> allTickets = <TicketModel>[].obs;
 
   List<TicketModel> get filteredTickets {
@@ -52,35 +53,33 @@ class DashboardController extends GetxController {
     _startClock();
     searchController.addListener(() => searchQuery.value = searchController.text);
     _initializeSystemData();
-    _loadDbTickets();
+    _loadTicketsFromDb();
   }
 
-  Future<void> _loadDbTickets() async {
-    final List<Map<String, dynamic>> maps = await DatabaseService.instance.query('tickets');
-    final dbTickets = maps.map((map) => TicketModel.fromJson(map)).toList();
+  Future<void> _loadTicketsFromDb() async {
+    final rows = await DatabaseService.instance.query('tickets', orderBy: 'timeIn DESC');
+    final loaded = rows.map((r) {
+      return TicketModel(
+        id: r['id'] as String,
+        plate: r['plate'] as String,
+        timeIn: DateTime.parse(r['timeIn'] as String),
+        timeOut: r['timeOut'] != null ? DateTime.parse(r['timeOut'] as String) : null,
+        zone: r['zone'] as String,
+        vehicleClass: r['vehicleClass'] as String,
+        status: TicketStatus.values.firstWhere((e) => e.name == r['status']),
+      );
+    }).toList();
     
-    // Sort by most recent
-    dbTickets.sort((a, b) => b.timeIn.compareTo(a.timeIn));
+    allTickets.assignAll(loaded);
     
-    allTickets.assignAll(dbTickets);
-    _recalculateStats();
-  }
-
-  void _recalculateStats() {
     occupiedSlots.value = allTickets.length;
     availableSlots.value = totalCapacity - occupiedSlots.value;
-    ticketsToday.value = allTickets.where((t) => t.timeIn.day == DateTime.now().day).length;
-
-    for (int i=0; i<zones.length; i++) {
-       final z = zones[i];
-       final count = allTickets.where((t) => t.zone == z.name).length;
-       zones[i] = ZoneStats(z.name, z.capacity, count);
-    }
+    ticketsToday.value = allTickets.length; 
   }
 
   void _initializeSystemData() {
-    final user = DatabaseService.getState('currentUser');
-    operatorId.value = user != null ? user['operatorId'] ?? 'GUEST' : 'GUEST';
+    final user = LoginController.getCurrentUser();
+    operatorId.value = user?.operatorId ?? 'GUEST';
     
     final device = DeviceRegistrationController.getRegisteredDevice();
     terminalId.value = device?.terminalId ?? 'UNKNOWN';
@@ -121,23 +120,32 @@ class DashboardController extends GetxController {
 
     if (now.second != _lastSecond) {
       _lastSecond = now.second;
-      bool changed = false;
+      
+      bool updatedDb = false;
       for (var ticket in allTickets) {
         if (ticket.status == TicketStatus.active) {
           final difference = now.difference(ticket.timeIn);
           if (difference.inSeconds >= 7200) {
             ticket.status = TicketStatus.overstay;
-            changed = true;
-            DatabaseService.instance.update('tickets', ticket.toJson(), where: 'id = ?', whereArgs: [ticket.id]);
+            DatabaseService.instance.update(
+              'tickets', 
+              {'status': ticket.status.name}, 
+              where: 'id = ?', 
+              whereArgs: [ticket.id],
+            );
+            updatedDb = true;
           }
         }
       }
-      if (changed) allTickets.refresh(); 
+
+      if (updatedDb) {
+        allTickets.refresh(); 
+      }
     }
   }
 
   Future<void> addTicket(String plate, String vehicleClass, String zoneName) async {
-    final newId = '#${78900 + allTickets.length + 1}';
+    final newId = '#${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}';
 
     final newTicket = TicketModel(
       id: newId,
@@ -148,10 +156,27 @@ class DashboardController extends GetxController {
       vehicleClass: vehicleClass, 
     );
 
-    await DatabaseService.instance.insert('tickets', newTicket.toJson());
+    await DatabaseService.instance.insert('tickets', {
+       'id': newTicket.id,
+       'plate': newTicket.plate,
+       'timeIn': newTicket.timeIn.toIso8601String(),
+       'timeOut': newTicket.timeOut?.toIso8601String(),
+       'zone': newTicket.zone,
+       'vehicleClass': newTicket.vehicleClass,
+       'status': newTicket.status.name,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
 
     allTickets.insert(0, newTicket); 
-    _recalculateStats();
+    
+    ticketsToday.value++;
+    occupiedSlots.value++;
+    availableSlots.value--;
+    
+    final zoneIndex = zones.indexWhere((z) => z.name == zoneName);
+    if (zoneIndex != -1) {
+      final z = zones[zoneIndex];
+      zones[zoneIndex] = ZoneStats(z.name, z.capacity, z.occupied + 1);
+    }
   }
 
   Future<void> initiateCheckout(String ticketId) async {
@@ -162,7 +187,10 @@ class DashboardController extends GetxController {
     ticket.status = TicketStatus.processing;
     ticket.timeOut = DateTime.now(); 
     
-    await DatabaseService.instance.update('tickets', ticket.toJson(), where: 'id = ?', whereArgs: [ticket.id]);
+    await DatabaseService.instance.update('tickets', {
+      'status': ticket.status.name,
+      'timeOut': ticket.timeOut!.toIso8601String(),
+    }, where: 'id = ?', whereArgs: [ticket.id]);
 
     allTickets.refresh();
   }
@@ -171,14 +199,26 @@ class DashboardController extends GetxController {
     final ticketIndex = allTickets.indexWhere((t) => t.id == ticketId);
     if (ticketIndex == -1) return;
 
+    final ticket = allTickets[ticketIndex];
+    
+    final zoneIndex = zones.indexWhere((z) => z.name == ticket.zone);
+    if (zoneIndex != -1) {
+      final z = zones[zoneIndex];
+      final newOccupied = (z.occupied - 1) < 0 ? 0 : (z.occupied - 1);
+      zones[zoneIndex] = ZoneStats(z.name, z.capacity, newOccupied);
+    }
+
     await DatabaseService.instance.delete('tickets', where: 'id = ?', whereArgs: [ticketId]);
 
     allTickets.removeAt(ticketIndex);
-    _recalculateStats();
+    occupiedSlots.value--;
+    availableSlots.value++;
   }
 
   void logout() => Get.offAllNamed('/login');
   
+  void reconfigure() => Get.offAllNamed('/config-setup');
+
   void syncNow() {}
 
   void openNewTicketPanel() {

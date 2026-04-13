@@ -26,6 +26,21 @@ class ConfigController extends GetxController {
   static const String _storageKey = 'systemConfiguration';
 
   @override
+  void onInit() {
+    super.onInit();
+    final saved = getSystemConfig();
+    if (saved != null) {
+      syncMode.value = saved.syncMode;
+      apiKeyController.text = saved.apiKey;
+      entryIpCtrl.text = saved.entryIp;
+      entryPortCtrl.text = saved.entryPort.toString();
+      exitIpCtrl.text = saved.exitIp;
+      exitPortCtrl.text = saved.exitPort.toString();
+      siteNameCtrl.text = saved.siteName;
+    }
+  }
+
+  @override
   void onClose() {
     apiKeyController.dispose();
     entryIpCtrl.dispose();

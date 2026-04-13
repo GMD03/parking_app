@@ -28,8 +28,17 @@ class ZoneSetupController extends GetxController {
   void onInit() {
     super.onInit();
     totalCapacityController.addListener(_calculateTotals);
-    _addZoneRow('LEVEL_A', '200');
-    _addZoneRow('LEVEL_B', '150');
+    
+    List<dynamic>? storedZones = DatabaseService.getState(_storageKeyZones);
+    if (storedZones != null && storedZones.isNotEmpty) {
+      totalCapacityController.text = (DatabaseService.getState(_storageKeyTotalCapacity) ?? 500).toString();
+      for (var z in storedZones) {
+        _addZoneRow(z['name'].toString(), z['capacity'].toString());
+      }
+    } else {
+      _addZoneRow('LEVEL_A', '200');
+      _addZoneRow('LEVEL_B', '150');
+    }
   }
 
   @override

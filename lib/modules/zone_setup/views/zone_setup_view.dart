@@ -54,34 +54,36 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
 
   // --- TOP APP BAR ---
   Widget _buildTopAppBar() {
-    // 1. Retrieve the current user from the LoginController
     final currentUser = LoginController.getCurrentUser();
-    // 2. Set a fallback display value if the user isn't found
     final operatorDisplay = currentUser?.operatorId ?? 'GUEST';
 
     return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 32),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: const BoxDecoration(
-        color: AppColors.backgroundDark,
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+        color: AppColors.surfaceContainerLowest, // Matches dashboard
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(14, 29, 40, 0.04),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          )
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              const Icon(Icons.grid_4x4, color: AppColors.primary, size: 16),
+              Image.asset('assets/logo.png', width: 36, height: 36),
               const SizedBox(width: 16),
-              Text('LuvPark Setup Module', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, letterSpacing: 2)),
+              Text('LuvPark System Setup', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold)),
             ],
           ),
           Row(
             children: [
-              Text('Operator ID: ', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
-              // 3. Dynamically inject the operator ID here
-              Text(operatorDisplay, style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 12)),
-              const SizedBox(width: 16),
+              Text('Operator ID: ', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14)),
+              Text(operatorDisplay, style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 14, fontWeight: FontWeight.w600)),
+              const SizedBox(width: 24),
               OutlinedButton.icon(
                 onPressed: () => Get.offAllNamed('/login'),
                 icon: const Icon(Icons.logout, size: 14),

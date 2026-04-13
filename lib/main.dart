@@ -8,6 +8,8 @@ import 'core/theme/app_colors.dart';
 import 'core/routes/app_pages.dart'; // Import your new AppPages
 import 'core/routes/app_routes.dart'; // Import your new Routes
 
+Process? _hardwareDaemon;
+
 void main() async {
   // Ensure Flutter bindings are initialized before async tasks
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,12 +22,23 @@ void main() async {
     // During dev it routes locally, during exe deployment it routes alongside the exe
     final exePath = 'hardware_api\\hardware_daemon.exe';
     
-    await Process.start(
+    _hardwareDaemon = await Process.start(
       exePath,
       [],
       mode: ProcessStartMode.normal, // Ties the daemon lifecycle directly to Flutter
     );
     print('✅ Hardware Daemon launched natively.');
+
+    // Capture logs straight from the python EXE!
+    _hardwareDaemon?.stdout.listen((event) {
+      final log = String.fromCharCodes(event).trim();
+      if (log.isNotEmpty) print('[DAEMON] $log');
+    });
+    
+    _hardwareDaemon?.stderr.listen((event) {
+      final log = String.fromCharCodes(event).trim();
+      if (log.isNotEmpty) print('[DAEMON ERR] $log');
+    });
   } catch (e) {
     print('❌ Failed to start hardware daemon: $e');
   }

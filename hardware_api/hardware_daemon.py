@@ -7,7 +7,15 @@ import requests
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from datetime import datetime
 
-DLL_PATH = r"c:\parking_app\hardware_api\NP3300.dll"
+import sys
+
+# PyInstaller Path Resolver
+if getattr(sys, 'frozen', False):
+    base_dir = os.path.dirname(sys.executable)
+else:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+DLL_PATH = os.path.join(base_dir, "NP3300.dll")
 ALPR_CONF_THRESHOLD = 0.85   # 0.85 = 85%
 ALPR_DEDUPE_SEC = 2.0        # ignore same plate+lane+gate within this time
 _last_alpr = {}              # key -> last_time
@@ -40,7 +48,7 @@ PULSE_LOCK = threading.Lock()
 # ================= CONTROLLERS =================
 # We ingest dynamically from Flutter configuration
 
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), "hardware_config.json")
+CONFIG_PATH = os.path.join(base_dir, "hardware_config.json")
 cfg_data = {}
 if os.path.exists(CONFIG_PATH):
     try:
@@ -495,4 +503,6 @@ def main():
         print("[OK] Clean shutdown complete")
 
 if __name__ == "__main__":
+    # Force flush stdout so Flutter can read it live
+    sys.stdout.reconfigure(line_buffering=True)
     main()

@@ -16,6 +16,9 @@ class TicketEntryController extends GetxController {
   final availableZones = <String>[].obs;
   final selectedZone = ''.obs;
 
+  final availableGates = <String>['1', '2'];
+  final selectedGate = '1'.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -53,6 +56,7 @@ class TicketEntryController extends GetxController {
 
   void selectClass(VehicleClass vClass) => selectedClass.value = vClass;
   void selectZone(String zoneName) => selectedZone.value = zoneName;
+  void selectGate(String gate) => selectedGate.value = gate;
 
   Future<void> issueTicket() async {
     final dashboardCtrl = Get.find<DashboardController>();
@@ -107,9 +111,9 @@ class TicketEntryController extends GetxController {
     );
 
     try {
-      final url = Uri.parse('http://127.0.0.1:8088/open/ENTRY/1'); 
+      final url = Uri.parse('http://127.0.0.1:8088/open/ENTRY/${selectedGate.value}'); 
       await http.post(url).timeout(const Duration(seconds: 2)); 
-      print("SUCCESS: Entry command sent to Python hardware script!");
+      print("SUCCESS: Entry command sent to Python hardware script for Gate ${selectedGate.value}!");
     } catch (e) {
       print("WARNING: Hardware disconnected or Python script offline. $e");
     }

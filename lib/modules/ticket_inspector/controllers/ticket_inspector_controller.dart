@@ -12,7 +12,12 @@ class TicketInspectorController extends GetxController {
   final isProcessing = false.obs;
   final double ratePerHour = 20.00;
 
+  final availableGates = <String>['1', '2'];
+  final selectedGate = '1'.obs;
+
   TicketInspectorController({required this.ticket});
+
+  void selectGate(String gate) => selectedGate.value = gate;
 
   String get liveDuration {
     dashboardCtrl.currentTime.value;
@@ -37,10 +42,10 @@ class TicketInspectorController extends GetxController {
     await Future.delayed(const Duration(milliseconds: 800)); 
     
     try {
-      final url = Uri.parse('http://127.0.0.1:8088/open/EXIT/1'); 
+      final url = Uri.parse('http://127.0.0.1:8088/open/EXIT/${selectedGate.value}'); 
       
       await http.post(url).timeout(const Duration(seconds: 2)); 
-      print("SUCCESS: Command sent to Python hardware script!");
+      print("SUCCESS: Command sent to Python hardware script for Gate ${selectedGate.value}!");
     } catch (e) {
       print("WARNING: Hardware disconnected or Python script offline. $e");
     }

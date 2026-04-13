@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
@@ -47,6 +47,8 @@ class TicketEntryView extends StatelessWidget {
                           _buildVehicleClassSelector(controller),
                           const SizedBox(height: 32),
                           _buildZoneSelector(controller),
+                          const SizedBox(height: 32),
+                          _buildGateSelector(controller),
                           const SizedBox(height: 32),
                           _buildRecentLogSection(controller),
                         ],
@@ -234,6 +236,59 @@ class TicketEntryView extends StatelessWidget {
               ),
             );
           }),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGateSelector(TicketEntryController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'ASSIGN GATE',
+          style: GoogleFonts.inter(
+            color: AppColors.muted,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: controller.availableGates.map((gate) {
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: gate == controller.availableGates.last ? 0 : 12),
+                child: Obx(() {
+                  final isSelected = controller.selectedGate.value == gate;
+                  return InkWell(
+                    onTap: () => controller.selectGate(gate),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppColors.surfaceContainerHigh : AppColors.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isSelected ? AppColors.primaryContainer : Colors.transparent,
+                          width: isSelected ? 2 : 0,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Gate $gate',
+                        style: GoogleFonts.inter(
+                          color: isSelected ? AppColors.primary : AppColors.onSurface,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );

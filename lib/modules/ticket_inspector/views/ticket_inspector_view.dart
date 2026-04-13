@@ -231,7 +231,11 @@ class TicketInspectorView extends StatelessWidget {
               Text('Press Enter to Check-Out', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14, fontWeight: FontWeight.w500)),
             ],
           ),
-          Obx(() => Container(
+          Row(
+            children: [
+              _buildGateSelectorInline(controller),
+              const SizedBox(width: 16),
+              Obx(() => Container(
             decoration: BoxDecoration(
               gradient: controller.isProcessing.value ? null : const LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryContainer],
@@ -266,6 +270,55 @@ class TicketInspectorView extends StatelessWidget {
                       const Icon(Icons.payments, size: 18),
                     ],
                   ),
+            ),
+          )),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGateSelectorInline(TicketInspectorController controller) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.5)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'GATE:',
+            style: GoogleFonts.inter(
+              color: AppColors.muted,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Obx(() => DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: controller.selectedGate.value,
+              dropdownColor: AppColors.surfaceContainerLowest,
+              icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.primary, size: 18),
+              style: GoogleFonts.inter(
+                color: AppColors.primary,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+              isDense: true,
+              onChanged: (String? newValue) {
+                if (newValue != null) controller.selectGate(newValue);
+              },
+              items: controller.availableGates.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text('Gate $value'),
+                );
+              }).toList(),
             ),
           )),
         ],

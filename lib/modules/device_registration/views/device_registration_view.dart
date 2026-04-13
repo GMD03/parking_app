@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Needed for LogicalKeyboardKey
 import 'package:get/get.dart';
 import '../controllers/device_registration_controller.dart';

@@ -1,4 +1,4 @@
-// lib/modules/login/models/user_model.dart
+﻿// lib/modules/login/models/user_model.dart
 
 class UserModel {
   final String operatorId;

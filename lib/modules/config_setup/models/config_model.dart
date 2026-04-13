@@ -1,4 +1,4 @@
-// lib/modules/config_setup/models/config_model.dart
+﻿// lib/modules/config_setup/models/config_model.dart
 
 enum SyncMode { local, cloud }
 

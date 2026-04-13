@@ -1,4 +1,4 @@
-// lib/modules/device_registration/bindings/device_registration_binding.dart
+﻿// lib/modules/device_registration/bindings/device_registration_binding.dart
 
 import 'package:get/get.dart';
 import '../controllers/device_registration_controller.dart';

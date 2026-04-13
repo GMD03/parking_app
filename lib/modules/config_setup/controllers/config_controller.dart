@@ -1,4 +1,4 @@
-// lib/modules/config_setup/controllers/config_controller.dart
+﻿// lib/modules/config_setup/controllers/config_controller.dart
 
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -110,7 +110,7 @@ class ConfigController extends GetxController {
                   Expanded(
                     child: Text(
                       title,
-                      style: GoogleFonts.ibmPlexSans(
+                      style: GoogleFonts.inter(
                         color: borderColor,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -125,7 +125,7 @@ class ConfigController extends GetxController {
               const SizedBox(height: 16),
               Text(
                 message,
-                style: GoogleFonts.ibmPlexMono(
+                style: GoogleFonts.inter(
                   color: AppColors.textMain,
                   fontSize: 14,
                   height: 1.5,
@@ -149,7 +149,7 @@ class ConfigController extends GetxController {
                   ),
                   child: Text(
                     '[ ACKNOWLEDGE ]',
-                    style: GoogleFonts.ibmPlexMono(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
                     ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
@@ -76,12 +76,12 @@ class ConfigView extends GetView<ConfigController> {
               children: [
                 Text(
                   'INITIALIZATION',
-                  style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
+                  style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Setup Protocol Active'.toUpperCase(),
-                  style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 1),
+                  style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, letterSpacing: 1),
                 ),
               ],
             ),
@@ -128,8 +128,8 @@ class ConfigView extends GetView<ConfigController> {
           Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
-              'SYS.BUILD.8492 // SCADA_V2',
-              style: GoogleFonts.ibmPlexMono(color: AppColors.border, fontSize: 10, letterSpacing: 1.5),
+              'LuvPark System Core',
+              style: GoogleFonts.inter(color: AppColors.border, fontSize: 10, letterSpacing: 1.5),
             ),
           ),
         ],
@@ -152,7 +152,7 @@ class ConfigView extends GetView<ConfigController> {
           child: Center(
             child: isActive 
               ? const Icon(Icons.settings, color: AppColors.backgroundDark, size: 16)
-              : Text(stepNumber, style: GoogleFonts.ibmPlexMono(color: AppColors.border, fontSize: 12)),
+              : Text(stepNumber, style: GoogleFonts.inter(color: AppColors.border, fontSize: 12)),
           ),
         ),
         const SizedBox(width: 16),
@@ -163,7 +163,7 @@ class ConfigView extends GetView<ConfigController> {
               padding: const EdgeInsets.only(top: 2),
               child: Text(
                 'Step $stepNumber'.toUpperCase(),
-                style: GoogleFonts.ibmPlexMono(
+                style: GoogleFonts.inter(
                   color: isActive ? AppColors.primary : AppColors.muted.withOpacity(0.5),
                   fontSize: 12,
                 ),
@@ -172,7 +172,7 @@ class ConfigView extends GetView<ConfigController> {
             const SizedBox(height: 4),
             Text(
               title.toUpperCase(),
-              style: GoogleFonts.ibmPlexSans(
+              style: GoogleFonts.inter(
                 color: isActive ? AppColors.textMain : AppColors.muted.withOpacity(0.5), 
                 fontSize: 14, 
                 fontWeight: FontWeight.bold, 
@@ -194,7 +194,7 @@ class ConfigView extends GetView<ConfigController> {
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
       child: Text(
         'SYNCHRONIZATION SETUP',
-        style: GoogleFonts.ibmPlexSans(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: -0.5),
+        style: GoogleFonts.inter(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: -0.5),
       ),
     );
   }
@@ -203,9 +203,9 @@ class ConfigView extends GetView<ConfigController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('DATA PIPELINE MODE', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+        Text('DATA PIPELINE MODE', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
         const SizedBox(height: 4),
-        Text('Select how telemetry data is processed and stored.', style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 12)),
+        Text('Select how telemetry data is processed and stored.', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
         const SizedBox(height: 16),
         
         Row(
@@ -255,9 +255,9 @@ class ConfigView extends GetView<ConfigController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: GoogleFonts.ibmPlexSans(color: isSelected ? Colors.white : AppColors.textMain, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                    Text(title, style: GoogleFonts.inter(color: isSelected ? Colors.white : AppColors.textMain, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
                     const SizedBox(height: 4),
-                    Text(description, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
+                    Text(description, style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
                   ],
                 ),
               )
@@ -284,9 +284,9 @@ class ConfigView extends GetView<ConfigController> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('SYSTEM API KEY', style: GoogleFonts.ibmPlexSans(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+                  Text('SYSTEM API KEY', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
                   const SizedBox(height: 4),
-                  Text('Required for secure handshake with central command.', style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 12)),
+                  Text('Required for secure handshake with central command.', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
                 ],
               ),
               Container(
@@ -299,7 +299,7 @@ class ConfigView extends GetView<ConfigController> {
                   children: [
                     Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF00E676), shape: BoxShape.circle)),
                     const SizedBox(width: 8),
-                    Text('PORT 443 OPEN', style: GoogleFonts.ibmPlexMono(color: const Color(0xFF00E676), fontSize: 10)),
+                    Text('PORT 443 OPEN', style: GoogleFonts.inter(color: const Color(0xFF00E676), fontSize: 10)),
                   ],
                 ),
               ),
@@ -308,7 +308,7 @@ class ConfigView extends GetView<ConfigController> {
           const SizedBox(height: 24),
           TextField(
             controller: controller.apiKeyController,
-            style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 14, letterSpacing: 2.0),
+            style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 14, letterSpacing: 2.0),
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.key, color: AppColors.muted),
               filled: true,
@@ -316,7 +316,7 @@ class ConfigView extends GetView<ConfigController> {
               enabledBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.border)),
               focusedBorder: const OutlineInputBorder(borderRadius: BorderRadius.zero, borderSide: BorderSide(color: AppColors.primary)),
               hintText: 'ENTER 32-CHAR KEY...',
-              hintStyle: GoogleFonts.ibmPlexMono(color: AppColors.border, fontSize: 14, letterSpacing: 2.0),
+              hintStyle: GoogleFonts.inter(color: AppColors.border, fontSize: 14, letterSpacing: 2.0),
             ),
           ),
           const SizedBox(height: 12),
@@ -326,7 +326,7 @@ class ConfigView extends GetView<ConfigController> {
               onTap: controller.generateNewKey,
               child: Text(
                 'GENERATE NEW KEY',
-                style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10, letterSpacing: 1.0, decoration: TextDecoration.underline),
+                style: GoogleFonts.inter(color: AppColors.muted, fontSize: 10, letterSpacing: 1.0, decoration: TextDecoration.underline),
               ),
             ),
           ),
@@ -356,14 +356,14 @@ class ConfigView extends GetView<ConfigController> {
                   side: const BorderSide(color: AppColors.border),
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  textStyle: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                  textStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5),
                 ),
               ),
               const SizedBox(width: 16),
               TextButton(
                 onPressed: () => Get.offAllNamed('/login'),
                 style: TextButton.styleFrom(foregroundColor: AppColors.muted),
-                child: Text('[ LOGOUT ]', style: GoogleFonts.ibmPlexMono(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                child: Text('[ LOGOUT ]', style: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
               ),
             ],
           ),
@@ -379,7 +379,7 @@ class ConfigView extends GetView<ConfigController> {
             ),
             child: Row(
               children: [
-                Text('[ NEXT STAGE ]', style: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                Text('[ NEXT STAGE ]', style: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                 const SizedBox(width: 8),
                 const Icon(Icons.arrow_forward, size: 18),
               ],

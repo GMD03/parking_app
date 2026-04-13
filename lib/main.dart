@@ -25,30 +25,28 @@ class SystemAccessPortal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Industrial Control Parking System',
+      title: 'LuvPark',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor: AppColors.backgroundDark,
+        scaffoldBackgroundColor: AppColors.surface,
         primaryColor: AppColors.primary,
-        textTheme: GoogleFonts.ibmPlexSansTextTheme().apply(
-          bodyColor: AppColors.textMain,
-          displayColor: AppColors.textMain,
+        textTheme: GoogleFonts.interTextTheme().apply(
+          bodyColor: AppColors.onSurface,
+          displayColor: AppColors.onSurface,
         ),
         inputDecorationTheme: const InputDecorationTheme(
           filled: true,
-          fillColor: AppColors.backgroundDark,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.zero,
-            borderSide: BorderSide(color: AppColors.border),
+          fillColor: AppColors.surfaceContainerLow,
+          border: UnderlineInputBorder(
+            borderSide: BorderSide.none,
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.zero,
-            borderSide: BorderSide(color: AppColors.border),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide.none,
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.zero,
-            borderSide: BorderSide(color: AppColors.primary),
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: AppColors.primary, width: 2),
           ),
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
       ),
       // GetX Routing Setup - Using the new modular AppPages list

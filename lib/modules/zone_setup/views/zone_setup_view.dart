@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -72,14 +72,14 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
             children: [
               const Icon(Icons.grid_4x4, color: AppColors.primary, size: 16),
               const SizedBox(width: 16),
-              Text('SYS.INITIALIZATION.V2.0', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 2)),
+              Text('LuvPark Setup Module', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, letterSpacing: 2)),
             ],
           ),
           Row(
             children: [
-              Text('Operator ID: ', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
+              Text('Operator ID: ', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
               // 3. Dynamically inject the operator ID here
-              Text(operatorDisplay, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
+              Text(operatorDisplay, style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 12)),
               const SizedBox(width: 16),
               OutlinedButton.icon(
                 onPressed: () => Get.offAllNamed('/login'),
@@ -91,7 +91,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                   backgroundColor: AppColors.surface.withOpacity(0.5),
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  textStyle: GoogleFonts.ibmPlexMono(fontSize: 12),
+                  textStyle: GoogleFonts.inter(fontSize: 12),
                 ).copyWith(
                   foregroundColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.hovered) ? AppColors.danger : AppColors.muted),
                 ),
@@ -120,9 +120,9 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('INITIALIZATION', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                Text('INITIALIZATION', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
                 const SizedBox(height: 4),
-                Text('Setup Protocol Active', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 1)),
+                Text('Setup Protocol Active', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, letterSpacing: 1)),
               ],
             ),
           ),
@@ -166,7 +166,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
     } else { 
       iconColor = AppColors.border;
       bgColor = AppColors.backgroundDark;
-      iconChild = Text(step, style: GoogleFonts.ibmPlexMono(color: AppColors.border, fontSize: 12));
+      iconChild = Text(step, style: GoogleFonts.inter(color: AppColors.border, fontSize: 12));
     }
 
     return Row(
@@ -185,9 +185,9 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Step $step', style: GoogleFonts.ibmPlexMono(color: status == 1 ? AppColors.primary : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 12)),
+            Text('Step $step', style: GoogleFonts.inter(color: status == 1 ? AppColors.primary : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 12)),
             const SizedBox(height: 4),
-            Text(title.toUpperCase(), style: GoogleFonts.ibmPlexSans(color: status == 1 ? AppColors.textMain : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            Text(title.toUpperCase(), style: GoogleFonts.inter(color: status == 1 ? AppColors.textMain : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           ],
         )
       ],
@@ -203,13 +203,13 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text('FACILITY MAPPING', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 32, fontWeight: FontWeight.w600, letterSpacing: 2)),
+            Text('FACILITY MAPPING', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 32, fontWeight: FontWeight.w600, letterSpacing: 2)),
             const SizedBox(width: 16),
-            Text('[ ZONE_ALLOCATION ]', style: GoogleFonts.ibmPlexMono(color: AppColors.primary.withOpacity(0.6), fontSize: 14, letterSpacing: 2)),
+            Text('[ ZONE_ALLOCATION ]', style: GoogleFonts.inter(color: AppColors.primary.withOpacity(0.6), fontSize: 14, letterSpacing: 2)),
           ],
         ),
         const SizedBox(height: 8),
-        Text('Define the physical structure of the parking facility. Allocated zones must not exceed total physical capacity.', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14)),
+        Text('Define the physical structure of the parking facility. Allocated zones must not exceed total physical capacity.', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14)),
       ],
     );
   }
@@ -228,9 +228,9 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('TOTAL PHYSICAL CAPACITY', style: GoogleFonts.ibmPlexSans(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                Text('TOTAL PHYSICAL CAPACITY', style: GoogleFonts.inter(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
                 const SizedBox(height: 8),
-                Text('The absolute maximum number of parking spots available across all zones.', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
+                Text('The absolute maximum number of parking spots available across all zones.', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
               ],
             ),
           ),
@@ -239,7 +239,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
             width: 200,
             child: TextField(
               controller: controller.totalCapacityController,
-              style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 2),
+              style: GoogleFonts.inter(color: AppColors.primary, fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 2),
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -271,8 +271,8 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
             color: AppColors.surface,
             child: Row(
               children: [
-                Expanded(flex: 3, child: Text('ZONE IDENTIFIER', style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5))),
-                Expanded(flex: 2, child: Text('ALLOCATED SPOTS', style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5))),
+                Expanded(flex: 3, child: Text('ZONE IDENTIFIER', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5))),
+                Expanded(flex: 2, child: Text('ALLOCATED SPOTS', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5))),
                 const SizedBox(width: 48), // Space for delete button
               ],
             ),
@@ -295,7 +295,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                           flex: 3,
                           child: TextField(
                             controller: rowData.nameController,
-                            style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 14),
+                            style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 14),
                             decoration: const InputDecoration(
                               isDense: true,
                               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -309,7 +309,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                           flex: 2,
                           child: TextField(
                             controller: rowData.spotsController,
-                            style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.bold),
+                            style: GoogleFonts.inter(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.bold),
                             keyboardType: TextInputType.number,
                             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             decoration: const InputDecoration(
@@ -345,7 +345,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                 children: [
                   const Icon(Icons.add, color: AppColors.primary, size: 16),
                   const SizedBox(width: 8),
-                  Text('[ APPEND NEW ZONE ]', style: GoogleFonts.ibmPlexMono(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                  Text('[ APPEND NEW ZONE ]', style: GoogleFonts.inter(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
                 ],
               ),
             ),
@@ -368,7 +368,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
           label: const Text('RETURN TO CONFIG'),
           style: TextButton.styleFrom(
             foregroundColor: AppColors.muted,
-            textStyle: GoogleFonts.ibmPlexMono(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
+            textStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
           ),
         ),
         Row(
@@ -399,7 +399,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                 children: [
                   Text(
                     isPerfect ? 'ALLOCATION COMPLETE:' : 'REMAINING CAPACITY:', 
-                    style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)
+                    style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)
                   ),
                   const SizedBox(width: 12),
                   Container(
@@ -410,7 +410,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                     ),
                     child: Text(
                       remaining.toString(),
-                      style: GoogleFonts.ibmPlexMono(
+                      style: GoogleFonts.inter(
                         color: textColor,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -439,7 +439,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                 ),
                 child: Row(
                   children: [
-                    Text('[ VALIDATE & PROCEED ]', style: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14)),
+                    Text('[ VALIDATE & PROCEED ]', style: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14)),
                     const SizedBox(width: 12),
                     const Icon(Icons.arrow_forward, size: 18),
                   ],

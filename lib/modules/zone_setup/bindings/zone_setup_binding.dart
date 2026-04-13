@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+﻿import 'package:get/get.dart';
 import '../controllers/zone_setup_controller.dart';
 
 class ZoneSetupBinding extends Bindings {

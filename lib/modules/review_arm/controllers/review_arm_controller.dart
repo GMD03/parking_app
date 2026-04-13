@@ -1,4 +1,4 @@
-// lib/modules/review_arm/controllers/review_arm_controller.dart
+﻿// lib/modules/review_arm/controllers/review_arm_controller.dart
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -119,7 +119,7 @@ class ReviewArmController extends GetxController {
                   Expanded(
                     child: Text(
                       title,
-                      style: GoogleFonts.ibmPlexSans(
+                      style: GoogleFonts.inter(
                         color: borderColor,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -134,7 +134,7 @@ class ReviewArmController extends GetxController {
               const SizedBox(height: 16),
               Text(
                 message,
-                style: GoogleFonts.ibmPlexMono(
+                style: GoogleFonts.inter(
                   color: AppColors.textMain,
                   fontSize: 14,
                   height: 1.5,
@@ -158,7 +158,7 @@ class ReviewArmController extends GetxController {
                   ),
                   child: Text(
                     '[ ACKNOWLEDGE ]',
-                    style: GoogleFonts.ibmPlexMono(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
                     ),

@@ -1,4 +1,4 @@
-// lib/modules/device_registration/models/device_registration_model.dart
+﻿// lib/modules/device_registration/models/device_registration_model.dart
 
 class DeviceRegistrationModel {
   final String terminalId;

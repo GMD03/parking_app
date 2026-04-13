@@ -1,4 +1,4 @@
-// lib/modules/review_arm/views/review_arm_view.dart
+﻿// lib/modules/review_arm/views/review_arm_view.dart
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -86,13 +86,13 @@ class ReviewArmView extends GetView<ReviewArmController> {
             children: [
               const Icon(Icons.grid_4x4, color: AppColors.primary, size: 16),
               const SizedBox(width: 16),
-              Text('SYS.INITIALIZATION.V2.0', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 2)),
+              Text('LuvPark Setup Module', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, letterSpacing: 2)),
             ],
           ),
           Row(
             children: [
-              Text('Operator ID: ', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12)),
-              Text(operatorDisplay, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 12)),
+              Text('Operator ID: ', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
+              Text(operatorDisplay, style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 12)),
               const SizedBox(width: 16),
               OutlinedButton.icon(
                 onPressed: () => Get.offAllNamed('/login'),
@@ -104,7 +104,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
                   backgroundColor: AppColors.surface.withOpacity(0.5),
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  textStyle: GoogleFonts.ibmPlexMono(fontSize: 12),
+                  textStyle: GoogleFonts.inter(fontSize: 12),
                 ),
               )
             ],
@@ -131,9 +131,9 @@ class ReviewArmView extends GetView<ReviewArmController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('INITIALIZATION', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                Text('INITIALIZATION', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
                 const SizedBox(height: 4),
-                Text('Setup Protocol Active', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12, letterSpacing: 1)),
+                Text('Setup Protocol Active', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, letterSpacing: 1)),
               ],
             ),
           ),
@@ -177,7 +177,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
     } else { 
       iconColor = AppColors.border;
       bgColor = AppColors.backgroundDark;
-      iconChild = Text(step, style: GoogleFonts.ibmPlexMono(color: AppColors.border, fontSize: 12));
+      iconChild = Text(step, style: GoogleFonts.inter(color: AppColors.border, fontSize: 12));
     }
 
     return Row(
@@ -196,9 +196,9 @@ class ReviewArmView extends GetView<ReviewArmController> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Step $step', style: GoogleFonts.ibmPlexMono(color: status == 1 ? AppColors.primary : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 12)),
+            Text('Step $step', style: GoogleFonts.inter(color: status == 1 ? AppColors.primary : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 12)),
             const SizedBox(height: 4),
-            Text(title.toUpperCase(), style: GoogleFonts.ibmPlexSans(color: status == 1 ? AppColors.textMain : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            Text(title.toUpperCase(), style: GoogleFonts.inter(color: status == 1 ? AppColors.textMain : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           ],
         )
       ],
@@ -214,13 +214,13 @@ class ReviewArmView extends GetView<ReviewArmController> {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text('FINAL SYSTEM VALIDATION', style: GoogleFonts.ibmPlexSans(color: AppColors.textMain, fontSize: 32, fontWeight: FontWeight.w600, letterSpacing: 2)),
+            Text('FINAL SYSTEM VALIDATION', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 32, fontWeight: FontWeight.w600, letterSpacing: 2)),
             const SizedBox(width: 16),
-            Text('[ PRE-DEPLOYMENT_CHECK ]', style: GoogleFonts.ibmPlexMono(color: AppColors.primary.withOpacity(0.6), fontSize: 14, letterSpacing: 2)),
+            Text('[ PRE-DEPLOYMENT_CHECK ]', style: GoogleFonts.inter(color: AppColors.primary.withOpacity(0.6), fontSize: 14, letterSpacing: 2)),
           ],
         ),
         const SizedBox(height: 8),
-        Text('All terminal parameters must be verified before engaging the global parking perimeter.', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14)),
+        Text('All terminal parameters must be verified before engaging the global parking perimeter.', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14)),
       ],
     );
   }
@@ -239,11 +239,11 @@ class ReviewArmView extends GetView<ReviewArmController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('SYSTEM PARAMETERS', style: GoogleFonts.ibmPlexSans(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+              Text('SYSTEM PARAMETERS', style: GoogleFonts.inter(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 color: AppColors.backgroundDark,
-                child: Obx(() => Text('REF_ID: ${controller.terminalId.value}', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10))),
+                child: Obx(() => Text('REF_ID: ${controller.terminalId.value}', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 10))),
               )
             ],
           ),
@@ -281,7 +281,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
             children: [
               const Icon(Icons.map, color: AppColors.primary, size: 16),
               const SizedBox(width: 8),
-              Text('FACILITY MAPPING', style: GoogleFonts.ibmPlexSans(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+              Text('FACILITY MAPPING', style: GoogleFonts.inter(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
             ],
           ),
           const SizedBox(height: 24),
@@ -300,8 +300,8 @@ class ReviewArmView extends GetView<ReviewArmController> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(label, style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 14)),
-        Text(value, style: GoogleFonts.ibmPlexMono(color: AppColors.textMain, fontSize: 24)),
+        Text(label, style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14)),
+        Text(value, style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 24)),
       ],
     );
   }
@@ -310,7 +310,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label.toUpperCase(), style: GoogleFonts.ibmPlexSans(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+        Text(label.toUpperCase(), style: GoogleFonts.inter(color: AppColors.muted, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
         const SizedBox(height: 4),
         Row(
           children: [
@@ -320,7 +320,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
             ],
             Text(
               value, 
-              style: GoogleFonts.ibmPlexMono(
+              style: GoogleFonts.inter(
                 color: isVerified ? AppColors.success : AppColors.textMain, 
                 fontSize: 16, 
                 fontWeight: FontWeight.w600
@@ -344,7 +344,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
             label: const Text('BACK TO ZONE SETUP'),
             style: TextButton.styleFrom(
               foregroundColor: AppColors.muted,
-              textStyle: GoogleFonts.ibmPlexMono(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
+              textStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
             ),
           ),
         ),
@@ -373,7 +373,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
                     Expanded(
                       child: Text(
                         'CRITICAL: Arming the system overrides manual gate control and initiates high-voltage solenoid engagement.',
-                        style: GoogleFonts.ibmPlexMono(color: AppColors.danger, fontSize: 12),
+                        style: GoogleFonts.inter(color: AppColors.danger, fontSize: 12),
                       ),
                     ),
                   ],
@@ -401,7 +401,7 @@ class ReviewArmView extends GetView<ReviewArmController> {
                           const SizedBox(height: 12),
                           Text(
                             '[ ARM PARKING SYSTEM ]', 
-                            style: GoogleFonts.ibmPlexSans(fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 2),
+                            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 2),
                           ),
                         ],
                       ),
@@ -412,12 +412,12 @@ class ReviewArmView extends GetView<ReviewArmController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('ESTIMATED SPINDOWN: 2.4s', style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 10)),
+                  Text('ESTIMATED SPINDOWN: 2.4s', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 10)),
                   Row(
                     children: [
                       Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle)),
                       const SizedBox(width: 8),
-                      Text('HARDWARE READY', style: GoogleFonts.ibmPlexMono(color: AppColors.success, fontSize: 10, letterSpacing: 1)),
+                      Text('HARDWARE READY', style: GoogleFonts.inter(color: AppColors.success, fontSize: 10, letterSpacing: 1)),
                     ],
                   ),
                 ],

@@ -1,4 +1,4 @@
-// lib/modules/dashboard/controllers/dashboard_controller.dart
+﻿// lib/modules/dashboard/controllers/dashboard_controller.dart
 
 import 'dart:async';
 import 'package:flutter/material.dart';

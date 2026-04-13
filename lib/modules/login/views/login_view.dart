@@ -11,7 +11,7 @@ class LoginView extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.surface,
       // Wrap the entire body in a Focus widget to catch Enter key presses
       body: Focus(
         autofocus: true,
@@ -52,29 +52,30 @@ class LoginView extends GetView<LoginController> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+              color: AppColors.primaryContainer.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.grid_4x4, color: AppColors.primary, size: 48),
+            child: Image.asset('assets/app_icon.ico', width: 48, height: 48),
           ),
           const SizedBox(height: 32),
           Text(
-            'PARKING\nCONTROL\nSYSTEM',
-            style: GoogleFonts.ibmPlexSans(
-              color: AppColors.textMain,
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
+            'LuvPark',
+            style: GoogleFonts.inter(
+              color: AppColors.onSurface,
+              fontSize: 56,
+              fontWeight: FontWeight.w700,
               height: 1.1,
-              letterSpacing: 2,
+              letterSpacing: -1,
             ),
           ),
           const SizedBox(height: 24),
           Text(
-            'AUTHORIZED PERSONNEL ONLY.\nALL ACTIVITY IS LOGGED AND MONITORED.',
-            style: GoogleFonts.ibmPlexMono(
+            'Aero-utility parking management system.\nSecure authorized access only.',
+            style: GoogleFonts.inter(
               color: AppColors.muted,
-              fontSize: 14,
+              fontSize: 16,
               height: 1.5,
+              fontWeight: FontWeight.w400,
             ),
           ),
         ],
@@ -86,13 +87,14 @@ class LoginView extends GetView<LoginController> {
     return Container(
       margin: const EdgeInsets.all(48),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.border),
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
-            color: Colors.black54,
-            blurRadius: 30,
-            offset: Offset(0, 15),
+            color: Color.fromRGBO(14, 29, 40, 0.08),
+            blurRadius: 48,
+            offset: Offset(0, 24),
+            spreadRadius: -12,
           )
         ],
       ),
@@ -133,7 +135,8 @@ class LoginView extends GetView<LoginController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+        color: AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,21 +145,20 @@ class LoginView extends GetView<LoginController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'AUTHENTICATION',
-                style: GoogleFonts.ibmPlexSans(
-                  color: AppColors.textMain,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
+                'Sign In',
+                style: GoogleFonts.inter(
+                  color: AppColors.onSurface,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'SECURE NODE',
-                style: GoogleFonts.ibmPlexMono(
+                'LuvPark Network',
+                style: GoogleFonts.inter(
                   color: AppColors.primary,
-                  fontSize: 10,
-                  letterSpacing: 1.5,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -169,32 +171,36 @@ class LoginView extends GetView<LoginController> {
 
   Widget _buildStatusIndicator() {
     final isSuccess = controller.isStatusSuccess.value;
-    final color = isSuccess ? AppColors.success : AppColors.danger;
+    final color = isSuccess ? AppColors.secondaryContainer : AppColors.danger;
+    final textColor = isSuccess ? AppColors.onSecondaryContainer : AppColors.danger;
 
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(color: color.withOpacity(0.5), blurRadius: 4)
-            ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          controller.nodeStatus.value,
-          style: GoogleFonts.ibmPlexMono(
-            color: color,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
+          const SizedBox(width: 8),
+          Text(
+            controller.nodeStatus.value,
+            style: GoogleFonts.inter(
+              color: textColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -209,10 +215,10 @@ class LoginView extends GetView<LoginController> {
       children: [
         Text(
           label,
-          style: GoogleFonts.ibmPlexMono(
+          style: GoogleFonts.inter(
             color: AppColors.muted,
             fontSize: 12,
-            letterSpacing: 1.5,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 12),
@@ -220,26 +226,15 @@ class LoginView extends GetView<LoginController> {
         TextField(
           controller: controller,
           obscureText: isObscured,
-          style: GoogleFonts.ibmPlexMono(
-            color: AppColors.textMain,
+          style: GoogleFonts.inter(
+            color: AppColors.onSurface,
             fontSize: 16,
           ),
           textInputAction: isObscured ? TextInputAction.done : TextInputAction.next,
           // When the user hits 'Enter' while typing in the passcode field, submit!
           onSubmitted: isObscured ? (_) => this.controller.authenticate() : null,
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: AppColors.muted, size: 18),
-            filled: true,
-            fillColor: AppColors.backgroundDark,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
-              borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
-              borderSide: BorderSide(color: AppColors.primary, width: 1),
-            ),
+            prefixIcon: Icon(icon, color: AppColors.muted, size: 20),
           ),
         ),
       ],
@@ -247,41 +242,52 @@ class LoginView extends GetView<LoginController> {
   }
 
   Widget _buildLoginButton() {
-    return Obx(() => ElevatedButton(
-      onPressed: controller.isLoading.value ? null : controller.authenticate,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.backgroundDark,
-        disabledBackgroundColor: AppColors.primary.withOpacity(0.3),
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        elevation: 0,
+    return Obx(() => Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.primary, AppColors.primaryContainer],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Center(
-        child: controller.isLoading.value
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  color: AppColors.backgroundDark,
-                  strokeWidth: 2,
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '[ INITIATE HANDSHAKE ]',
-                    style: GoogleFonts.ibmPlexSans(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
-                      fontSize: 14,
-                    ),
+      child: ElevatedButton(
+        onPressed: controller.isLoading.value ? null : controller.authenticate,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          foregroundColor: AppColors.surfaceContainerLowest,
+          disabledBackgroundColor: AppColors.primary.withOpacity(0.3),
+          disabledForegroundColor: AppColors.surfaceContainerLowest,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 0,
+        ),
+        child: Center(
+          child: controller.isLoading.value
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    color: AppColors.surfaceContainerLowest,
+                    strokeWidth: 2,
                   ),
-                  const SizedBox(width: 12),
-                  const Icon(Icons.login, size: 18),
-                ],
-              ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Access Console',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Icon(Icons.arrow_forward_rounded, size: 20),
+                  ],
+                ),
+        ),
       ),
     ));
   }

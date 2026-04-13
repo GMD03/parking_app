@@ -1,4 +1,4 @@
-// lib/modules/device_registration/controllers/device_registration_controller.dart
+﻿// lib/modules/device_registration/controllers/device_registration_controller.dart
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -136,7 +136,7 @@ class DeviceRegistrationController extends GetxController {
                   Expanded(
                     child: Text(
                       title,
-                      style: GoogleFonts.ibmPlexSans(
+                      style: GoogleFonts.inter(
                         color: borderColor,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -151,7 +151,7 @@ class DeviceRegistrationController extends GetxController {
               const SizedBox(height: 16),
               Text(
                 message,
-                style: GoogleFonts.ibmPlexMono(
+                style: GoogleFonts.inter(
                   color: const Color(0xFFE8ECEF),
                   fontSize: 14,
                   height: 1.5,
@@ -175,7 +175,7 @@ class DeviceRegistrationController extends GetxController {
                   ),
                   child: Text(
                     '[ ACKNOWLEDGE ]',
-                    style: GoogleFonts.ibmPlexMono(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
                     ),

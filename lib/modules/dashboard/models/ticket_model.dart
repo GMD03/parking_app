@@ -1,4 +1,4 @@
-// lib/modules/dashboard/models/ticket_model.dart
+﻿// lib/modules/dashboard/models/ticket_model.dart
 
 enum TicketStatus { active, overstay, processing }
 

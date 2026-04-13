@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
@@ -6,7 +6,6 @@ import '../controllers/ticket_entry_controller.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 import '../../dashboard/models/ticket_model.dart';
 
-// CHANGED: From GetView<TicketEntryController> to StatelessWidget
 class TicketEntryView extends StatelessWidget {
   const TicketEntryView({super.key});
 
@@ -23,13 +22,12 @@ class TicketEntryView extends StatelessWidget {
               width: 400,
               height: double.infinity,
               decoration: const BoxDecoration(
-                color: AppColors.surface,
-                border: Border(left: BorderSide(color: AppColors.border)),
+                color: AppColors.surfaceContainerLowest,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black54,
-                    blurRadius: 30,
-                    offset: Offset(-10, 0),
+                    color: Color.fromRGBO(14, 29, 40, 0.08),
+                    blurRadius: 48,
+                    offset: Offset(-12, 0),
                   ),
                 ],
               ),
@@ -40,7 +38,7 @@ class TicketEntryView extends StatelessWidget {
 
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(32),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -68,9 +66,9 @@ class TicketEntryView extends StatelessWidget {
 
   Widget _buildHeader(TicketEntryController controller) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+      padding: const EdgeInsets.fromLTRB(32, 40, 32, 24),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+        color: AppColors.surfaceContainerLow,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -79,28 +77,27 @@ class TicketEntryView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'NEW ENTRY LOG',
-                style: GoogleFonts.ibmPlexSans(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
+                'New Entry Log',
+                style: GoogleFonts.inter(
+                  color: AppColors.onSurface,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'MANUAL OVERRIDE',
-                style: GoogleFonts.ibmPlexMono(
+                'Manual Override',
+                style: GoogleFonts.inter(
                   color: AppColors.primary,
-                  fontSize: 10,
-                  letterSpacing: 2,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
           IconButton(
             onPressed: () => Get.back(),
-            icon: const Icon(Icons.close, color: AppColors.muted, size: 20),
+            icon: const Icon(Icons.close, color: AppColors.muted, size: 24),
             splashRadius: 24,
             hoverColor: AppColors.danger.withOpacity(0.1),
           ),
@@ -113,57 +110,41 @@ class TicketEntryView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(
-              Icons.qr_code_scanner,
-              color: AppColors.textMain,
-              size: 14,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'LICENSE PLATE',
-              style: GoogleFonts.ibmPlexSans(
-                color: AppColors.textMain,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.5,
-              ),
-            ),
-          ],
+        Text(
+          'LICENSE PLATE',
+          style: GoogleFonts.inter(
+            color: AppColors.muted,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: controller.plateController,
           autofocus: true,
-          style: GoogleFonts.ibmPlexMono(
+          style: GoogleFonts.inter(
             color: AppColors.primary,
             fontSize: 24,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 4,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 2,
           ),
           textCapitalization: TextCapitalization.characters,
           decoration: InputDecoration(
             filled: true,
-            fillColor: AppColors.backgroundDark,
-            hintText: 'ENTER PLATE...',
-            hintStyle: GoogleFonts.ibmPlexMono(
-              color: AppColors.border,
+            fillColor: AppColors.surfaceContainerLow,
+            hintText: 'Enter Plate',
+            hintStyle: GoogleFonts.inter(
+              color: AppColors.outlineVariant,
               fontSize: 18,
-              letterSpacing: 2,
+              letterSpacing: 0,
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 20,
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
-              borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
-              borderSide: BorderSide(color: AppColors.primary),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
           ),
         ),
       ],
@@ -175,102 +156,76 @@ class TicketEntryView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'VEHICLE CLASSIFICATION',
-          style: GoogleFonts.ibmPlexSans(
+          'CLASSIFICATION',
+          style: GoogleFonts.inter(
             color: AppColors.muted,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(
-              child: _buildClassOption(
-                controller,
-                VehicleClass.car,
-                'CLASS A',
-                'SEDAN/SUV',
-              ),
-            ),
+            Expanded(child: _buildClassOption(controller, VehicleClass.car, 'Class A', 'Sedan/SUV')),
             const SizedBox(width: 12),
-            Expanded(
-              child: _buildClassOption(
-                controller,
-                VehicleClass.truck,
-                'CLASS B',
-                'TRUCK/VAN',
-              ),
-            ),
+            Expanded(child: _buildClassOption(controller, VehicleClass.truck, 'Class B', 'Truck/Van')),
           ],
         ),
         const SizedBox(height: 12),
-        _buildClassOption(
-          controller,
-          VehicleClass.moto,
-          'CLASS C',
-          'MOTORCYCLE',
-        ),
+        _buildClassOption(controller, VehicleClass.moto, 'Class C', 'Motorcycle'),
       ],
     );
   }
 
-  // Paste this method into ticket_entry_view.dart
   Widget _buildZoneSelector(TicketEntryController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'ASSIGN ZONE',
-          style: GoogleFonts.ibmPlexMono(
+          style: GoogleFonts.inter(
             color: AppColors.muted,
             fontSize: 12,
-            letterSpacing: 1.5,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 12),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
-            color: AppColors.backgroundDark,
-            border: Border.all(color: AppColors.border),
+            color: AppColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Obx(() {
-            // UI UPDATE: Show clear message when zones are full
             if (controller.availableZones.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
                   'NO AVAILABLE ZONES (FULL)',
-                  style: GoogleFonts.ibmPlexMono(
+                  style: GoogleFonts.inter(
                     color: AppColors.danger,
                     fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               );
             }
             return DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: controller.selectedZone.value.isEmpty
-                    ? null
-                    : controller.selectedZone.value,
-                dropdownColor: AppColors.surface,
+                value: controller.selectedZone.value.isEmpty ? null : controller.selectedZone.value,
+                dropdownColor: AppColors.surfaceContainerLowest,
                 icon: const Icon(Icons.arrow_drop_down, color: AppColors.muted),
                 isExpanded: true,
-                style: GoogleFonts.ibmPlexMono(
-                  color: AppColors.textMain,
-                  fontSize: 14,
+                style: GoogleFonts.inter(
+                  color: AppColors.onSurface,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                 ),
                 onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    controller.selectZone(newValue);
-                  }
+                  if (newValue != null) controller.selectZone(newValue);
                 },
-                items: controller.availableZones.map<DropdownMenuItem<String>>((
-                  String value,
-                ) {
+                items: controller.availableZones.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
@@ -284,26 +239,20 @@ class TicketEntryView extends StatelessWidget {
     );
   }
 
-  Widget _buildClassOption(
-    TicketEntryController controller,
-    VehicleClass vClass,
-    String title,
-    String subtitle,
-  ) {
+  Widget _buildClassOption(TicketEntryController controller, VehicleClass vClass, String title, String subtitle) {
     return Obx(() {
       final isSelected = controller.selectedClass.value == vClass;
       return InkWell(
         onTap: () => controller.selectClass(vClass),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.primary.withOpacity(0.1)
-                : AppColors.backgroundDark,
+            color: isSelected ? AppColors.surfaceContainerHigh : AppColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected
-                  ? AppColors.primary
-                  : AppColors.border.withOpacity(0.5),
+              color: isSelected ? AppColors.primaryContainer : Colors.transparent,
+              width: isSelected ? 2 : 0,
             ),
           ),
           child: Column(
@@ -314,28 +263,22 @@ class TicketEntryView extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.ibmPlexSans(
-                      color: isSelected
-                          ? AppColors.primary
-                          : AppColors.textMain,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                    style: GoogleFonts.inter(
+                      color: isSelected ? AppColors.primary : AppColors.onSurface,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   if (isSelected)
-                    const Icon(
-                      Icons.check_circle,
-                      color: AppColors.primary,
-                      size: 14,
-                    ),
+                    const Icon(Icons.check_circle, color: AppColors.primary, size: 16),
                 ],
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: GoogleFonts.ibmPlexMono(
+                style: GoogleFonts.inter(
                   color: AppColors.muted,
-                  fontSize: 10,
+                  fontSize: 12,
                 ),
               ),
             ],
@@ -347,35 +290,32 @@ class TicketEntryView extends StatelessWidget {
 
   Widget _buildRecentLogSection(TicketEntryController controller) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.backgroundDark,
-        border: Border.all(color: AppColors.border.withOpacity(0.3)),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.history, color: AppColors.muted, size: 14),
+              const Icon(Icons.history, color: AppColors.muted, size: 16),
               const SizedBox(width: 8),
               Text(
                 'RECENTLY ADDED',
-                style: GoogleFonts.ibmPlexMono(
+                style: GoogleFonts.inter(
                   color: AppColors.muted,
-                  fontSize: 10,
-                  letterSpacing: 1.5,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
           Obx(() {
-            // THE FIX: You must define 'recentTickets' here so the UI knows what list to build!
-            // We grab the DashboardController, look at allTickets, and take the first 3.
-            final DashboardController dashboardCtrl =
-                Get.find<DashboardController>();
+            final DashboardController dashboardCtrl = Get.find<DashboardController>();
             final recentTickets = dashboardCtrl.allTickets.take(3).toList();
 
             if (recentTickets.isEmpty) {
@@ -383,27 +323,16 @@ class TicketEntryView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
                   'NO RECENT ACTIVITY',
-                  style: GoogleFonts.ibmPlexMono(
-                    color: AppColors.muted,
-                    fontSize: 12,
-                  ),
+                  style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14),
                 ),
               );
             }
 
             return Column(
-              children: recentTickets
-                  .map(
-                    (ticket) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: _buildLogItem(
-                        ticket.formattedTimeIn,
-                        ticket.plate,
-                        ticket.zone,
-                      ),
-                    ),
-                  )
-                  .toList(),
+              children: recentTickets.map((ticket) => Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: _buildLogItem(ticket.formattedTimeIn, ticket.plate, ticket.zone),
+              )).toList(),
             );
           }),
         ],
@@ -415,87 +344,70 @@ class TicketEntryView extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          time,
-          style: GoogleFonts.ibmPlexMono(color: AppColors.muted, fontSize: 12),
-        ),
-        Text(
-          plate,
-          style: GoogleFonts.ibmPlexMono(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          zone,
-          style: GoogleFonts.ibmPlexMono(
-            color: AppColors.primary,
-            fontSize: 12,
-          ),
-        ),
+        Text(time, style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14)),
+        Text(plate, style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 14, fontWeight: FontWeight.bold)),
+        Text(zone, style: GoogleFonts.inter(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.w600)),
       ],
     );
   }
 
   Widget _buildFooter(TicketEntryController controller) {
     return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border)),
-      ),
+      padding: const EdgeInsets.all(32),
+      decoration: const BoxDecoration(color: AppColors.surfaceContainerLowest),
       child: Obx(() {
         final dashboardCtrl = Get.find<DashboardController>();
         final isGlobalFull = dashboardCtrl.availableSlots.value <= 0;
         final noZones = controller.availableZones.isEmpty;
         final isSubmitting = controller.isSubmitting.value;
 
-        // UI UPDATE: Disable button if global lot is full, zones are full, or submitting
         final isDisabled = isSubmitting || isGlobalFull || noZones;
 
-        // Determine dynamic button text
-        String buttonText = '[ ISSUE PARKING TICKET ]';
-        if (isGlobalFull)
-          buttonText = '[ FACILITY AT MAX CAPACITY ]';
-        else if (noZones)
-          buttonText = '[ ALL ZONES FULL ]';
+        String buttonText = 'Issue Parking Ticket';
+        if (isGlobalFull) buttonText = 'Facility At Max Capacity';
+        else if (noZones) buttonText = 'All Zones Full';
 
-        return ElevatedButton(
-          onPressed: isDisabled ? null : controller.issueTicket,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            disabledBackgroundColor: AppColors.primary.withOpacity(
-              0.3,
-            ), // Lower opacity to look disabled
-            foregroundColor: AppColors.backgroundDark,
-            minimumSize: const Size.fromHeight(56),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
+        return Container(
+          decoration: BoxDecoration(
+            gradient: isDisabled ? null : const LinearGradient(
+              colors: [AppColors.primary, AppColors.primaryContainer],
             ),
-            elevation: 0,
+             color: isDisabled ? AppColors.surfaceContainerLow : null,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: isDisabled ? [] : const [
+              BoxShadow(
+                color: Color.fromRGBO(0, 83, 204, 0.4),
+                blurRadius: 16,
+                offset: Offset(0, 8),
+              )
+            ],
           ),
-          child: isSubmitting
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    color: AppColors.backgroundDark,
-                    strokeWidth: 2,
+          child: ElevatedButton(
+            onPressed: isDisabled ? null : controller.issueTicket,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor: AppColors.surfaceContainerLowest,
+              disabledForegroundColor: AppColors.surfaceContainerLowest, // It will use Text style for override
+              minimumSize: const Size.fromHeight(64),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              elevation: 0,
+            ),
+            child: isSubmitting
+                ? const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(color: AppColors.surfaceContainerLowest, strokeWidth: 2),
+                  )
+                : Text(
+                    buttonText,
+                    style: GoogleFonts.inter(
+                      color: isDisabled ? AppColors.danger : AppColors.surfaceContainerLowest,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
                   ),
-                )
-              : Text(
-                  buttonText,
-                  style: GoogleFonts.ibmPlexSans(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    letterSpacing: 1.5,
-                    // Change text color to red if it's disabled due to capacity
-                    color: (isGlobalFull || noZones)
-                        ? AppColors.danger
-                        : AppColors.backgroundDark,
-                  ),
-                ),
+          ),
         );
       }),
     );

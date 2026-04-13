@@ -1,4 +1,4 @@
-// lib/modules/login/controllers/login_controller.dart
+﻿// lib/modules/login/controllers/login_controller.dart
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -147,7 +147,7 @@ class LoginController extends GetxController {
                   Expanded(
                     child: Text(
                       title,
-                      style: GoogleFonts.ibmPlexSans(
+                      style: GoogleFonts.inter(
                         color: borderColor,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -164,7 +164,7 @@ class LoginController extends GetxController {
               // Message Body
               Text(
                 message,
-                style: GoogleFonts.ibmPlexMono(
+                style: GoogleFonts.inter(
                   color: AppColors.textMain,
                   fontSize: 14,
                   height: 1.5,
@@ -191,7 +191,7 @@ class LoginController extends GetxController {
                   ),
                   child: Text(
                     '[ ACKNOWLEDGE ]',
-                    style: GoogleFonts.ibmPlexMono(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
                     ),

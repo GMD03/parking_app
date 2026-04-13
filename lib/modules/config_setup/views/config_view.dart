@@ -37,7 +37,7 @@ class ConfigView extends GetView<ConfigController> {
                             const SizedBox(height: 32),
                             _buildSyncModeSection(),
                             const SizedBox(height: 48),
-                            _buildApiConfigSection(),
+                            _buildDynamicConfigSection(),
                           ],
                         ),
                       ),
@@ -268,6 +268,80 @@ class ConfigView extends GetView<ConfigController> {
         ),
       );
     });
+  }
+
+  Widget _buildDynamicConfigSection() {
+    return Obx(() {
+      final isCloud = controller.syncMode.value == SyncMode.cloud;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildHardwareConfigSection(),
+          if (isCloud) ...[
+            const SizedBox(height: 48),
+            _buildApiConfigSection(),
+          ]
+        ],
+      );
+    });
+  }
+
+  Widget _buildHardwareConfigSection() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('HARDWARE DAEMON ROUTING', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+          const SizedBox(height: 4),
+          Text('Configure the NP3300 edge controller IP addresses and Site Name.', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(child: _buildTextField('ENTRY IP', controller.entryIpCtrl)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildTextField('ENTRY PORT', controller.entryPortCtrl, isNumber: true)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _buildTextField('EXIT IP', controller.exitIpCtrl)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildTextField('EXIT PORT', controller.exitPortCtrl, isNumber: true)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildTextField('SITE NAME', controller.siteNameCtrl),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController ctrl, {bool isNumber = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: GoogleFonts.inter(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: ctrl,
+          keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+          style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 14, letterSpacing: 1.0),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: AppColors.surfaceContainerLowest,
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildApiConfigSection() {

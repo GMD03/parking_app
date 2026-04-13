@@ -16,12 +16,23 @@ class ConfigController extends GetxController {
     text: "SCADA-8F92-K29M-XQ11-PZLV",
   );
 
+  final entryIpCtrl = TextEditingController(text: "192.168.8.230");
+  final entryPortCtrl = TextEditingController(text: "8008");
+  final exitIpCtrl = TextEditingController(text: "192.168.8.231");
+  final exitPortCtrl = TextEditingController(text: "8009");
+  final siteNameCtrl = TextEditingController(text: "LA SALLE");
+
   // --- Storage Key Constant ---
   static const String _storageKey = 'systemConfiguration';
 
   @override
   void onClose() {
     apiKeyController.dispose();
+    entryIpCtrl.dispose();
+    entryPortCtrl.dispose();
+    exitIpCtrl.dispose();
+    exitPortCtrl.dispose();
+    siteNameCtrl.dispose();
     super.onClose();
   }
 
@@ -38,10 +49,19 @@ class ConfigController extends GetxController {
 
   Future<void> nextStage() async {
     // 1. Validation
-    if (apiKeyController.text.trim().isEmpty) {
+    if (syncMode.value == SyncMode.cloud && apiKeyController.text.trim().isEmpty) {
       AerostaticDialog.show(
         title: 'CONFIG ERROR',
-        message: 'System API Key cannot be empty. Please generate or input a valid key to proceed.',
+        message: 'System API Key cannot be empty when Cloud Sync is enabled.',
+        isError: true,
+      );
+      return;
+    }
+
+    if (entryIpCtrl.text.trim().isEmpty || exitIpCtrl.text.trim().isEmpty) {
+      AerostaticDialog.show(
+        title: 'CONFIG ERROR',
+        message: 'Hardware IP mappings cannot be empty.',
         isError: true,
       );
       return;
@@ -51,6 +71,11 @@ class ConfigController extends GetxController {
     final configData = ConfigModel(
       syncMode: syncMode.value,
       apiKey: apiKeyController.text.trim(),
+      entryIp: entryIpCtrl.text.trim(),
+      entryPort: int.tryParse(entryPortCtrl.text.trim()) ?? 8008,
+      exitIp: exitIpCtrl.text.trim(),
+      exitPort: int.tryParse(exitPortCtrl.text.trim()) ?? 8009,
+      siteName: siteNameCtrl.text.trim(),
     );
 
     // 3. PERSISTENCE: Save to GetStorage

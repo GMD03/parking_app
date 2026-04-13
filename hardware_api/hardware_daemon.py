@@ -2,6 +2,7 @@ import ctypes
 import time
 import threading
 import json
+import os
 import requests
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from datetime import datetime
@@ -36,13 +37,24 @@ TICKET_URL = "http://127.0.0.1/ticket.php"
 DEFAULT_PULSE_MS = 800
 PULSE_LOCK = threading.Lock()
 
-# ================= CONTROLLERS (add more here) =================
-# gates: gate_number -> {"open": relay_no, "close": relay_no}
+# ================= CONTROLLERS =================
+# We ingest dynamically from Flutter configuration
+
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), "hardware_config.json")
+cfg_data = {}
+if os.path.exists(CONFIG_PATH):
+    try:
+        with open(CONFIG_PATH, "r") as f:
+            cfg_data = json.load(f)
+        print("✅ Loaded dynamic hardware config from flutter UI.")
+    except Exception as e:
+        print(f"❌ Error loading hardware_config.json: {e}")
+
 CONTROLLERS = {
     "ENTRY": {
-        "ip": b"192.168.8.230",
-        "port": 8008,
-        "site": "LA SALLE",
+        "ip": cfg_data.get("entryIp", "192.168.8.230").encode(),
+        "port": int(cfg_data.get("entryPort", 8008)),
+        "site": cfg_data.get("siteName", "LA SALLE"),
         "gates": {
             1: {"open": 1, "close": 3},
             2: {"open": 2, "close": 4},
@@ -53,9 +65,9 @@ CONTROLLERS = {
         "pulse_ms": DEFAULT_PULSE_MS,
     },
     "EXIT": {
-        "ip": b"192.168.8.231",
-        "port": 8009,
-        "site": "LA SALLE",
+        "ip": cfg_data.get("exitIp", "192.168.8.231").encode(),
+        "port": int(cfg_data.get("exitPort", 8009)),
+        "site": cfg_data.get("siteName", "LA SALLE"),
         "gates": {
             1: {"open": 1, "close": 3},
             2: {"open": 2, "close": 4},

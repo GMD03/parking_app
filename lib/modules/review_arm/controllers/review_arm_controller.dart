@@ -1,5 +1,7 @@
 // lib/modules/review_arm/controllers/review_arm_controller.dart
 
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -59,6 +61,24 @@ class ReviewArmController extends GetxController {
       // ONBOARDING COMPLETE: Lock the system state
       final box = GetStorage();
       await box.write('isConfigured', true);
+
+      // GENERATE HARDWARE CONFIG JSON
+      final config = ConfigController.getSystemConfig();
+      if (config != null) {
+        final hardwareJson = {
+          "entryIp": config.entryIp,
+          "entryPort": config.entryPort,
+          "exitIp": config.exitIp,
+          "exitPort": config.exitPort,
+          "siteName": config.siteName,
+        };
+        final file = File('hardware_api/hardware_config.json');
+        if (!await file.parent.exists()) {
+          await file.parent.create(recursive: true);
+        }
+        await file.writeAsString(jsonEncode(hardwareJson));
+        print('Wrote hardware_config.json successfully');
+      }
 
       // Show Success Pop-up
       AerostaticDialog.show(

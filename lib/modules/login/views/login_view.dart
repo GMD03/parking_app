@@ -49,14 +49,7 @@ class LoginView extends GetView<LoginController> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.primaryContainer.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Image.asset('assets/app_icon.ico', width: 48, height: 48),
-          ),
+          Image.asset('assets/logo.png', width: 80, height: 80),
           const SizedBox(height: 32),
           Text(
             'LuvPark',

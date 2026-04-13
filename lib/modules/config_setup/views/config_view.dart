@@ -474,7 +474,7 @@ class ConfigView extends GetView<ConfigController> {
 
   Widget _buildStickyFooter() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(top: BorderSide(color: AppColors.border)),
@@ -482,27 +482,19 @@ class ConfigView extends GetView<ConfigController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.close, size: 18),
-                label: const Text('ABORT'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.textMain,
-                  side: const BorderSide(color: AppColors.border),
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  textStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5),
-                ),
-              ),
-              const SizedBox(width: 16),
-              TextButton(
-                onPressed: () => Get.offAllNamed('/login'),
-                style: TextButton.styleFrom(foregroundColor: AppColors.muted),
-                child: Text('[ LOGOUT ]', style: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-              ),
-            ],
+          OutlinedButton.icon(
+            onPressed: () => Get.offAllNamed('/login'),
+            icon: const Icon(Icons.close, size: 18),
+            label: const Text('ABORT SETUP'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.muted,
+              side: const BorderSide(color: AppColors.border),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              textStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
+            ).copyWith(
+              foregroundColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.hovered) ? AppColors.danger : AppColors.muted),
+            ),
           ),
           AerostaticButton(
             width: 240,

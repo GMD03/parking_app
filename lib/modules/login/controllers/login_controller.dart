@@ -18,6 +18,11 @@ class LoginController extends GetxController {
   final isLoading = false.obs;
   final nodeStatus = 'NODE_ONLINE'.obs;
   final isStatusSuccess = true.obs;
+  final isPasswordObscured = true.obs;
+
+  void togglePasswordVisibility() {
+    isPasswordObscured.value = !isPasswordObscured.value;
+  }
 
   // --- Storage Key Constant ---
   static const String _sessionKey = 'currentUserSession';

@@ -104,17 +104,18 @@ class LoginView extends GetView<LoginController> {
               children: [
                 _buildInputField(
                   label: 'OPERATOR ID',
-                  controller: controller.operatorIdController,
+                  ctrl: controller.operatorIdController,
                   icon: Icons.badge_outlined,
                   isObscured: false,
                 ),
                 const SizedBox(height: 32),
-                _buildInputField(
+                Obx(() => _buildInputField(
                   label: 'SECURITY PASSCODE',
-                  controller: controller.passcodeController,
+                  ctrl: controller.passcodeController,
                   icon: Icons.password_outlined,
-                  isObscured: true,
-                ),
+                  isObscured: controller.isPasswordObscured.value,
+                  onToggleVisibility: controller.togglePasswordVisibility,
+                )),
                 const SizedBox(height: 48),
                 _buildLoginButton(),
               ],
@@ -200,9 +201,10 @@ class LoginView extends GetView<LoginController> {
 
   Widget _buildInputField({
     required String label,
-    required TextEditingController controller,
+    required TextEditingController ctrl,
     required IconData icon,
     required bool isObscured,
+    VoidCallback? onToggleVisibility,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,17 +220,28 @@ class LoginView extends GetView<LoginController> {
         const SizedBox(height: 12),
         // We use textInputAction to determine what the 'Enter' key does natively on the field
         TextField(
-          controller: controller,
+          controller: ctrl,
           obscureText: isObscured,
           style: GoogleFonts.inter(
             color: AppColors.onSurface,
             fontSize: 16,
           ),
-          textInputAction: isObscured ? TextInputAction.done : TextInputAction.next,
+          textInputAction: onToggleVisibility != null ? TextInputAction.done : TextInputAction.next,
           // When the user hits 'Enter' while typing in the passcode field, submit!
-          onSubmitted: isObscured ? (_) => this.controller.authenticate() : null,
+          onSubmitted: onToggleVisibility != null ? (_) => this.controller.authenticate() : null,
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: AppColors.muted, size: 20),
+            suffixIcon: onToggleVisibility != null
+                ? IconButton(
+                    icon: Icon(
+                      isObscured ? Icons.visibility_off : Icons.visibility,
+                      color: AppColors.muted,
+                      size: 20,
+                    ),
+                    onPressed: onToggleVisibility,
+                    splashRadius: 20,
+                  )
+                : null,
           ),
         ),
       ],

@@ -34,6 +34,7 @@ class DeviceRegistrationView extends GetView<DeviceRegistrationController> {
               padding: const EdgeInsets.all(24.0),
               child: Container(
                 width: double.infinity,
+                clipBehavior: Clip.antiAlias,
                 constraints: const BoxConstraints(
                   maxWidth: 450,
                 ),

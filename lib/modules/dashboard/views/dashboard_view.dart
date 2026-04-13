@@ -54,7 +54,7 @@ class DashboardView extends GetView<DashboardController> {
         children: [
           Row(
             children: [
-              Image.asset('assets/app_icon.ico', width: 36, height: 36),
+              Image.asset('assets/logo.png', width: 36, height: 36),
               const SizedBox(width: 16),
               Text('LuvPark Dashboard', style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
             ],

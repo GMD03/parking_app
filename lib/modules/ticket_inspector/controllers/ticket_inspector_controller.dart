@@ -6,49 +6,51 @@ import '../../dashboard/controllers/dashboard_controller.dart';
 
 class TicketInspectorController extends GetxController {
   final TicketModel ticket;
+  final DashboardController dashboardCtrl = Get.find<DashboardController>();
+  
   final isProcessing = false.obs;
   final double ratePerHour = 20.00;
 
   TicketInspectorController({required this.ticket});
 
-  // CHANGED: Calculate cost using actual Duration difference, not strings!
+  // --- THE FIX: REACTIVITY TRIGGERS ---
+  // By reading 'dashboardCtrl.currentTime.value', we tell GetX to redraw this data every time the dashboard clock ticks!
+  
+  String get liveDuration {
+    dashboardCtrl.currentTime.value;
+    return ticket.currentDuration;
+  }
+
   String get calculatedTotal {
-    final endTime = ticket.timeOut ?? DateTime.now();
-    final difference = endTime.difference(ticket.timeIn);
+    dashboardCtrl.currentTime.value; 
     
-    // Convert duration to total decimal hours
-    final totalHours = difference.inMinutes / 60.0;
+    final end = ticket.timeOut ?? DateTime.now();
+    final diff = end.difference(ticket.timeIn);
     
-    // Minimum 1 hour charge
-    final billableHours = totalHours < 1.0 ? 1.0 : totalHours;
-    
+    final totalHours = diff.inMinutes / 60.0;
+    final billableHours = totalHours < 1.0 ? 1.0 : totalHours; // Minimum 1 hr charge
     return 'P${(billableHours * ratePerHour).toStringAsFixed(2)}';
   }
 
   Future<void> processCheckout() async {
     isProcessing.value = true;
     
-    final dashboardCtrl = Get.find<DashboardController>();
-    
-    // 1. Freeze the ticket duration and mark as processing
     dashboardCtrl.initiateCheckout(ticket.id);
     
-    // Simulate payment gateway handshake
-    await Future.delayed(const Duration(milliseconds: 1200)); 
+    await Future.delayed(const Duration(milliseconds: 800)); 
     
-    // 2. Finalize checkout and remove from dashboard
     dashboardCtrl.finalizeCheckout(ticket.id);
     
     isProcessing.value = false;
-    Get.back(); // Closes modal
+    Get.back(); 
     
     Get.snackbar(
-      'CHECKOUT SUCCESSFUL', 
-      'Ticket ${ticket.id} cleared from local buffer.', 
-      backgroundColor: AppColors.success, 
+      'CHECKOUT SUCCESSFUL', 'Vehicle ${ticket.plate} cleared. Gate barrier opening.', 
+      backgroundColor: AppColors.success.withOpacity(0.9), 
       colorText: AppColors.backgroundDark, 
       borderRadius: 0, 
-      margin: const EdgeInsets.all(16)
+      margin: const EdgeInsets.all(16), 
+      icon: const Icon(Icons.check_circle, color: AppColors.backgroundDark)
     );
   }
 }

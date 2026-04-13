@@ -8,6 +8,7 @@ class TicketModel {
   final DateTime timeIn;
   DateTime? timeOut;
   final String zone;
+  final String vehicleClass;
   TicketStatus status;
 
   TicketModel({
@@ -17,6 +18,7 @@ class TicketModel {
     this.timeOut,
     required this.zone,
     required this.status,
+    required this.vehicleClass,
   });
 
   // Helper method to format time for the UI
@@ -41,13 +43,12 @@ class TicketModel {
     final endTime = timeOut ?? DateTime.now();
     final difference = endTime.difference(timeIn);
     
-    // Example Pricing Logic (Feel free to adjust the rates)
-    double baseRate = 50.0; // Flat rate for the first 2 hours
+    // Example Pricing Logic 
+    double baseRate = 50.0; 
     double hourlyOverstayRate = 20.0; // Penalty rate per extra hour
     
     // Check if duration is 2 hours (7200 seconds) or more
     if (difference.inSeconds >= 7200) { 
-      // Calculate how many hours they overstayed. 
       // Using .ceil() ensures that even 1 minute over 2 hours charges for a full extra hour.
       int overstayHours = ((difference.inSeconds - 7200) / 3600).ceil();
       
@@ -76,6 +77,9 @@ class TicketModel {
     timeIn: DateTime.parse(json['timeIn']),
     timeOut: json['timeOut'] != null ? DateTime.parse(json['timeOut']) : null,
     zone: json['zone'],
+
+    vehicleClass: json['vehicleClass'] ?? 'UNKNOWN',
+    
     status: TicketStatus.values.firstWhere(
       (e) => e.name == json['status'],
       orElse: () => TicketStatus.active,

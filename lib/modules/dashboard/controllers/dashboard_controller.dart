@@ -35,13 +35,15 @@ class DashboardController extends GetxController {
 
   final RxList<ZoneStats> zones = <ZoneStats>[].obs;
 
+  //Dummy data for testing. In a real app, this would come from a database or API.
   final RxList<TicketModel> allTickets = <TicketModel>[
     TicketModel(
       id: '#78901', 
-      plate: 'OVR-999', 
-      timeIn: DateTime.now().subtract(const Duration(hours: 3, minutes: 15)), 
-      status: TicketStatus.overstay, 
-      zone: 'LEVEL_A'
+      plate: 'OVR9119', 
+      timeIn: DateTime.now().subtract(const Duration(hours: 3)), 
+      zone: 'LEVEL_A', 
+      vehicleClass: 'CAR', 
+      status: TicketStatus.overstay
     ),
   ].obs;
 
@@ -134,6 +136,7 @@ class DashboardController extends GetxController {
       timeIn: DateTime.now(),
       status: TicketStatus.active,
       zone: zoneName, 
+      vehicleClass: vehicleClass, 
     );
 
     allTickets.insert(0, newTicket); 
@@ -155,7 +158,7 @@ class DashboardController extends GetxController {
 
     final ticket = allTickets[ticketIndex];
     ticket.status = TicketStatus.processing;
-    ticket.timeOut = DateTime.now(); // Freezes the duration & totalDue calculation!
+    ticket.timeOut = DateTime.now(); // Freezes the duration & totalDue calculation
     
     allTickets.refresh();
   }

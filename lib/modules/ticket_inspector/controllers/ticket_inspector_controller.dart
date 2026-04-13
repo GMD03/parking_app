@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http; 
+import 'dart:convert';
 import '../../../core/theme/app_colors.dart';
 import '../../dashboard/models/ticket_model.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
@@ -13,9 +15,6 @@ class TicketInspectorController extends GetxController {
 
   TicketInspectorController({required this.ticket});
 
-  // --- THE FIX: REACTIVITY TRIGGERS ---
-  // By reading 'dashboardCtrl.currentTime.value', we tell GetX to redraw this data every time the dashboard clock ticks!
-  
   String get liveDuration {
     dashboardCtrl.currentTime.value;
     return ticket.currentDuration;
@@ -23,9 +22,12 @@ class TicketInspectorController extends GetxController {
 
   String get calculatedTotal {
     dashboardCtrl.currentTime.value; 
+    final end = ticket.timeOut ?? DateTime.now();
+    final diff = end.difference(ticket.timeIn);
     
-    // Delegates calculation entirely to the active TicketModel BillingEngine
-    return 'P${ticket.totalDue.toStringAsFixed(2)}';
+    final totalHours = diff.inMinutes / 60.0;
+    final billableHours = totalHours < 1.0 ? 1.0 : totalHours; 
+    return 'P${(billableHours * ratePerHour).toStringAsFixed(2)}';
   }
 
   Future<void> processCheckout() async {
@@ -35,6 +37,23 @@ class TicketInspectorController extends GetxController {
     
     await Future.delayed(const Duration(milliseconds: 800)); 
     
+    try {
+      final url = Uri.parse('http://127.0.0.1:8088/'); 
+      
+      await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'action': 'open', 
+          'lane': 'LANE1' 
+        }),
+      ).timeout(const Duration(seconds: 2)); 
+      print("SUCCESS: Command sent to Python hardware script!");
+    } catch (e) {
+      
+      print("WARNING: Hardware disconnected or Python script offline. $e");
+    }
+
     dashboardCtrl.finalizeCheckout(ticket.id);
     
     isProcessing.value = false;

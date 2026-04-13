@@ -18,7 +18,8 @@ class LoginView extends GetView<LoginController> {
         autofocus: true,
         onKeyEvent: (node, event) {
           // If the user presses the 'Enter' key on their keyboard...
-          if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.enter) {
+          if (event is KeyDownEvent &&
+              event.logicalKey == LogicalKeyboardKey.enter) {
             // ...and we aren't already loading...
             if (!controller.isLoading.value) {
               // ...trigger the login function!
@@ -64,7 +65,7 @@ class LoginView extends GetView<LoginController> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Aero-utility parking management system.\nSecure authorized access only.',
+            'Parking management system.\nSecure authorized access only.',
             style: GoogleFonts.inter(
               color: AppColors.muted,
               fontSize: 16,
@@ -89,7 +90,7 @@ class LoginView extends GetView<LoginController> {
             blurRadius: 48,
             offset: Offset(0, 24),
             spreadRadius: -12,
-          )
+          ),
         ],
       ),
       child: Column(
@@ -109,13 +110,15 @@ class LoginView extends GetView<LoginController> {
                   isObscured: false,
                 ),
                 const SizedBox(height: 32),
-                Obx(() => _buildInputField(
-                  label: 'SECURITY PASSCODE',
-                  ctrl: controller.passcodeController,
-                  icon: Icons.password_outlined,
-                  isObscured: controller.isPasswordObscured.value,
-                  onToggleVisibility: controller.togglePasswordVisibility,
-                )),
+                Obx(
+                  () => _buildInputField(
+                    label: 'SECURITY PASSCODE',
+                    ctrl: controller.passcodeController,
+                    icon: Icons.password_outlined,
+                    isObscured: controller.isPasswordObscured.value,
+                    onToggleVisibility: controller.togglePasswordVisibility,
+                  ),
+                ),
                 const SizedBox(height: 48),
                 _buildLoginButton(),
               ],
@@ -167,7 +170,9 @@ class LoginView extends GetView<LoginController> {
   Widget _buildStatusIndicator() {
     final isSuccess = controller.isStatusSuccess.value;
     final color = isSuccess ? AppColors.secondaryContainer : AppColors.danger;
-    final textColor = isSuccess ? AppColors.onSecondaryContainer : AppColors.danger;
+    final textColor = isSuccess
+        ? AppColors.onSecondaryContainer
+        : AppColors.danger;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -180,10 +185,7 @@ class LoginView extends GetView<LoginController> {
           Container(
             width: 8,
             height: 8,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
           Text(
@@ -222,13 +224,14 @@ class LoginView extends GetView<LoginController> {
         TextField(
           controller: ctrl,
           obscureText: isObscured,
-          style: GoogleFonts.inter(
-            color: AppColors.onSurface,
-            fontSize: 16,
-          ),
-          textInputAction: onToggleVisibility != null ? TextInputAction.done : TextInputAction.next,
+          style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 16),
+          textInputAction: onToggleVisibility != null
+              ? TextInputAction.done
+              : TextInputAction.next,
           // When the user hits 'Enter' while typing in the passcode field, submit!
-          onSubmitted: onToggleVisibility != null ? (_) => this.controller.authenticate() : null,
+          onSubmitted: onToggleVisibility != null
+              ? (_) => this.controller.authenticate()
+              : null,
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: AppColors.muted, size: 20),
             suffixIcon: onToggleVisibility != null
@@ -249,11 +252,13 @@ class LoginView extends GetView<LoginController> {
   }
 
   Widget _buildLoginButton() {
-    return Obx(() => AerostaticButton(
-      label: 'Access Console',
-      icon: Icons.arrow_forward_rounded,
-      isLoading: controller.isLoading.value,
-      onPressed: controller.isLoading.value ? null : controller.authenticate,
-    ));
+    return Obx(
+      () => AerostaticButton(
+        label: 'Access Console',
+        icon: Icons.arrow_forward_rounded,
+        isLoading: controller.isLoading.value,
+        onPressed: controller.isLoading.value ? null : controller.authenticate,
+      ),
+    );
   }
 }

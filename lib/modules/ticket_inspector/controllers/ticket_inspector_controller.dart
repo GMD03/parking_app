@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http; 
-import 'dart:convert';
 import '../../../core/theme/app_colors.dart';
 import '../../dashboard/models/ticket_model.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
@@ -38,19 +37,11 @@ class TicketInspectorController extends GetxController {
     await Future.delayed(const Duration(milliseconds: 800)); 
     
     try {
-      final url = Uri.parse('http://127.0.0.1:8088/'); 
+      final url = Uri.parse('http://127.0.0.1:8088/open/EXIT/1'); 
       
-      await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'action': 'open', 
-          'lane': 'LANE1' 
-        }),
-      ).timeout(const Duration(seconds: 2)); 
+      await http.post(url).timeout(const Duration(seconds: 2)); 
       print("SUCCESS: Command sent to Python hardware script!");
     } catch (e) {
-      
       print("WARNING: Hardware disconnected or Python script offline. $e");
     }
 

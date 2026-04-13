@@ -1,7 +1,8 @@
-﻿// lib/modules/ticket_entry/controllers/ticket_entry_controller.dart
+// lib/modules/ticket_entry/controllers/ticket_entry_controller.dart
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import '../../../core/theme/app_colors.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 
@@ -104,6 +105,14 @@ class TicketEntryController extends GetxController {
       selectedClass.value.name,
       selectedZone.value,
     );
+
+    try {
+      final url = Uri.parse('http://127.0.0.1:8088/open/ENTRY/1'); 
+      await http.post(url).timeout(const Duration(seconds: 2)); 
+      print("SUCCESS: Entry command sent to Python hardware script!");
+    } catch (e) {
+      print("WARNING: Hardware disconnected or Python script offline. $e");
+    }
 
     isSubmitting.value = false;
     Get.back(); // Closes drawer

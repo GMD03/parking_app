@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'core/services/database_service.dart';
@@ -14,7 +15,20 @@ void main() async {
   // Initialize standard DatabaseService
   await DatabaseService.init();
 
-  // await DatabaseService.eraseAll();
+  // Encapsulated Python Hardware Daemon
+  try {
+    // During dev it routes locally, during exe deployment it routes alongside the exe
+    final exePath = 'hardware_api\\hardware_daemon.exe';
+    
+    await Process.start(
+      exePath,
+      [],
+      mode: ProcessStartMode.normal, // Ties the daemon lifecycle directly to Flutter
+    );
+    print('✅ Hardware Daemon launched natively.');
+  } catch (e) {
+    print('❌ Failed to start hardware daemon: $e');
+  }
 
   runApp(const SystemAccessPortal());
 }

@@ -93,7 +93,7 @@ class TicketInspectorView extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildBadge('Class', controller.ticket.vehicleClass.toUpperCase(), AppColors.muted, AppColors.surfaceContainerLowest),
+              _buildBadge('Class', _getFullClassName(controller.ticket.vehicleClass), AppColors.muted, AppColors.surfaceContainerLowest),
               const SizedBox(width: 8),
               _buildBadge('Zone', controller.ticket.zone.toUpperCase(), AppColors.primary, AppColors.surfaceContainerLowest),
               const SizedBox(width: 8),
@@ -103,6 +103,19 @@ class TicketInspectorView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getFullClassName(String shortClass) {
+    switch (shortClass.toUpperCase()) {
+      case 'MOTO': return 'MOTORCYCLE';
+      case 'CAR': return 'CAR';
+      case 'SUV': return 'SUV';
+      case 'TRUCK': return 'TRUCK';
+      case 'VAN': return 'VAN';
+      case 'BUS': return 'BUS';
+      case 'BIKE': return 'BICYCLE';
+      default: return shortClass.toUpperCase();
+    }
   }
 
   Color _getStatusColor(TicketStatus status) {
@@ -224,18 +237,9 @@ class TicketInspectorView extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.info_outline, color: AppColors.muted, size: 20),
-              const SizedBox(width: 8),
-              Text('Press Enter to Check-Out', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14, fontWeight: FontWeight.w500)),
-            ],
-          ),
-          Row(
-            children: [
-              _buildGateSelectorInline(controller),
-              const SizedBox(width: 16),
-              Obx(() => Container(
+          Expanded(child: _buildGateSelectorInline(controller)),
+          const SizedBox(width: 16),
+          Obx(() => Container(
             decoration: BoxDecoration(
               gradient: controller.isProcessing.value ? null : const LinearGradient(
                 colors: [AppColors.primary, AppColors.primaryContainer],
@@ -264,6 +268,7 @@ class TicketInspectorView extends StatelessWidget {
               child: controller.isProcessing.value 
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2))
                 : Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('Process Payment', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
                       const SizedBox(width: 8),
@@ -272,57 +277,61 @@ class TicketInspectorView extends StatelessWidget {
                   ),
             ),
           )),
-            ],
-          ),
         ],
       ),
     );
   }
 
   Widget _buildGateSelectorInline(TicketInspectorController controller) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.5)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'GATE:',
-            style: GoogleFonts.inter(
-              color: AppColors.muted,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'GATE',
+          style: GoogleFonts.inter(
+            color: AppColors.muted,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
           ),
-          const SizedBox(width: 12),
-          Obx(() => DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: controller.selectedGate.value,
-              dropdownColor: AppColors.surfaceContainerLowest,
-              icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.primary, size: 18),
-              style: GoogleFonts.inter(
-                color: AppColors.primary,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              ),
-              isDense: true,
-              onChanged: (String? newValue) {
-                if (newValue != null) controller.selectGate(newValue);
-              },
-              items: controller.availableGates.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text('Gate $value'),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Obx(() => Row(
+              children: controller.availableGates.map((String gate) {
+                final isSelected = controller.selectedGate.value == gate;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: InkWell(
+                    onTap: () => controller.selectGate(gate),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppColors.primaryContainer.withOpacity(0.2) : AppColors.surfaceContainerLowest,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isSelected ? AppColors.primary : AppColors.outlineVariant.withOpacity(0.5),
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: Text(
+                        'Gate $gate',
+                        style: GoogleFonts.inter(
+                          color: isSelected ? AppColors.primary : AppColors.muted,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
                 );
               }).toList(),
-            ),
-          )),
-        ],
-      ),
+            )),
+          ),
+        ),
+      ],
     );
   }
 }

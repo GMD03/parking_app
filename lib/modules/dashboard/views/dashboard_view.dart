@@ -396,7 +396,13 @@ class DashboardView extends GetView<DashboardController> {
               Expanded(flex: 1, child: Text(ticket.id, style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14))),
               Expanded(flex: 2, child: Text(ticket.plate, style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 16, fontWeight: FontWeight.bold))),
               Expanded(flex: 2, child: Text(ticket.formattedTimeIn, style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 14))),
-              Expanded(flex: 2, child: Text(ticket.currentDuration, style: GoogleFonts.inter(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.w600))),
+              Expanded(
+                flex: 2, 
+                child: Obx(() {
+                  controller.currentTime.value; // Explicitly observe standard tick
+                  return Text(ticket.currentDuration, style: GoogleFonts.inter(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.w600));
+                })
+              ),
               Expanded(flex: 1, child: Align(alignment: Alignment.centerRight, child: _buildStatusBadge(ticket.status))),
             ],
           ),

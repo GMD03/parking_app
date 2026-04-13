@@ -13,6 +13,11 @@ class ZoneSetupController extends GetxController {
   final totalCapacityController = TextEditingController(text: '500');
   final totalCapacity = 500.obs;
 
+  final gracePeriodCtrl = TextEditingController(text: '15');
+  final baseRateCtrl = TextEditingController(text: '20.0');
+  final overstayRateCtrl = TextEditingController(text: '30.0');
+  final overnightRateCtrl = TextEditingController(text: '150.0');
+
   final zoneRows = <ZoneRowData>[].obs;
   final allocatedSpots = 0.obs;
   
@@ -23,6 +28,7 @@ class ZoneSetupController extends GetxController {
   static const String _storageKeyTotalCapacity = 'totalFacilityCapacity';
   static const String _storageKeyZones = 'configuredZones';
   static const String _storageKeyZoneCount = 'totalZonesCount';
+  static const String _storageKeyPricing = 'facilityPricingRules';
 
   @override
   void onInit() {
@@ -39,11 +45,23 @@ class ZoneSetupController extends GetxController {
       _addZoneRow('LEVEL_A', '200');
       _addZoneRow('LEVEL_B', '150');
     }
+
+    final storedPricing = DatabaseService.getState(_storageKeyPricing);
+    if (storedPricing != null) {
+      gracePeriodCtrl.text = storedPricing['gracePeriod']?.toString() ?? '15';
+      baseRateCtrl.text = storedPricing['baseRate']?.toString() ?? '20.0';
+      overstayRateCtrl.text = storedPricing['succeedingRate']?.toString() ?? '30.0';
+      overnightRateCtrl.text = storedPricing['overnightRate']?.toString() ?? '150.0';
+    }
   }
 
   @override
   void onClose() {
     totalCapacityController.dispose();
+    gracePeriodCtrl.dispose();
+    baseRateCtrl.dispose();
+    overstayRateCtrl.dispose();
+    overnightRateCtrl.dispose();
     for (var row in zoneRows) {
       row.dispose();
     }
@@ -76,8 +94,9 @@ class ZoneSetupController extends GetxController {
     allocatedSpots.value = currentAllocated;
   }
 
+
+
   Future<void> armSystem() async {
-    // 1. Validation A: Capacity Overload (Too many spots allocated)
     if (remainingSpots < 0) {
       AerostaticDialog.show(
         title: 'CAPACITY OVERLOAD',
@@ -87,7 +106,6 @@ class ZoneSetupController extends GetxController {
       return;
     }
 
-    // 2. Validation B: Incomplete Allocation (Not all spots assigned to a zone)
     if (remainingSpots > 0) {
       AerostaticDialog.show(
         title: 'INCOMPLETE ALLOCATION',
@@ -97,15 +115,21 @@ class ZoneSetupController extends GetxController {
       return;
     }
 
-    // 3. Prepare the Zone Data for storage
     List<Map<String, dynamic>> serializedZones = zoneRows.map((row) => row.toJson()).toList();
 
-    // 4. PERSISTENCE: Save ALL settings locally
+    // Bundle our new pricing logic
+    Map<String, dynamic> pricingData = {
+      'gracePeriod': int.tryParse(gracePeriodCtrl.text) ?? 15,
+      'baseRate': double.tryParse(baseRateCtrl.text) ?? 20.0,
+      'succeedingRate': double.tryParse(overstayRateCtrl.text) ?? 30.0,
+      'overnightRate': double.tryParse(overnightRateCtrl.text) ?? 150.0,
+    };
+
     await DatabaseService.saveState(_storageKeyTotalCapacity, totalCapacity.value); 
     await DatabaseService.saveState(_storageKeyZones, serializedZones);
     await DatabaseService.saveState(_storageKeyZoneCount, serializedZones.length);
+    await DatabaseService.saveState(_storageKeyPricing, pricingData);
 
-    // 5. Seamlessly route to the Review & Arm page
     Get.toNamed(Routes.REVIEW_ARM);
   }
 
@@ -126,6 +150,4 @@ class ZoneSetupController extends GetxController {
     }
     return [{'name': 'SYSTEM_ERR', 'capacity': getTotalCapacity(), 'occupied': 0}];
   }
-
-  // Dialog removed
 }

@@ -57,7 +57,34 @@ class DashboardController extends GetxController {
   }
 
   Future<void> _loadTicketsFromDb() async {
-    final rows = await DatabaseService.instance.query('tickets', orderBy: 'timeIn DESC');
+    var rows = await DatabaseService.instance.query('tickets', orderBy: 'timeIn DESC');
+    
+    // Inject a dummy ticket if the database is currently empty for testing!
+    if (rows.isEmpty) {
+      final dummyId = '#DUMMY-9119';
+      final dummyTicket = TicketModel(
+        id: dummyId,
+        plate: 'OVR9119',
+        timeIn: DateTime.now().subtract(const Duration(hours: 3, minutes: 15)), // Over 3 hours!
+        zone: 'LEVEL_A', 
+        vehicleClass: 'CAR', 
+        status: TicketStatus.overstay
+      );
+
+      await DatabaseService.instance.insert('tickets', {
+         'id': dummyTicket.id,
+         'plate': dummyTicket.plate,
+         'timeIn': dummyTicket.timeIn.toIso8601String(),
+         'timeOut': dummyTicket.timeOut?.toIso8601String(),
+         'zone': dummyTicket.zone,
+         'vehicleClass': dummyTicket.vehicleClass,
+         'status': dummyTicket.status.name,
+      });
+
+      // Re-query to get exactly what's natively inside SQLite now
+      rows = await DatabaseService.instance.query('tickets', orderBy: 'timeIn DESC');
+    }
+
     final loaded = rows.map((r) {
       return TicketModel(
         id: r['id'] as String,

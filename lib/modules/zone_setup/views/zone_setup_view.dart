@@ -35,6 +35,8 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                             const SizedBox(height: 48),
                             _buildTotalCapacityCard(),
                             const SizedBox(height: 32),
+                            _buildPricingRulesCard(),
+                            const SizedBox(height: 32),
                             _buildZoneList(),
                             const SizedBox(height: 48),
                             _buildActionArea(),
@@ -258,6 +260,61 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPricingRulesCard() {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.surfaceContainerLow),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('PRICING & GRACE RULES', style: GoogleFonts.inter(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+          const SizedBox(height: 8),
+          Text('Define billing parameters for the specific site environment. Amounts are in local currency.', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(child: _buildPricingField('GRACE PERIOD (MINS)', controller.gracePeriodCtrl)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildPricingField('BASE RATE', controller.baseRateCtrl, prefix: 'P')),
+              const SizedBox(width: 16),
+              Expanded(child: _buildPricingField('OVERSTAY RATE/HR', controller.overstayRateCtrl, prefix: 'P')),
+              const SizedBox(width: 16),
+              Expanded(child: _buildPricingField('OVERNIGHT RATE', controller.overnightRateCtrl, prefix: 'P')),
+            ],
+          )
+        ],
+      )
+    );
+  }
+
+  Widget _buildPricingField(String label, TextEditingController textController, {String? prefix}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: textController,
+          style: GoogleFonts.inter(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.bold),
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            prefixText: prefix != null ? '$prefix ' : null,
+            prefixStyle: GoogleFonts.inter(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold),
+            filled: true,
+            fillColor: AppColors.surfaceContainerLow,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.primary)),
+          ),
+        ),
+      ],
     );
   }
 

@@ -4,6 +4,9 @@ import 'package:http/http.dart' as http;
 import '../../../core/theme/app_colors.dart';
 import '../../dashboard/models/ticket_model.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
+import '../../../core/services/database_service.dart';
+import '../../../core/utils/billing_engine.dart';
+import '../../../core/models/pricing_config.dart';
 
 class TicketInspectorController extends GetxController {
   final TicketModel ticket;
@@ -27,11 +30,20 @@ class TicketInspectorController extends GetxController {
   String get calculatedTotal {
     dashboardCtrl.currentTime.value; 
     final end = ticket.timeOut ?? DateTime.now();
-    final diff = end.difference(ticket.timeIn);
     
-    final totalHours = diff.inMinutes / 60.0;
-    final billableHours = totalHours < 1.0 ? 1.0 : totalHours; 
-    return 'P${(billableHours * ratePerHour).toStringAsFixed(2)}';
+    // Fetch live configurations
+    final storedPricing = DatabaseService.getState('facilityPricingRules');
+    final config = PricingConfig.default24Hour();
+    
+    if (storedPricing != null) {
+      config.gracePeriodMinutes = storedPricing['gracePeriod'] as int? ?? 15;
+      config.baseRate = (storedPricing['baseRate'] as num?)?.toDouble() ?? 20.0;
+      config.succeedingRate = (storedPricing['succeedingRate'] as num?)?.toDouble() ?? 30.0;
+      config.overnightRate = (storedPricing['overnightRate'] as num?)?.toDouble() ?? 150.0;
+    }
+    
+    final due = BillingEngine.calculateDue(ticket.timeIn, end, config);
+    return 'P${due.toStringAsFixed(2)}';
   }
 
   Future<void> processCheckout() async {

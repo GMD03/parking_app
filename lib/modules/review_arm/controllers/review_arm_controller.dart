@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import '../../../core/services/database_service.dart';
 import 'package:google_fonts/google_fonts.dart'; 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
@@ -59,8 +59,7 @@ class ReviewArmController extends GetxController {
       await Future.delayed(const Duration(seconds: 2)); 
 
       // ONBOARDING COMPLETE: Lock the system state
-      final box = GetStorage();
-      await box.write('isConfigured', true);
+      await DatabaseService.saveState('isConfigured', true);
 
       // GENERATE HARDWARE CONFIG JSON
       final config = ConfigController.getSystemConfig();

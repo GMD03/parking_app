@@ -1,5 +1,5 @@
-﻿import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:get/get.dart';
+import '../../../core/services/database_service.dart';
 import '../../../core/routes/app_routes.dart';
 
 class SplashController extends GetxController {
@@ -12,8 +12,7 @@ class SplashController extends GetxController {
   void _checkAppSetupState() async {
     await Future.delayed(const Duration(seconds: 2));
 
-    final box = GetStorage();
-    bool isRegistered = box.read('isDeviceRegistered') ?? false;
+    bool isRegistered = DatabaseService.getState('isDeviceRegistered') ?? false;
 
     // Routing Logic: Hardware registration is pre-login. 
     // Configuration check happens POST-login.

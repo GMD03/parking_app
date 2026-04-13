@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'core/services/database_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'core/theme/app_colors.dart';
@@ -10,11 +10,11 @@ import 'core/routes/app_routes.dart'; // Import your new Routes
 void main() async {
   // Ensure Flutter bindings are initialized before async tasks
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize standard DatabaseService
+  await DatabaseService.init();
 
-  // Initialize GetStorage
-  await GetStorage.init();
-
-  await GetStorage().erase();
+  // await DatabaseService.eraseAll();
 
   runApp(const SystemAccessPortal());
 }

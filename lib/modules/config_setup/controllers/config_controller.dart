@@ -3,7 +3,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import '../../../core/services/database_service.dart';
 import 'package:google_fonts/google_fonts.dart'; 
 import '../models/config_model.dart';
 import '../../../core/theme/app_colors.dart';
@@ -78,9 +78,8 @@ class ConfigController extends GetxController {
       siteName: siteNameCtrl.text.trim(),
     );
 
-    // 3. PERSISTENCE: Save to GetStorage
-    final box = GetStorage();
-    await box.write(_storageKey, configData.toJson());
+    // 3. PERSISTENCE: Save to DatabaseService
+    await DatabaseService.saveState(_storageKey, configData.toJson());
 
     // 4. Route to next onboarding step
     Get.toNamed(Routes.ZONE_SETUP);
@@ -90,8 +89,7 @@ class ConfigController extends GetxController {
   // Any service in the app can call ConfigController.getSystemConfig()
   // to check if the app should be syncing to the cloud or staying local.
   static ConfigModel? getSystemConfig() {
-    final box = GetStorage();
-    final data = box.read(_storageKey);
+    final data = DatabaseService.getState(_storageKey);
     if (data != null) {
       return ConfigModel.fromJson(data);
     }

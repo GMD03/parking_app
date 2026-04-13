@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import '../../../core/services/database_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/device_registration_model.dart';
 import '../../../core/theme/app_colors.dart';
@@ -55,11 +55,8 @@ class DeviceRegistrationController extends GetxController {
       await Future.delayed(const Duration(seconds: 2));
 
       // 4. PERSISTENCE: Save the data locally
-      final box = GetStorage();
-      // We save the boolean for the Splash screen routing logic
-      await box.write('isDeviceRegistered', true);
-      // We save the serialized model so global controllers can access the specific Terminal ID/Facility Code later
-      await box.write(_storageKey, registrationData.toJson());
+      await DatabaseService.saveState('isDeviceRegistered', true);
+      await DatabaseService.saveState(_storageKey, registrationData.toJson());
 
       // 5. Success Handling & Navigation
       AerostaticDialog.show(
@@ -86,8 +83,7 @@ class DeviceRegistrationController extends GetxController {
   // Any controller in the app can call DeviceRegistrationController.getRegisteredDevice()
   // to get the persisted data without needing to inject this controller.
   static DeviceRegistrationModel? getRegisteredDevice() {
-    final box = GetStorage();
-    final data = box.read(_storageKey);
+    final data = DatabaseService.getState(_storageKey);
     if (data != null) {
       return DeviceRegistrationModel.fromJson(data);
     }

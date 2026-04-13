@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import '../../../core/services/database_service.dart';
 import 'package:google_fonts/google_fonts.dart'; 
 import '../models/zone_setup_model.dart';
 import '../../../core/theme/app_colors.dart';
@@ -92,10 +92,9 @@ class ZoneSetupController extends GetxController {
     List<Map<String, dynamic>> serializedZones = zoneRows.map((row) => row.toJson()).toList();
 
     // 4. PERSISTENCE: Save ALL settings locally
-    final box = GetStorage();
-    await box.write(_storageKeyTotalCapacity, totalCapacity.value); 
-    await box.write(_storageKeyZones, serializedZones);
-    await box.write(_storageKeyZoneCount, serializedZones.length);
+    await DatabaseService.saveState(_storageKeyTotalCapacity, totalCapacity.value); 
+    await DatabaseService.saveState(_storageKeyZones, serializedZones);
+    await DatabaseService.saveState(_storageKeyZoneCount, serializedZones.length);
 
     // 5. Seamlessly route to the Review & Arm page
     Get.toNamed(Routes.REVIEW_ARM);
@@ -107,13 +106,11 @@ class ZoneSetupController extends GetxController {
 
   // --- GLOBAL ACCESS HELPERS ---
   static int getTotalCapacity() {
-    final box = GetStorage();
-    return box.read(_storageKeyTotalCapacity) ?? 500; 
+    return DatabaseService.getState(_storageKeyTotalCapacity) ?? 500; 
   }
 
   static List<Map<String, dynamic>> getConfiguredZones() {
-    final box = GetStorage();
-    List<dynamic>? storedZones = box.read(_storageKeyZones);
+    List<dynamic>? storedZones = DatabaseService.getState(_storageKeyZones);
     
     if (storedZones != null && storedZones.isNotEmpty) {
       return storedZones.cast<Map<String, dynamic>>();

@@ -57,6 +57,7 @@ class TicketModel {
     'timeIn': timeIn.toIso8601String(),
     'timeOut': timeOut?.toIso8601String(),
     'zone': zone,
+    'vehicleClass': vehicleClass,
     'status': status.name,
   };
 

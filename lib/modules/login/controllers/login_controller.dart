@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart'; 
+import '../../../core/services/database_service.dart'; 
 import 'package:google_fonts/google_fonts.dart'; 
 import '../models/user_model.dart';
 // We import the Device Registration controller to access its static helper
@@ -68,12 +68,10 @@ class LoginController extends GetxController {
 
       nodeStatus.value = 'ACCESS_GRANTED';
 
-      final box = GetStorage();
-      
       // 2. PERSISTENCE: Save the active user session
-      await box.write(_sessionKey, user.toJson());
+      await DatabaseService.saveState(_sessionKey, user.toJson());
 
-      bool isConfigured = box.read('isConfigured') ?? false;
+      bool isConfigured = DatabaseService.getState('isConfigured') ?? false;
 
       if (!isConfigured) {
         // First-time setup flow
@@ -105,8 +103,7 @@ class LoginController extends GetxController {
   // --- GLOBAL ACCESS HELPER ---
   // The Dashboard can now call LoginController.getCurrentUser() to show the Operator ID
   static UserModel? getCurrentUser() {
-    final box = GetStorage();
-    final data = box.read(_sessionKey);
+    final data = DatabaseService.getState(_sessionKey);
     if (data != null) {
       return UserModel.fromJson(data);
     }

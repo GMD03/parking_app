@@ -12,9 +12,13 @@ Process? _hardwareDaemon;
 
 Future<void> writeLog(String message) async {
   final logFile = File('luvpark_system.log');
-  final timestamp = '${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}';
+  final timestamp =
+      '${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}';
   try {
-    await logFile.writeAsString('[$timestamp] $message\n', mode: FileMode.append);
+    await logFile.writeAsString(
+      '[$timestamp] $message\n',
+      mode: FileMode.append,
+    );
   } catch (e) {
     // Failsafe if file is locked
   }
@@ -23,35 +27,38 @@ Future<void> writeLog(String message) async {
 void main() async {
   // Ensure Flutter bindings are initialized before async tasks
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize standard DatabaseService
   await DatabaseService.init();
 
-  await DatabaseService.eraseAll();
+  // await DatabaseService.eraseAll();
   // Encapsulated Python Hardware Daemon
   try {
     writeLog('SYSTEM BOOT: Initializing Local Environment...');
-    
+
     // robust path resolution for Release vs Debug vs CWD
     final String executableDir = File(Platform.resolvedExecutable).parent.path;
     String exePath = '$executableDir\\hardware_api\\hardware_daemon.exe';
-    
+
     if (!File(exePath).existsSync()) {
       // Fallback for 'flutter run' (Current Working Directory)
-      exePath = 'hardware_api\\hardware_daemon.exe'; 
+      exePath = 'hardware_api\\hardware_daemon.exe';
     }
 
     if (!File(exePath).existsSync()) {
       // Hardcoded fallback for Development when running release exe directly from build folder
-      exePath = 'c:\\parking_app\\hardware_api\\hardware_daemon.exe'; 
+      exePath = 'c:\\parking_app\\hardware_api\\hardware_daemon.exe';
     }
-    
+
     _hardwareDaemon = await Process.start(
       exePath,
       [],
-      mode: ProcessStartMode.normal, // Ties the daemon lifecycle directly to Flutter
+      mode: ProcessStartMode
+          .normal, // Ties the daemon lifecycle directly to Flutter
     );
-    writeLog('✅ Hardware Daemon launched natively on process ID: ${_hardwareDaemon?.pid}');
+    writeLog(
+      '✅ Hardware Daemon launched natively on process ID: ${_hardwareDaemon?.pid}',
+    );
 
     // Capture logs straight from the python EXE and pipe to text file!
     _hardwareDaemon?.stdout.listen((event) {
@@ -61,7 +68,7 @@ void main() async {
         writeLog('[DAEMON] $log');
       }
     });
-    
+
     _hardwareDaemon?.stderr.listen((event) {
       final log = String.fromCharCodes(event).trim();
       if (log.isNotEmpty) {

@@ -24,6 +24,12 @@ class ReviewArmController extends GetxController {
   final apiKeyStatus = ''.obs;
   final totalCapacity = 0.obs;
   final totalZones = 0.obs;
+  
+  // --- Pricing Observables ---
+  final gracePeriod = 0.obs;
+  final baseRate = 0.0.obs;
+  final succeedingRate = 0.0.obs;
+  final overnightRate = 0.0.obs;
 
   @override
   void onInit() {
@@ -45,6 +51,14 @@ class ReviewArmController extends GetxController {
     totalCapacity.value = ZoneSetupController.getTotalCapacity();
     final zones = ZoneSetupController.getConfiguredZones();
     totalZones.value = zones.length;
+
+    // 4. Fetch Pricing Data
+    final pricing = ZoneSetupController.getPricingRules();
+    gracePeriod.value = pricing['gracePeriod'];
+    // We parse double to avoid type issues from JSON
+    baseRate.value = (pricing['baseRate'] as num).toDouble();
+    succeedingRate.value = (pricing['succeedingRate'] as num).toDouble();
+    overnightRate.value = (pricing['overnightRate'] as num).toDouble();
   }
 
   void returnToZoneSetup() {

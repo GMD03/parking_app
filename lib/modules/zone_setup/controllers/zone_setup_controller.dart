@@ -150,4 +150,17 @@ class ZoneSetupController extends GetxController {
     }
     return [{'name': 'SYSTEM_ERR', 'capacity': getTotalCapacity(), 'occupied': 0}];
   }
+
+  static Map<String, dynamic> getPricingRules() {
+    final storedPricing = DatabaseService.getState(_storageKeyPricing);
+    if (storedPricing != null && storedPricing is Map<String, dynamic>) {
+      return storedPricing;
+    }
+    return {
+      'gracePeriod': 15,
+      'baseRate': 20.0,
+      'succeedingRate': 30.0,
+      'overnightRate': 150.0,
+    };
+  }
 }

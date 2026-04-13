@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../controllers/config_controller.dart';
 import '../models/config_model.dart';
 import '../../../core/widgets/aerostatic_button.dart';
+import '../../login/controllers/login_controller.dart';
 
 class ConfigView extends GetView<ConfigController> {
   const ConfigView({super.key});
@@ -13,41 +14,101 @@ class ConfigView extends GetView<ConfigController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch, // Prevents RenderFlex layout crash
+      body: Column(
         children: [
-          // Left Pane: Progression Sidebar
-          _buildSidebar(context),
-          
-          // Right Pane: Main Configuration Area
+          _buildTopNavBar(),
           Expanded(
-            child: Column(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Scrollable content area
+                // Left Pane: Progression Sidebar
+                _buildSidebar(context),
+                // Right Pane: Main Configuration Area
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 64),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 720),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildHeader(),
-                            const SizedBox(height: 32),
-                            _buildSyncModeSection(),
-                            const SizedBox(height: 48),
-                            _buildDynamicConfigSection(),
-                          ],
+                  child: Column(
+                    children: [
+                      // Scrollable content area
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 64),
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 720),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildHeader(),
+                                  const SizedBox(height: 32),
+                                  _buildSyncModeSection(),
+                                  const SizedBox(height: 48),
+                                  _buildDynamicConfigSection(),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      // Sticky Footer Action Bar
+                      _buildStickyFooter(),
+                    ],
                   ),
                 ),
-                // Sticky Footer Action Bar
-                _buildStickyFooter(),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- TOP NAVBAR ---
+  Widget _buildTopNavBar() {
+    final currentUser = LoginController.getCurrentUser();
+    final operatorDisplay = currentUser?.operatorId ?? 'GUEST';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: const BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(14, 29, 40, 0.04),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          )
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Image.asset('assets/logo.png', width: 36, height: 36),
+              const SizedBox(width: 16),
+              Text('LuvPark System Setup', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          Row(
+            children: [
+              Text('Operator ID: ', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14)),
+              Text(operatorDisplay, style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 14, fontWeight: FontWeight.w600)),
+              const SizedBox(width: 24),
+              OutlinedButton.icon(
+                onPressed: () => Get.offAllNamed('/login'),
+                icon: const Icon(Icons.logout, size: 14),
+                label: const Text('[ LOGOUT ]'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.muted,
+                  side: const BorderSide(color: AppColors.border),
+                  backgroundColor: AppColors.surface.withOpacity(0.5),
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  textStyle: GoogleFonts.inter(fontSize: 12),
+                ).copyWith(
+                  foregroundColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.hovered) ? AppColors.danger : AppColors.muted),
+                ),
+              ),
+            ],
           ),
         ],
       ),

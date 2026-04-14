@@ -33,8 +33,8 @@ class BillingEngine {
         if (remainingMinutes <= config.gracePeriodMinutes) {
           return totalDue;
         }
-        int succeedingHours = (remainingMinutes / 60.0).ceil();
-        totalDue += (succeedingHours * config.succeedingRate);
+        int succeedingBlocks = (remainingMinutes / (config.succeedingPeriod * 60.0)).ceil();
+        totalDue += (succeedingBlocks * config.succeedingRate);
         break;
 
       case ScheduleType.twentyFourHoursWithOvernight:
@@ -80,7 +80,7 @@ class BillingEngine {
         }
       }
 
-      DateTime nextBlock = pointer.add(const Duration(hours: 1));
+      DateTime nextBlock = pointer.add(Duration(hours: config.succeedingPeriod));
       
       // Determine if we should trigger Overnight
       if (hasOvernight && !isOvernightActive && _isAfterOrEqualTimeOfDay(pointer, config.overnightTime)) {

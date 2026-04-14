@@ -37,6 +37,8 @@ class TicketInspectorController extends GetxController {
     
     if (storedPricing != null) {
       config.gracePeriodMinutes = storedPricing['gracePeriod'] as int? ?? 15;
+      config.baseHours = storedPricing['baseHours'] as int? ?? config.baseHours;
+      config.succeedingPeriod = storedPricing['succeedingPeriod'] as int? ?? config.succeedingPeriod;
       config.baseRate = (storedPricing['baseRate'] as num?)?.toDouble() ?? 20.0;
       config.succeedingRate = (storedPricing['succeedingRate'] as num?)?.toDouble() ?? 30.0;
       config.overnightRate = (storedPricing['overnightRate'] as num?)?.toDouble() ?? 150.0;

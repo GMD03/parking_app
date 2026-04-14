@@ -18,6 +18,7 @@ class PricingConfig {
   double baseRate;
   int baseHours;
   double succeedingRate;
+  int succeedingPeriod;
   double overnightRate;
   
   // Times
@@ -32,6 +33,7 @@ class PricingConfig {
     required this.baseRate,
     required this.baseHours,
     required this.succeedingRate,
+    required this.succeedingPeriod,
     required this.overnightRate,
     required this.openTime,
     required this.closeTime,
@@ -47,6 +49,7 @@ class PricingConfig {
       baseRate: 20.0,
       baseHours: 1,
       succeedingRate: 20.0,
+      succeedingPeriod: 1,
       overnightRate: 150.0,
       openTime: const TimeOfDay(hour: 6, minute: 0),
       closeTime: const TimeOfDay(hour: 22, minute: 0),
@@ -63,6 +66,7 @@ class PricingConfig {
       baseRate: 20.0,
       baseHours: 3,
       succeedingRate: 10.0,
+      succeedingPeriod: 1,
       overnightRate: 150.0,
       openTime: const TimeOfDay(hour: 6, minute: 0),
       closeTime: const TimeOfDay(hour: 22, minute: 0),
@@ -79,6 +83,7 @@ class PricingConfig {
       baseRate: 20.0,
       baseHours: 2,
       succeedingRate: 20.0,
+      succeedingPeriod: 1,
       overnightRate: 150.0,
       openTime: const TimeOfDay(hour: 6, minute: 0),
       closeTime: const TimeOfDay(hour: 22, minute: 0),
@@ -95,6 +100,7 @@ class PricingConfig {
       baseRate: 20.0,
       baseHours: 2,
       succeedingRate: 20.0,
+      succeedingPeriod: 1,
       overnightRate: 200.0,
       openTime: const TimeOfDay(hour: 6, minute: 0),
       closeTime: const TimeOfDay(hour: 22, minute: 0),

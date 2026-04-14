@@ -14,6 +14,8 @@ class ZoneSetupController extends GetxController {
   final totalCapacity = 500.obs;
 
   final gracePeriodCtrl = TextEditingController(text: '15');
+  final baseHoursCtrl = TextEditingController(text: '2');
+  final succeedingPeriodCtrl = TextEditingController(text: '1');
   final baseRateCtrl = TextEditingController(text: '20.0');
   final overstayRateCtrl = TextEditingController(text: '30.0');
   final overnightRateCtrl = TextEditingController(text: '150.0');
@@ -49,6 +51,8 @@ class ZoneSetupController extends GetxController {
     final storedPricing = DatabaseService.getState(_storageKeyPricing);
     if (storedPricing != null) {
       gracePeriodCtrl.text = storedPricing['gracePeriod']?.toString() ?? '15';
+      baseHoursCtrl.text = storedPricing['baseHours']?.toString() ?? '2';
+      succeedingPeriodCtrl.text = storedPricing['succeedingPeriod']?.toString() ?? '1';
       baseRateCtrl.text = storedPricing['baseRate']?.toString() ?? '20.0';
       overstayRateCtrl.text = storedPricing['succeedingRate']?.toString() ?? '30.0';
       overnightRateCtrl.text = storedPricing['overnightRate']?.toString() ?? '150.0';
@@ -59,6 +63,8 @@ class ZoneSetupController extends GetxController {
   void onClose() {
     totalCapacityController.dispose();
     gracePeriodCtrl.dispose();
+    baseHoursCtrl.dispose();
+    succeedingPeriodCtrl.dispose();
     baseRateCtrl.dispose();
     overstayRateCtrl.dispose();
     overnightRateCtrl.dispose();
@@ -120,6 +126,8 @@ class ZoneSetupController extends GetxController {
     // Bundle our new pricing logic
     Map<String, dynamic> pricingData = {
       'gracePeriod': int.tryParse(gracePeriodCtrl.text) ?? 15,
+      'baseHours': int.tryParse(baseHoursCtrl.text) ?? 2,
+      'succeedingPeriod': int.tryParse(succeedingPeriodCtrl.text) ?? 1,
       'baseRate': double.tryParse(baseRateCtrl.text) ?? 20.0,
       'succeedingRate': double.tryParse(overstayRateCtrl.text) ?? 30.0,
       'overnightRate': double.tryParse(overnightRateCtrl.text) ?? 150.0,

@@ -1,6 +1,7 @@
 // lib/modules/dashboard/models/ticket_model.dart
 import '../../../core/models/pricing_config.dart';
 import '../../../core/utils/billing_engine.dart';
+import '../../../core/services/database_service.dart';
 
 enum TicketStatus { active, overstay, processing }
 
@@ -46,6 +47,17 @@ class TicketModel {
     
     // Using the 24 hour default configuration as the primary engine rule
     final config = PricingConfig.default24Hour(); 
+    
+    // Fetch live configurations to ensure dashboard consistency
+    final storedPricing = DatabaseService.getState('facilityPricingRules');
+    if (storedPricing != null) {
+      config.gracePeriodMinutes = storedPricing['gracePeriod'] as int? ?? 15;
+      config.baseHours = storedPricing['baseHours'] as int? ?? config.baseHours;
+      config.succeedingPeriod = storedPricing['succeedingPeriod'] as int? ?? config.succeedingPeriod;
+      config.baseRate = (storedPricing['baseRate'] as num?)?.toDouble() ?? 20.0;
+      config.succeedingRate = (storedPricing['succeedingRate'] as num?)?.toDouble() ?? 30.0;
+      config.overnightRate = (storedPricing['overnightRate'] as num?)?.toDouble() ?? 150.0;
+    }
     
     return BillingEngine.calculateDue(timeIn, endTime, config);
   }

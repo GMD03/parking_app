@@ -282,9 +282,17 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
             children: [
               Expanded(child: _buildPricingField('GRACE PERIOD (MINS)', controller.gracePeriodCtrl)),
               const SizedBox(width: 16),
-              Expanded(child: _buildPricingField('BASE RATE', controller.baseRateCtrl, prefix: 'P')),
+              Expanded(child: _buildPricingField('BASE HOURS', controller.baseHoursCtrl)),
               const SizedBox(width: 16),
-              Expanded(child: _buildPricingField('OVERSTAY RATE/HR', controller.overstayRateCtrl, prefix: 'P')),
+              Expanded(child: _buildPricingField('BASE RATE', controller.baseRateCtrl, prefix: 'P')),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _buildPricingField('SUCCEEDING PERIOD (HRS)', controller.succeedingPeriodCtrl)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildPricingField('OVERSTAY RATE', controller.overstayRateCtrl, prefix: 'P')),
               const SizedBox(width: 16),
               Expanded(child: _buildPricingField('OVERNIGHT RATE', controller.overnightRateCtrl, prefix: 'P')),
             ],

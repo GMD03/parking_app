@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../../../core/theme/app_colors.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
+import '../../../core/widgets/aerostatic_dialog.dart';
 
 enum VehicleClass { car, truck, moto }
 
@@ -63,26 +64,20 @@ class TicketEntryController extends GetxController {
 
     // GLOBAL CAPACITY CHECK: Deny entry if overall lot is full
     if (dashboardCtrl.availableSlots.value <= 0) {
-      Get.snackbar(
-        'PARKING FULL',
-        'Cannot issue ticket. No available slots in the facility.',
-        backgroundColor: AppColors.danger.withOpacity(0.9),
-        colorText: Colors.white,
-        borderRadius: 0.0,
-        margin: const EdgeInsets.all(16),
+      AerostaticDialog.toast(
+        title: 'PARKING FULL',
+        message: 'Cannot issue ticket. No available slots in the facility.',
+        isError: true,
       );
       return;
     }
 
     // ZONE CHECK: Deny entry if no valid zones are selected/available
     if (selectedZone.value.isEmpty) {
-      Get.snackbar(
-        'NO ZONE AVAILABLE',
-        'All configured zones are currently at maximum capacity.',
-        backgroundColor: AppColors.danger.withOpacity(0.9),
-        colorText: Colors.white,
-        borderRadius: 0.0,
-        margin: const EdgeInsets.all(16),
+      AerostaticDialog.toast(
+        title: 'NO ZONE AVAILABLE',
+        message: 'All configured zones are currently at maximum capacity.',
+        isError: true,
       );
       return;
     }
@@ -90,13 +85,10 @@ class TicketEntryController extends GetxController {
     final plate = plateController.text.trim();
 
     if (plate.isEmpty) {
-      Get.snackbar(
-        'VALIDATION ERROR',
-        'License Plate is required.',
-        backgroundColor: AppColors.danger.withOpacity(0.9),
-        colorText: Colors.white,
-        borderRadius: 0.0,
-        margin: const EdgeInsets.all(16),
+      AerostaticDialog.toast(
+        title: 'VALIDATION ERROR',
+        message: 'License Plate is required.',
+        isError: true,
       );
       return;
     }
@@ -122,13 +114,9 @@ class TicketEntryController extends GetxController {
     isSubmitting.value = false;
     Get.back(); // Closes drawer
 
-    Get.snackbar(
-      'TICKET ISSUED',
-      'Entry logged successfully.',
-      backgroundColor: AppColors.success,
-      colorText: AppColors.backgroundDark,
-      borderRadius: 0.0,
-      margin: const EdgeInsets.all(16),
+    AerostaticDialog.toast(
+      title: 'TICKET ISSUED',
+      message: 'Entry logged successfully.',
     );
   }
 }

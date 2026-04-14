@@ -7,6 +7,7 @@ import '../../dashboard/controllers/dashboard_controller.dart';
 import '../../../core/services/database_service.dart';
 import '../../../core/utils/billing_engine.dart';
 import '../../../core/models/pricing_config.dart';
+import '../../../core/widgets/aerostatic_dialog.dart';
 
 class TicketInspectorController extends GetxController {
   final TicketModel ticket;
@@ -79,13 +80,9 @@ class TicketInspectorController extends GetxController {
     isProcessing.value = false;
     Get.back(); 
     
-    Get.snackbar(
-      'CHECKOUT SUCCESSFUL', 'Vehicle ${ticket.plate} cleared. Gate barrier opening.', 
-      backgroundColor: AppColors.success.withOpacity(0.9), 
-      colorText: AppColors.backgroundDark, 
-      borderRadius: 0, 
-      margin: const EdgeInsets.all(16), 
-      icon: const Icon(Icons.check_circle, color: AppColors.backgroundDark)
+    AerostaticDialog.toast(
+      title: 'CHECKOUT SUCCESSFUL',
+      message: 'Vehicle ${ticket.plate} cleared. Gate barrier opening.',
     );
   }
 }

@@ -322,6 +322,7 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
           
           // Add Zone Button
           InkWell(
+            mouseCursor: SystemMouseCursors.click,
             onTap: controller.addNewZone,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 16),

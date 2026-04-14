@@ -29,7 +29,9 @@ class AerostaticButton extends StatelessWidget {
         ? [AppColors.danger, AppColors.danger.withValues(alpha: 0.8)]
         : [AppColors.primaryContainer, AppColors.secondary];
 
-    return Container(
+    return MouseRegion(
+      cursor: isDisabled ? SystemMouseCursors.basic : SystemMouseCursors.click,
+      child: Container(
       width: width,
       height: 56,
       decoration: BoxDecoration(
@@ -110,6 +112,7 @@ class AerostaticButton extends StatelessWidget {
                   ],
                 ),
         ),
+      ),
       ),
     );
   }

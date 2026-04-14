@@ -367,6 +367,7 @@ class DashboardView extends GetView<DashboardController> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        mouseCursor: SystemMouseCursors.click,
         onTap: () {
           if(ticket.status == TicketStatus.processing) return;
           Get.generalDialog(
@@ -385,13 +386,8 @@ class DashboardView extends GetView<DashboardController> {
         },
         hoverColor: AppColors.surfaceContainerLow.withOpacity(0.5),
         borderRadius: BorderRadius.circular(8),
-        child: Container(
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
-            borderRadius: BorderRadius.circular(8),
-          ),
           child: Row(
             children: [
               Expanded(flex: 1, child: Text(ticket.id, style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14))),

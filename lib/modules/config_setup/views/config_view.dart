@@ -117,6 +117,7 @@ class ConfigView extends GetView<ConfigController> {
     return Obx(() {
       final isSelected = controller.syncMode.value == mode;
       return InkWell(
+        mouseCursor: SystemMouseCursors.click,
         onTap: () => controller.updateSyncMode(mode),
         child: Container(
           padding: const EdgeInsets.all(20),
@@ -284,6 +285,7 @@ class ConfigView extends GetView<ConfigController> {
           Align(
             alignment: Alignment.centerRight,
             child: InkWell(
+              mouseCursor: SystemMouseCursors.click,
               onTap: controller.generateNewKey,
               child: Text(
                 'GENERATE NEW KEY',

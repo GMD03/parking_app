@@ -304,6 +304,7 @@ class TicketInspectorView extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: InkWell(
+                    mouseCursor: SystemMouseCursors.click,
                     onTap: () => controller.selectGate(gate),
                     borderRadius: BorderRadius.circular(8),
                     child: Container(

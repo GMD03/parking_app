@@ -31,7 +31,7 @@ void main() async {
   // Initialize standard DatabaseService
   await DatabaseService.init();
 
-  await DatabaseService.eraseAll();
+  // await DatabaseService.eraseAll();
   await DatabaseService.seedTestTickets();
   // Encapsulated Python Hardware Daemon
   try {

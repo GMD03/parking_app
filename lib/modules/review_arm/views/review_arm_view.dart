@@ -44,6 +44,8 @@ class ReviewArmView extends GetView<ReviewArmController> {
                                       _buildSystemParameters(),
                                       const SizedBox(height: 24),
                                       _buildFacilityMapping(),
+                                      const SizedBox(height: 24),
+                                      _buildPricingRules(),
                                     ],
                                   ),
                                 ),
@@ -298,6 +300,38 @@ class ReviewArmView extends GetView<ReviewArmController> {
           Obx(() => _buildRowItem('Total Capacity', controller.totalCapacity.value.toString())),
           const Divider(color: AppColors.border, height: 24),
           _buildRowItem('Gate Nodes', '2'), // Keep static or link to Device Model later
+        ],
+      ),
+    );
+  }
+
+  // NEW: Pricing rules validation section
+  Widget _buildPricingRules() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.surfaceContainerLow),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.payments_outlined, color: AppColors.primary, size: 16),
+              const SizedBox(width: 8),
+              Text('PRICING PROTOCOLS', style: GoogleFonts.inter(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Obx(() => _buildRowItem('Grace Period', '${controller.gracePeriod.value} min')),
+          const Divider(color: AppColors.border, height: 24),
+          Obx(() => _buildRowItem('Base Rate', '₱${controller.baseRate.value.toStringAsFixed(2)}')),
+          const Divider(color: AppColors.border, height: 24),
+          Obx(() => _buildRowItem('Overstay Rate', '₱${controller.succeedingRate.value.toStringAsFixed(2)} / hr')),
+          const Divider(color: AppColors.border, height: 24),
+          Obx(() => _buildRowItem('Overnight Rate', '₱${controller.overnightRate.value.toStringAsFixed(2)}')),
         ],
       ),
     );

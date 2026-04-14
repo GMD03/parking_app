@@ -57,51 +57,49 @@ class DashboardController extends GetxController {
   }
 
   Future<void> _loadTicketsFromDb() async {
-    var rows = await DatabaseService.instance.query('tickets', orderBy: 'timeIn DESC');
-    
-    // Inject a dummy ticket if the database is currently empty for testing!
-    if (rows.isEmpty) {
-      final dummyId = '#DUMMY-9119';
-      final dummyTicket = TicketModel(
-        id: dummyId,
-        plate: 'OVR9119',
-        timeIn: DateTime.now().subtract(const Duration(hours: 3, minutes: 15)), // Over 3 hours!
-        zone: 'LEVEL_A', 
-        vehicleClass: 'CAR', 
-        status: TicketStatus.overstay
-      );
-
-      await DatabaseService.instance.insert('tickets', {
-         'id': dummyTicket.id,
-         'plate': dummyTicket.plate,
-         'timeIn': dummyTicket.timeIn.toIso8601String(),
-         'timeOut': dummyTicket.timeOut?.toIso8601String(),
-         'zone': dummyTicket.zone,
-         'vehicleClass': dummyTicket.vehicleClass,
-         'status': dummyTicket.status.name,
-      });
-
-      // Re-query to get exactly what's natively inside SQLite now
-      rows = await DatabaseService.instance.query('tickets', orderBy: 'timeIn DESC');
-    }
+    final rows = await DatabaseService.instance.query('tickets', orderBy: 'timeIn DESC');
 
     final loaded = rows.map((r) {
       return TicketModel(
         id: r['id'] as String,
         plate: r['plate'] as String,
         timeIn: DateTime.parse(r['timeIn'] as String),
-        timeOut: r['timeOut'] != null ? DateTime.parse(r['timeOut'] as String) : null,
+        timeOut: (r['timeOut'] != null && (r['timeOut'] as String).isNotEmpty)
+            ? DateTime.parse(r['timeOut'] as String)
+            : null,
         zone: r['zone'] as String,
         vehicleClass: r['vehicleClass'] as String,
-        status: TicketStatus.values.firstWhere((e) => e.name == r['status']),
+        status: TicketStatus.values.firstWhere(
+          (e) => e.name == r['status'],
+          orElse: () => TicketStatus.active,
+        ),
       );
     }).toList();
-    
+
     allTickets.assignAll(loaded);
-    
+
     occupiedSlots.value = allTickets.length;
     availableSlots.value = totalCapacity - occupiedSlots.value;
-    ticketsToday.value = allTickets.length; 
+    ticketsToday.value = allTickets.length;
+
+    // Reconcile per-zone occupancy from loaded tickets
+    _reconcileZoneOccupancy();
+  }
+
+  /// Counts tickets per zone and updates the zones list with accurate occupancy.
+  void _reconcileZoneOccupancy() {
+    // Tally occupied count per zone name from active tickets
+    final Map<String, int> zoneCounts = {};
+    for (var ticket in allTickets) {
+      zoneCounts[ticket.zone] = (zoneCounts[ticket.zone] ?? 0) + 1;
+    }
+
+    // Rebuild zones list with real occupied counts
+    for (int i = 0; i < zones.length; i++) {
+      final z = zones[i];
+      final occupied = zoneCounts[z.name] ?? 0;
+      zones[i] = ZoneStats(z.name, z.capacity, occupied);
+    }
   }
 
   void _initializeSystemData() {

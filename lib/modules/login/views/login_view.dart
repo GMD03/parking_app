@@ -6,7 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../controllers/login_controller.dart';
 import '../../../core/widgets/aerostatic_button.dart';
 import 'dart:ui';
-
+import 'dart:math' as math;
 
 // ---------------------------------------------------------------------------
 // UI/UX Pro Max References Applied:
@@ -89,7 +89,7 @@ class LoginView extends GetView<LoginController> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppColors.secondary.withValues(alpha: 0.15),
+              color: AppColors.secondary.withValues(alpha: 0.18),
               width: 2,
             ),
           ),
@@ -106,7 +106,7 @@ class LoginView extends GetView<LoginController> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppColors.primaryContainer.withValues(alpha: 0.1),
+              color: AppColors.primaryContainer.withValues(alpha: 0.12),
               width: 2,
             ),
           ),
@@ -125,7 +125,7 @@ class LoginView extends GetView<LoginController> {
               width: 32,
               height: 3,
               decoration: BoxDecoration(
-                color: AppColors.primaryContainer.withValues(alpha: 0.12),
+                color: AppColors.primaryContainer.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -142,7 +142,93 @@ class LoginView extends GetView<LoginController> {
           height: 20,
           child: CustomPaint(
             painter: _CrossPainter(
-              color: AppColors.secondary.withValues(alpha: 0.2),
+              color: AppColors.secondary.withValues(alpha: 0.22),
+            ),
+          ),
+        ),
+      ),
+
+      // Diamond accent — mid-left
+      Positioned(
+        top: screenSize.height * 0.52,
+        left: 75,
+        child: Transform.rotate(
+          angle: math.pi / 4,
+          child: Container(
+            width: 16,
+            height: 16,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: AppColors.primaryContainer.withValues(alpha: 0.16),
+                width: 1.5,
+              ),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ),
+      ),
+
+      // Small filled dot — upper center
+      Positioned(
+        top: 145,
+        left: screenSize.width * 0.43,
+        child: Container(
+          width: 7,
+          height: 7,
+          decoration: BoxDecoration(
+            color: AppColors.secondary.withValues(alpha: 0.20),
+            shape: BoxShape.circle,
+          ),
+        ),
+      ),
+
+      // Vertical bar cluster — right side
+      Positioned(
+        top: screenSize.height * 0.42,
+        right: 55,
+        child: Row(
+          children: List.generate(
+            3,
+            (i) => Container(
+              margin: const EdgeInsets.only(right: 5),
+              width: 3,
+              height: 20 + (i * 4.0),
+              decoration: BoxDecoration(
+                color: AppColors.primaryContainer.withValues(alpha: 0.10 + (i * 0.04)),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+        ),
+      ),
+
+      // Arc ring — lower right
+      Positioned(
+        bottom: 200,
+        right: 160,
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: CustomPaint(
+            painter: _ArcPainter(
+              color: AppColors.secondary.withValues(alpha: 0.14),
+            ),
+          ),
+        ),
+      ),
+
+      // Small rotated square — top mid-left
+      Positioned(
+        top: 260,
+        left: 180,
+        child: Transform.rotate(
+          angle: math.pi / 6,
+          child: Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: AppColors.primaryContainer.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
         ),
@@ -212,8 +298,9 @@ class LoginView extends GetView<LoginController> {
   Widget _buildStatusIndicator() {
     final isSuccess = controller.isStatusSuccess.value;
     final color = isSuccess ? AppColors.secondaryContainer : AppColors.danger;
-    final textColor =
-        isSuccess ? AppColors.onSecondaryContainer : AppColors.danger;
+    final textColor = isSuccess
+        ? AppColors.onSecondaryContainer
+        : AppColors.danger;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -277,8 +364,11 @@ class LoginView extends GetView<LoginController> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.shield_outlined,
-                    size: 14, color: AppColors.primaryContainer),
+                Icon(
+                  Icons.shield_outlined,
+                  size: 14,
+                  color: AppColors.primaryContainer,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'ENTERPRISE GATEWAY',
@@ -551,14 +641,18 @@ class LoginView extends GetView<LoginController> {
                 : null,
             decoration: InputDecoration(
               border: InputBorder.none,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
               prefixIcon: Padding(
                 padding: const EdgeInsets.only(left: 12, right: 8),
                 child: Icon(icon, color: AppColors.primaryContainer, size: 20),
               ),
-              prefixIconConstraints:
-                  const BoxConstraints(minWidth: 44, minHeight: 44),
+              prefixIconConstraints: const BoxConstraints(
+                minWidth: 44,
+                minHeight: 44,
+              ),
               suffixIcon: onToggleVisibility != null
                   ? IconButton(
                       icon: Icon(
@@ -578,8 +672,6 @@ class LoginView extends GetView<LoginController> {
       ],
     );
   }
-
-
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -600,17 +692,20 @@ class AuroraBackgroundPainter extends CustomPainter {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          AppColors.primaryContainer.withValues(alpha: 0.06),
-          AppColors.primaryFixed.withValues(alpha: 0.1),
+          AppColors.primaryContainer.withValues(alpha: 0.09),
+          AppColors.primaryFixed.withValues(alpha: 0.14),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height * 0.4));
 
     final path1 = Path();
-    path1.moveTo(size.width * 0.5, 0);
+    path1.moveTo(size.width * 0.45, 0);
     path1.cubicTo(
-      size.width * 0.7, size.height * 0.05,
-      size.width * 1.1, size.height * 0.1,
-      size.width, size.height * 0.25,
+      size.width * 0.7,
+      size.height * 0.05,
+      size.width * 1.1,
+      size.height * 0.1,
+      size.width,
+      size.height * 0.28,
     );
     path1.lineTo(size.width, 0);
     path1.close();
@@ -618,115 +713,224 @@ class AuroraBackgroundPainter extends CustomPainter {
 
     // ── Wave 2: Left side — Cyan / secondary accent ──
     final paint2 = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          AppColors.secondary.withValues(alpha: 0.04),
-          AppColors.secondaryContainer.withValues(alpha: 0.06),
-        ],
-      ).createShader(
-          Rect.fromLTWH(0, size.height * 0.2, size.width * 0.6, size.height));
+      ..shader =
+          LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.secondary.withValues(alpha: 0.06),
+              AppColors.secondaryContainer.withValues(alpha: 0.09),
+            ],
+          ).createShader(
+            Rect.fromLTWH(0, size.height * 0.2, size.width * 0.6, size.height),
+          );
 
     final path2 = Path();
-    path2.moveTo(0, size.height * 0.35);
+    path2.moveTo(0, size.height * 0.30);
     path2.cubicTo(
-      size.width * 0.15, size.height * 0.28,
-      size.width * 0.25, size.height * 0.45,
-      size.width * 0.1, size.height * 0.6,
+      size.width * 0.18,
+      size.height * 0.24,
+      size.width * 0.28,
+      size.height * 0.44,
+      size.width * 0.12,
+      size.height * 0.62,
     );
     path2.cubicTo(
-      0, size.height * 0.7,
-      0, size.height * 0.5,
-      0, size.height * 0.35,
+      0,
+      size.height * 0.72,
+      0,
+      size.height * 0.50,
+      0,
+      size.height * 0.30,
     );
     path2.close();
     canvas.drawPath(path2, paint2);
 
     // ── Wave 3: Bottom — Soft surface wave ──
     final paint3 = Paint()
-      ..color = AppColors.surfaceVariant.withValues(alpha: 0.5);
+      ..color = AppColors.surfaceVariant.withValues(alpha: 0.6);
 
     final path3 = Path();
     path3.moveTo(0, size.height);
-    path3.lineTo(0, size.height * 0.82);
+    path3.lineTo(0, size.height * 0.80);
     path3.cubicTo(
-      size.width * 0.2, size.height * 0.88,
-      size.width * 0.4, size.height * 0.75,
-      size.width * 0.65, size.height * 0.82,
+      size.width * 0.2,
+      size.height * 0.87,
+      size.width * 0.4,
+      size.height * 0.73,
+      size.width * 0.65,
+      size.height * 0.81,
     );
     path3.cubicTo(
-      size.width * 0.85, size.height * 0.88,
-      size.width * 0.95, size.height * 0.78,
-      size.width, size.height * 0.84,
+      size.width * 0.85,
+      size.height * 0.87,
+      size.width * 0.95,
+      size.height * 0.76,
+      size.width,
+      size.height * 0.83,
     );
     path3.lineTo(size.width, size.height);
     path3.close();
     canvas.drawPath(path3, paint3);
 
-    // ── Wave 4: Top-left — Very subtle surface accent ──
+    // ── Wave 4: Top-left — Subtle surface accent ──
     final paint4 = Paint()
-      ..color = AppColors.surfaceContainerHigh.withValues(alpha: 0.25);
+      ..color = AppColors.surfaceContainerHigh.withValues(alpha: 0.32);
 
     final path4 = Path();
     path4.moveTo(0, 0);
-    path4.lineTo(0, size.height * 0.18);
+    path4.lineTo(0, size.height * 0.20);
     path4.cubicTo(
-      size.width * 0.1, size.height * 0.22,
-      size.width * 0.25, size.height * 0.12,
-      size.width * 0.35, size.height * 0.08,
+      size.width * 0.1,
+      size.height * 0.24,
+      size.width * 0.25,
+      size.height * 0.13,
+      size.width * 0.37,
+      size.height * 0.08,
     );
     path4.cubicTo(
-      size.width * 0.42, size.height * 0.05,
-      size.width * 0.3, 0,
-      size.width * 0.35, 0,
+      size.width * 0.44,
+      size.height * 0.05,
+      size.width * 0.32,
+      0,
+      size.width * 0.37,
+      0,
     );
     path4.close();
     canvas.drawPath(path4, paint4);
 
-    // ── Blob 5: Center-right — Gradient blue-to-cyan accent blob ──
+    // ── Blob 5: Center-right — Blue-to-cyan accent blob ──
     final paint5 = Paint()
-      ..shader = RadialGradient(
-        center: Alignment.center,
-        radius: 1.0,
-        colors: [
-          AppColors.primaryContainer.withValues(alpha: 0.05),
-          AppColors.secondary.withValues(alpha: 0.02),
-          Colors.transparent,
-        ],
-        stops: const [0.0, 0.6, 1.0],
-      ).createShader(Rect.fromCenter(
-        center: Offset(size.width * 0.78, size.height * 0.45),
-        width: 300,
-        height: 300,
-      ));
+      ..shader =
+          RadialGradient(
+            center: Alignment.center,
+            radius: 1.0,
+            colors: [
+              AppColors.primaryContainer.withValues(alpha: 0.07),
+              AppColors.secondary.withValues(alpha: 0.03),
+              Colors.transparent,
+            ],
+            stops: const [0.0, 0.6, 1.0],
+          ).createShader(
+            Rect.fromCenter(
+              center: Offset(size.width * 0.78, size.height * 0.45),
+              width: 340,
+              height: 340,
+            ),
+          );
 
     canvas.drawCircle(
       Offset(size.width * 0.78, size.height * 0.45),
-      150,
+      170,
       paint5,
     );
 
-    // ── Blob 6: Bottom-left — Subtle warm blob ──
+    // ── Blob 6: Bottom-left — Cyan accent blob ──
     final paint6 = Paint()
-      ..shader = RadialGradient(
-        center: Alignment.center,
-        radius: 1.0,
-        colors: [
-          AppColors.secondary.withValues(alpha: 0.04),
-          Colors.transparent,
-        ],
-      ).createShader(Rect.fromCenter(
-        center: Offset(size.width * 0.15, size.height * 0.75),
-        width: 240,
-        height: 240,
-      ));
+      ..shader =
+          RadialGradient(
+            center: Alignment.center,
+            radius: 1.0,
+            colors: [
+              AppColors.secondary.withValues(alpha: 0.06),
+              Colors.transparent,
+            ],
+          ).createShader(
+            Rect.fromCenter(
+              center: Offset(size.width * 0.15, size.height * 0.75),
+              width: 280,
+              height: 280,
+            ),
+          );
 
     canvas.drawCircle(
       Offset(size.width * 0.15, size.height * 0.75),
-      120,
+      140,
       paint6,
     );
+
+    // ── Blob 7: Top-center — Primary radial glow ──
+    final paint7 = Paint()
+      ..shader =
+          RadialGradient(
+            center: Alignment.center,
+            radius: 1.0,
+            colors: [
+              AppColors.primaryContainer.withValues(alpha: 0.06),
+              Colors.transparent,
+            ],
+          ).createShader(
+            Rect.fromCenter(
+              center: Offset(size.width * 0.50, size.height * 0.12),
+              width: 320,
+              height: 320,
+            ),
+          );
+
+    canvas.drawCircle(
+      Offset(size.width * 0.50, size.height * 0.12),
+      160,
+      paint7,
+    );
+
+    // ── Blob 8: Bottom-right — Secondary warm glow ──
+    final paint8 = Paint()
+      ..shader =
+          RadialGradient(
+            center: Alignment.center,
+            radius: 1.0,
+            colors: [
+              AppColors.secondaryContainer.withValues(alpha: 0.05),
+              Colors.transparent,
+            ],
+          ).createShader(
+            Rect.fromCenter(
+              center: Offset(size.width * 0.82, size.height * 0.78),
+              width: 260,
+              height: 260,
+            ),
+          );
+
+    canvas.drawCircle(
+      Offset(size.width * 0.82, size.height * 0.78),
+      130,
+      paint8,
+    );
+
+    // ── Painted arc accent — mid-right decorative curve ──
+    final arcPaint = Paint()
+      ..color = AppColors.primaryContainer.withValues(alpha: 0.08)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    canvas.drawArc(
+      Rect.fromCenter(
+        center: Offset(size.width * 0.88, size.height * 0.58),
+        width: 80,
+        height: 80,
+      ),
+      -math.pi / 3,
+      math.pi * 0.8,
+      false,
+      arcPaint,
+    );
+
+    // ── Painted diamond — lower-center decorative shape ──
+    final diamondPaint = Paint()
+      ..color = AppColors.secondary.withValues(alpha: 0.06)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+
+    final diamondPath = Path();
+    final cx = size.width * 0.62;
+    final cy = size.height * 0.88;
+    const dSize = 14.0;
+    diamondPath.moveTo(cx, cy - dSize);
+    diamondPath.lineTo(cx + dSize, cy);
+    diamondPath.lineTo(cx, cy + dSize);
+    diamondPath.lineTo(cx - dSize, cy);
+    diamondPath.close();
+    canvas.drawPath(diamondPath, diamondPaint);
   }
 
   @override
@@ -782,6 +986,32 @@ class _CrossPainter extends CustomPainter {
     canvas.drawLine(
       Offset(size.width / 2, 0),
       Offset(size.width / 2, size.height),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Semi-circle arc accent painter
+class _ArcPainter extends CustomPainter {
+  final Color color;
+  _ArcPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      -math.pi / 4,
+      math.pi,
+      false,
       paint,
     );
   }

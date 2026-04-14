@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:flutter/foundation.dart';
 
 class DatabaseService {
   static late Database _db;
@@ -85,6 +86,67 @@ class DatabaseService {
     _memoryCache.clear();
     await _db.delete('app_state');
     await _db.delete('tickets');
+  }
+
+  // --- TEST DATA SEEDING ---
+
+  static Future<void> seedTestTickets() async {
+    final now = DateTime.now();
+
+    // Generate IDs matching the addTicket() format: #${millis.substring(5)}
+    String generateId(int offsetMs) {
+      final ms = (now.millisecondsSinceEpoch - offsetMs).toString();
+      return '#${ms.substring(5)}';
+    }
+
+    // Scenario 1: Short stay (1 hour ago) — should trigger Base Rate
+    final shortStay = now.subtract(const Duration(hours: 1));
+
+    // Scenario 2: Extended stay (5 hours ago) — should trigger Succeeding Rates
+    final longStay = now.subtract(const Duration(hours: 5));
+
+    // Scenario 3: Overnight stay (28 hours ago) — should trigger Overnight + Succeeding
+    final overnightStay = now.subtract(const Duration(hours: 28));
+
+    List<Map<String, dynamic>> testTickets = [
+      {
+        'id': generateId(0),
+        'plate': 'ABC-1234',
+        'timeIn': shortStay.toIso8601String(),
+        'timeOut': null,
+        'zone': 'LEVEL_A',
+        'vehicleClass': 'CAR',
+        'status': 'active',
+      },
+      {
+        'id': generateId(1),
+        'plate': 'XYZ-9876',
+        'timeIn': longStay.toIso8601String(),
+        'timeOut': null,
+        'zone': 'LEVEL_B',
+        'vehicleClass': 'SUV',
+        'status': 'overstay',
+      },
+      {
+        'id': generateId(2),
+        'plate': 'DEF-4567',
+        'timeIn': overnightStay.toIso8601String(),
+        'timeOut': null,
+        'zone': 'LEVEL_A',
+        'vehicleClass': 'VAN',
+        'status': 'overstay',
+      },
+    ];
+
+    for (var ticket in testTickets) {
+      await _db.insert(
+        'tickets',
+        ticket,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
+    debugPrint('✅ Test tickets seeded: Base(1h/LEVEL_A), Succeeding(5h/LEVEL_B), Overnight(28h/LEVEL_A)');
   }
 
   // --- TICKETS REPOSITORY ---

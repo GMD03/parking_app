@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../controllers/dashboard_controller.dart';
 import '../models/ticket_model.dart';
 import '../../ticket_inspector/views/ticket_inspector_view.dart';
+import '../../../core/widgets/aerostatic_button.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -447,39 +448,11 @@ class DashboardView extends GetView<DashboardController> {
   Widget _buildFAB() {
     return Padding(
       padding: const EdgeInsets.only(right: 16, bottom: 16),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.primary, AppColors.primaryContainer],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(0, 83, 204, 0.4),
-              blurRadius: 16,
-              offset: Offset(0, 8),
-            )
-          ],
-        ),
-        child: ElevatedButton(
-          onPressed: controller.openNewTicketPanel,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            foregroundColor: AppColors.surfaceContainerLowest,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            elevation: 0,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.add, size: 24),
-              const SizedBox(width: 12),
-              Text('New Ticket', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
-            ],
-          ),
-        ),
+      child: AerostaticButton(
+        label: 'New Ticket',
+        icon: Icons.add,
+        onPressed: controller.openNewTicketPanel,
+        width: 200,
       ),
     );
   }

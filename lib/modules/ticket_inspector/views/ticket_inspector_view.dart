@@ -199,7 +199,7 @@ class TicketInspectorView extends StatelessWidget {
                 children: [
                   Text('Rate Class', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 12),
-                  Text('P${controller.ratePerHour.toStringAsFixed(2)} / HR', style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 16, fontWeight: FontWeight.w600)),
+                  Text('P${controller.ratePerHour.toStringAsFixed(2)}', style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 16, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),

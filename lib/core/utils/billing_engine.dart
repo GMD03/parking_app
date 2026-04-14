@@ -4,14 +4,6 @@ import '../models/pricing_config.dart';
 class BillingEngine {
   /// Calculate the total due based on the provided configuration matrix.
   static double calculateDue(DateTime timeIn, DateTime timeOut, PricingConfig config) {
-    Duration totalDuration = timeOut.difference(timeIn);
-    
-    // 1. Trigger Free Period
-    // If the vehicle exits before the free period expires, zero charge.
-    if (totalDuration.inMinutes <= config.freePeriodMinutes) {
-      return 0.0;
-    }
-    
     double totalDue = 0.0;
     
     // 2. Base Rate applies immediately once free period is surpassed.

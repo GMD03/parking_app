@@ -35,6 +35,8 @@ class LoginController extends GetxController {
   }
 
   Future<void> authenticate() async {
+    if (isLoading.value) return;
+
     final operatorId = operatorIdController.text.trim();
     final passcode = passcodeController.text;
 

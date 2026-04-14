@@ -64,8 +64,7 @@ class DeviceRegistrationController extends GetxController {
         message: 'Terminal has been authenticated and registered successfully on the local network.',
         isError: false,
         onAcknowledge: () {
-          // Route to Login Control
-          Get.offAllNamed(Routes.LOGIN); 
+          Get.offAllNamed(Routes.LOGIN);
         },
       );
     } catch (e) {

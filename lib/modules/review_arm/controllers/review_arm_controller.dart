@@ -99,7 +99,6 @@ class ReviewArmController extends GetxController {
         message: 'Global parking perimeter engaged successfully. Hardware locks are now active.',
         isError: false,
         onAcknowledge: () {
-          // Clear navigation stack and go to Dashboard ONLY after acknowledgment
           Get.offAllNamed(Routes.DASHBOARD);
         },
       );

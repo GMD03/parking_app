@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
 import '../controllers/ticket_inspector_controller.dart';
-import '../../dashboard/models/ticket_model.dart'; 
+import '../../dashboard/models/ticket_model.dart';
 
 class TicketInspectorView extends StatelessWidget {
   final TicketModel ticket;
@@ -21,7 +21,7 @@ class TicketInspectorView extends StatelessWidget {
             return Container(
               width: 500,
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.9, 
+                maxHeight: MediaQuery.of(context).size.height * 0.9,
               ),
               decoration: BoxDecoration(
                 color: AppColors.surfaceContainerLowest,
@@ -57,7 +57,7 @@ class TicketInspectorView extends StatelessWidget {
                 ),
               ),
             );
-          }
+          },
         ),
       ),
     );
@@ -66,9 +66,7 @@ class TicketInspectorView extends StatelessWidget {
   Widget _buildHeader(TicketInspectorController controller) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceContainerLow,
-      ),
+      decoration: const BoxDecoration(color: AppColors.surfaceContainerLow),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -77,7 +75,12 @@ class TicketInspectorView extends StatelessWidget {
             children: [
               Text(
                 controller.ticket.plate,
-                style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 36, fontWeight: FontWeight.bold, letterSpacing: -1),
+                style: GoogleFonts.inter(
+                  color: AppColors.onSurface,
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -1,
+                ),
               ),
               IconButton(
                 onPressed: () => Get.back(),
@@ -86,18 +89,39 @@ class TicketInspectorView extends StatelessWidget {
                 hoverColor: Colors.transparent,
                 splashColor: Colors.transparent,
                 style: IconButton.styleFrom(foregroundColor: AppColors.muted)
-                    .copyWith(foregroundColor: MaterialStateProperty.resolveWith((states) => states.contains(MaterialState.hovered) ? AppColors.danger : AppColors.muted)),
+                    .copyWith(
+                      foregroundColor: MaterialStateProperty.resolveWith(
+                        (states) => states.contains(MaterialState.hovered)
+                            ? AppColors.danger
+                            : AppColors.muted,
+                      ),
+                    ),
               ),
             ],
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildBadge('Class', _getFullClassName(controller.ticket.vehicleClass), AppColors.muted, AppColors.surfaceContainerLowest),
+              _buildBadge(
+                'Class',
+                _getFullClassName(controller.ticket.vehicleClass),
+                AppColors.muted,
+                AppColors.surfaceContainerLowest,
+              ),
               const SizedBox(width: 8),
-              _buildBadge('Zone', controller.ticket.zone.toUpperCase(), AppColors.primary, AppColors.surfaceContainerLowest),
+              _buildBadge(
+                'Zone',
+                controller.ticket.zone.toUpperCase(),
+                AppColors.primary,
+                AppColors.surfaceContainerLowest,
+              ),
               const SizedBox(width: 8),
-              _buildBadge('Status', controller.ticket.status.name.toUpperCase(), _getStatusColor(controller.ticket.status), _getStatusBgColor(controller.ticket.status)),
+              _buildBadge(
+                'Status',
+                controller.ticket.status.name.toUpperCase(),
+                _getStatusColor(controller.ticket.status),
+                _getStatusBgColor(controller.ticket.status),
+              ),
             ],
           ),
         ],
@@ -107,34 +131,53 @@ class TicketInspectorView extends StatelessWidget {
 
   String _getFullClassName(String shortClass) {
     switch (shortClass.toUpperCase()) {
-      case 'MOTO': return 'MOTORCYCLE';
-      case 'CAR': return 'CAR';
-      case 'SUV': return 'SUV';
-      case 'TRUCK': return 'TRUCK';
-      case 'VAN': return 'VAN';
-      case 'BUS': return 'BUS';
-      case 'BIKE': return 'BICYCLE';
-      default: return shortClass.toUpperCase();
+      case 'MOTO':
+        return 'MOTORCYCLE';
+      case 'CAR':
+        return 'CAR';
+      case 'SUV':
+        return 'SUV';
+      case 'TRUCK':
+        return 'TRUCK';
+      case 'VAN':
+        return 'VAN';
+      case 'BUS':
+        return 'BUS';
+      case 'BIKE':
+        return 'BICYCLE';
+      default:
+        return shortClass.toUpperCase();
     }
   }
 
   Color _getStatusColor(TicketStatus status) {
     switch (status) {
-      case TicketStatus.active: return AppColors.onSecondaryContainer;
-      case TicketStatus.overstay: return AppColors.surfaceContainerLowest;
-      case TicketStatus.processing: return AppColors.surfaceContainerLowest;
+      case TicketStatus.active:
+        return AppColors.onSecondaryContainer;
+      case TicketStatus.overstay:
+        return Colors.white;
+      case TicketStatus.processing:
+        return Colors.white;
     }
   }
 
   Color _getStatusBgColor(TicketStatus status) {
     switch (status) {
-      case TicketStatus.active: return AppColors.secondaryContainer;
-      case TicketStatus.overstay: return AppColors.danger;
-      case TicketStatus.processing: return AppColors.primary;
+      case TicketStatus.active:
+        return AppColors.secondaryContainer;
+      case TicketStatus.overstay:
+        return AppColors.danger;
+      case TicketStatus.processing:
+        return AppColors.primary;
     }
   }
 
-  Widget _buildBadge(String label, String value, Color textColor, Color bgColor) {
+  Widget _buildBadge(
+    String label,
+    String value,
+    Color textColor,
+    Color bgColor,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -144,8 +187,22 @@ class TicketInspectorView extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text('$label: ', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, fontWeight: FontWeight.w500)),
-          Text(value, style: GoogleFonts.inter(color: textColor, fontSize: 12, fontWeight: FontWeight.bold)),
+          Text(
+            '$label: ',
+            style: GoogleFonts.inter(
+              color: textColor.withOpacity(0.7),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.inter(
+              color: textColor,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -159,7 +216,9 @@ class TicketInspectorView extends StatelessWidget {
           _buildTimelineRow('Time In', controller.ticket.formattedTimeIn),
           const SizedBox(height: 16),
           // Wrapped in Obx to update the duration LIVE
-          Obx(() => _buildTimelineRow('Duration (LIVE)', controller.liveDuration)),
+          Obx(
+            () => _buildTimelineRow('Duration (LIVE)', controller.liveDuration),
+          ),
         ],
       ),
     );
@@ -175,8 +234,22 @@ class TicketInspectorView extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14, fontWeight: FontWeight.w600)),
-          Text(value, style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 16, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              color: AppColors.muted,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.inter(
+              color: AppColors.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
@@ -197,9 +270,23 @@ class TicketInspectorView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Rate Class', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text(
+                    'Rate Class',
+                    style: GoogleFonts.inter(
+                      color: AppColors.muted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  Text('P${controller.ratePerHour.toStringAsFixed(2)}', style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 16, fontWeight: FontWeight.w600)),
+                  Text(
+                    'P${controller.ratePerHour.toStringAsFixed(2)}',
+                    style: GoogleFonts.inter(
+                      color: AppColors.onSurface,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -217,9 +304,26 @@ class TicketInspectorView extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Total Due', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, fontWeight: FontWeight.w600)),
+                      Text(
+                        'Total Due',
+                        style: GoogleFonts.inter(
+                          color: AppColors.muted,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       const SizedBox(height: 12),
-                      Obx(() => Text(controller.calculatedTotal, style: GoogleFonts.inter(color: AppColors.primary, fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: -1))),
+                      Obx(
+                        () => Text(
+                          controller.calculatedTotal,
+                          style: GoogleFonts.inter(
+                            color: AppColors.primary,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -1,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -239,44 +343,72 @@ class TicketInspectorView extends StatelessWidget {
         children: [
           Expanded(child: _buildGateSelectorInline(controller)),
           const SizedBox(width: 16),
-          Obx(() => Container(
-            decoration: BoxDecoration(
-              gradient: controller.isProcessing.value ? null : const LinearGradient(
-                colors: [AppColors.primary, AppColors.primaryContainer],
+          Obx(
+            () => Container(
+              decoration: BoxDecoration(
+                gradient: controller.isProcessing.value
+                    ? null
+                    : const LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryContainer],
+                      ),
+                color: controller.isProcessing.value
+                    ? AppColors.surfaceContainerLow
+                    : null,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: controller.isProcessing.value
+                    ? []
+                    : const [
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 83, 204, 0.4),
+                          blurRadius: 16,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
               ),
-              color: controller.isProcessing.value ? AppColors.surfaceContainerLow : null,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: controller.isProcessing.value ? [] : const [
-                BoxShadow(
-                  color: Color.fromRGBO(0, 83, 204, 0.4),
-                  blurRadius: 16,
-                  offset: Offset(0, 8),
-                )
-              ],
-            ),
-            child: ElevatedButton(
-              onPressed: controller.isProcessing.value ? null : controller.processCheckout,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                disabledForegroundColor: AppColors.muted,
-                foregroundColor: AppColors.surfaceContainerLowest,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 0,
-              ),
-              child: controller.isProcessing.value 
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2))
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('Process Payment', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.payments, size: 18),
-                    ],
+              child: ElevatedButton(
+                onPressed: controller.isProcessing.value
+                    ? null
+                    : controller.processCheckout,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  disabledForegroundColor: AppColors.muted,
+                  foregroundColor: AppColors.surfaceContainerLowest,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
                   ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                ),
+                child: controller.isProcessing.value
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Process Payment',
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.payments, size: 18),
+                        ],
+                      ),
+              ),
             ),
-          )),
+          ),
         ],
       ),
     );
@@ -298,38 +430,49 @@ class TicketInspectorView extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Obx(() => Row(
-              children: controller.availableGates.map((String gate) {
-                final isSelected = controller.selectedGate.value == gate;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: InkWell(
-                    mouseCursor: SystemMouseCursors.click,
-                    onTap: () => controller.selectGate(gate),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primaryContainer.withOpacity(0.2) : AppColors.surfaceContainerLowest,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isSelected ? AppColors.primary : AppColors.outlineVariant.withOpacity(0.5),
-                          width: isSelected ? 2 : 1,
+            child: Obx(
+              () => Row(
+                children: controller.availableGates.map((String gate) {
+                  final isSelected = controller.selectedGate.value == gate;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: InkWell(
+                      mouseCursor: SystemMouseCursors.click,
+                      onTap: () => controller.selectGate(gate),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
                         ),
-                      ),
-                      child: Text(
-                        'Gate $gate',
-                        style: GoogleFonts.inter(
-                          color: isSelected ? AppColors.primary : AppColors.muted,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.primaryContainer.withOpacity(0.2)
+                              : AppColors.surfaceContainerLowest,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.outlineVariant.withOpacity(0.5),
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: Text(
+                          'Gate $gate',
+                          style: GoogleFonts.inter(
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.muted,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
-            )),
+                  );
+                }).toList(),
+              ),
+            ),
           ),
         ),
       ],

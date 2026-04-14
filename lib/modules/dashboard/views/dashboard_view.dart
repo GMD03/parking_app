@@ -21,7 +21,7 @@ class DashboardView extends GetView<DashboardController> {
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildTelemetrySidebar(),
                   const SizedBox(width: 24),

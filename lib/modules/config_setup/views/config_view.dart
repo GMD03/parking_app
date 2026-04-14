@@ -75,13 +75,21 @@ class ConfigView extends GetView<ConfigController> {
   // MAIN CONTENT WIDGETS
   // ---------------------------------------------------------
   Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.only(bottom: 16),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
-      child: Text(
-        'SYNCHRONIZATION SETUP',
-        style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: -0.5),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text('FACILITY SYNC', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 32, fontWeight: FontWeight.w600, letterSpacing: 2)),
+            const SizedBox(width: 16),
+            Text('[ SYSTEM_CONFIG ]', style: GoogleFonts.inter(color: AppColors.primary.withOpacity(0.6), fontSize: 14, letterSpacing: 2)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text('Configure the synchronization pipeline and hardware communication parameters.', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14)),
+      ],
     );
   }
 

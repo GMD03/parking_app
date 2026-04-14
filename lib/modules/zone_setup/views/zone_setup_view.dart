@@ -6,6 +6,10 @@ import '../../../core/theme/app_colors.dart';
 import '../controllers/zone_setup_controller.dart';
 import '../../login/controllers/login_controller.dart';
 import '../../../core/widgets/aerostatic_button.dart';
+import '../../../core/widgets/setup_sidebar.dart';
+import '../../../core/widgets/setup_app_bar.dart';
+import '../../../core/widgets/setup_action_footer.dart';
+import '../../../core/routes/app_routes.dart';
 
 class ZoneSetupView extends GetView<ZoneSetupController> {
   const ZoneSetupView({super.key});
@@ -16,12 +20,12 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
       backgroundColor: AppColors.backgroundDark,
       body: Column(
         children: [
-          _buildTopAppBar(),
+          const SetupAppBar(),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildSidebar(context),
+                const SetupSidebar(currentStep: 2),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(48),
@@ -49,155 +53,21 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
               ],
             ),
           ),
+          Obx(() {
+            final isReady = controller.remainingSpots == 0;
+            return SetupActionFooter(
+              onBack: controller.returnToConfig,
+              backLabel: 'BACK TO SYSTEM CONFIG',
+              primaryLabel: 'VALIDATE & PROCEED',
+              onPrimary: isReady ? controller.armSystem : null,
+            );
+          }),
         ],
       ),
     );
   }
 
-  // --- TOP APP BAR ---
-  Widget _buildTopAppBar() {
-    final currentUser = LoginController.getCurrentUser();
-    final operatorDisplay = currentUser?.operatorId ?? 'GUEST';
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceContainerLowest, // Matches dashboard
-        boxShadow: [
-          BoxShadow(
-            color: Color.fromRGBO(14, 29, 40, 0.04),
-            blurRadius: 16,
-            offset: Offset(0, 4),
-          )
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Image.asset('assets/logo.png', width: 36, height: 36),
-              const SizedBox(width: 16),
-              Text('LuvPark System Setup', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          Row(
-            children: [
-              Text('Operator ID: ', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14)),
-              Text(operatorDisplay, style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 14, fontWeight: FontWeight.w600)),
-              const SizedBox(width: 24),
-              OutlinedButton.icon(
-                onPressed: () => Get.offAllNamed('/login'),
-                icon: const Icon(Icons.logout, size: 14),
-                label: const Text('[ LOGOUT ]'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.muted,
-                  side: const BorderSide(color: AppColors.border),
-                  backgroundColor: AppColors.surface.withOpacity(0.5),
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  textStyle: GoogleFonts.inter(fontSize: 12),
-                ).copyWith(
-                  foregroundColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.hovered) ? AppColors.danger : AppColors.muted),
-                ),
-              )
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  // --- SIDEBAR ---
-  Widget _buildSidebar(BuildContext context) {
-    return Container(
-      width: 256,
-      decoration: const BoxDecoration(
-        color: AppColors.backgroundDark,
-        border: Border(right: BorderSide(color: AppColors.border)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.border))),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('INITIALIZATION', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                const SizedBox(height: 4),
-                Text('Setup Protocol Active', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, letterSpacing: 1)),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Stack(
-              children: [
-                Positioned(left: 39, top: 24, bottom: 24, child: Container(width: 1, color: AppColors.border)),
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    children: [
-                      _buildStepItem(step: '01', title: 'System Config', status: 2), 
-                      const SizedBox(height: 32),
-                      _buildStepItem(step: '02', title: 'Zone Setup', status: 1),    
-                      const SizedBox(height: 32),
-                      _buildStepItem(step: '03', title: 'Review & Arm', status: 0),  
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepItem({required String step, required String title, required int status}) {
-    Color iconColor;
-    Color bgColor;
-    Widget iconChild;
-
-    if (status == 2) { 
-      iconColor = AppColors.border;
-      bgColor = AppColors.surface;
-      iconChild = const Icon(Icons.check, color: AppColors.muted, size: 16);
-    } else if (status == 1) { 
-      iconColor = AppColors.primary;
-      bgColor = AppColors.primary;
-      iconChild = const Icon(Icons.map, color: AppColors.backgroundDark, size: 16);
-    } else { 
-      iconColor = AppColors.border;
-      bgColor = AppColors.backgroundDark;
-      iconChild = Text(step, style: GoogleFonts.inter(color: AppColors.border, fontSize: 12));
-    }
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 32, height: 32,
-          decoration: BoxDecoration(
-            color: bgColor,
-            border: Border.all(color: iconColor),
-            boxShadow: status == 1 ? [const BoxShadow(color: Color(0x4DF9AC06), blurRadius: 8)] : null,
-          ),
-          child: Center(child: iconChild),
-        ),
-        const SizedBox(width: 16),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Step $step', style: GoogleFonts.inter(color: status == 1 ? AppColors.primary : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 12)),
-            const SizedBox(height: 4),
-            Text(title.toUpperCase(), style: GoogleFonts.inter(color: status == 1 ? AppColors.textMain : AppColors.muted.withOpacity(status == 0 ? 0.5 : 1), fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-          ],
-        )
-      ],
-    );
-  }
 
   // --- MAIN CONTENT ---
   Widget _buildHeader() {
@@ -430,24 +300,11 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
   }
 
 // lib/modules/zone_setup/views/zone_setup_view.dart
-// (Only the _buildActionArea method needs to be replaced)
 
   Widget _buildActionArea() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        TextButton.icon(
-          onPressed: controller.returnToConfig,
-          icon: const Icon(Icons.arrow_back, size: 14),
-          label: const Text('RETURN TO CONFIG'),
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.muted,
-            textStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
-          ),
-        ),
-        Row(
-          children: [
-            Obx(() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Obx(() {
               final remaining = controller.remainingSpots;
               
               // Determine visual state based on allocation accuracy
@@ -495,23 +352,6 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
                 ],
               );
             }),
-            const SizedBox(width: 32),
-            Obx(() {
-               // Only enable the button if the allocation is perfectly 0
-               final isReady = controller.remainingSpots == 0;
-               
-               return SizedBox(
-                 width: 250,
-                 child: AerostaticButton(
-                  label: 'VALIDATE & PROCEED',
-                  icon: Icons.arrow_forward,
-                  onPressed: isReady ? controller.armSystem : null,
-                ),
-               );
-            }),
-          ],
-        )
-      ],
     );
   }
 }

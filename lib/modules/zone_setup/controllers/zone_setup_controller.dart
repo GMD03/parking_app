@@ -142,7 +142,7 @@ class ZoneSetupController extends GetxController {
   }
 
   void returnToConfig() {
-    Get.back();
+    Get.offNamed(Routes.CONFIG_SETUP);
   }
 
   // --- GLOBAL ACCESS HELPERS ---

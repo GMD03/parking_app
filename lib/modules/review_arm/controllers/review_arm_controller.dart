@@ -62,7 +62,7 @@ class ReviewArmController extends GetxController {
   }
 
   void returnToZoneSetup() {
-    Get.back();
+    Get.offNamed(Routes.ZONE_SETUP);
   }
 
   Future<void> executeSystemArm() async {

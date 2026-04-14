@@ -8,6 +8,9 @@ import '../../../core/widgets/aerostatic_button.dart';
 import '../../login/controllers/login_controller.dart';
 import '../../../core/services/database_service.dart';
 import '../../../core/routes/app_routes.dart';
+import '../../../core/widgets/setup_sidebar.dart';
+import '../../../core/widgets/setup_app_bar.dart';
+import '../../../core/widgets/setup_action_footer.dart';
 
 class ConfigView extends GetView<ConfigController> {
   const ConfigView({super.key});
@@ -18,13 +21,13 @@ class ConfigView extends GetView<ConfigController> {
       backgroundColor: AppColors.backgroundDark,
       body: Column(
         children: [
-          _buildTopNavBar(),
+          const SetupAppBar(),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Left Pane: Progression Sidebar
-                _buildSidebar(context),
+                const SetupSidebar(currentStep: 1),
                 // Right Pane: Main Configuration Area
                 Expanded(
                   child: Column(
@@ -51,136 +54,9 @@ class ConfigView extends GetView<ConfigController> {
                         ),
                       ),
                       // Sticky Footer Action Bar
-                      _buildStickyFooter(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- TOP NAVBAR ---
-  Widget _buildTopNavBar() {
-    final currentUser = LoginController.getCurrentUser();
-    final operatorDisplay = currentUser?.operatorId ?? 'GUEST';
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        boxShadow: [
-          BoxShadow(
-            color: Color.fromRGBO(14, 29, 40, 0.04),
-            blurRadius: 16,
-            offset: Offset(0, 4),
-          )
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Image.asset('assets/logo.png', width: 36, height: 36),
-              const SizedBox(width: 16),
-              Text('LuvPark System Setup', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          Row(
-            children: [
-              Text('Operator ID: ', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 14)),
-              Text(operatorDisplay, style: GoogleFonts.inter(color: AppColors.onSurface, fontSize: 14, fontWeight: FontWeight.w600)),
-              const SizedBox(width: 24),
-              OutlinedButton.icon(
-                onPressed: () => Get.offAllNamed('/login'),
-                icon: const Icon(Icons.logout, size: 14),
-                label: const Text('[ LOGOUT ]'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.muted,
-                  side: const BorderSide(color: AppColors.border),
-                  backgroundColor: AppColors.surface.withOpacity(0.5),
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  textStyle: GoogleFonts.inter(fontSize: 12),
-                ).copyWith(
-                  foregroundColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.hovered) ? AppColors.danger : AppColors.muted),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------
-  // SIDEBAR WIDGETS
-  // ---------------------------------------------------------
-  Widget _buildSidebar(BuildContext context) {
-    return Container(
-      width: 256,
-      decoration: const BoxDecoration(
-        color: AppColors.backgroundDark,
-        border: Border(right: BorderSide(color: AppColors.border)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: AppColors.border)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'INITIALIZATION',
-                  style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Setup Protocol Active'.toUpperCase(),
-                  style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12, letterSpacing: 1),
-                ),
-              ],
-            ),
-          ),
-          
-          Expanded(
-            child: Stack(
-              children: [
-                // Vertical connecting line
-                Positioned(
-                  left: 39,
-                  top: 24,
-                  bottom: 24,
-                  child: Container(width: 1, color: AppColors.border),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    children: [
-                      _buildStepItem(
-                        stepNumber: '01',
-                        title: 'System Config',
-                        isActive: true,
-                      ),
-                      const SizedBox(height: 32),
-                      _buildStepItem(
-                        stepNumber: '02',
-                        title: 'Zone Setup',
-                        isActive: false,
-                      ),
-                      const SizedBox(height: 32),
-                      _buildStepItem(
-                        stepNumber: '03',
-                        title: 'Review & Arm',
-                        isActive: false,
+                      SetupActionFooter(
+                        primaryLabel: 'NEXT STAGE',
+                        onPrimary: controller.nextStage,
                       ),
                     ],
                   ),
@@ -188,66 +64,12 @@ class ConfigView extends GetView<ConfigController> {
               ],
             ),
           ),
-          
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(
-              'LuvPark System Core',
-              style: GoogleFonts.inter(color: AppColors.border, fontSize: 10, letterSpacing: 1.5),
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildStepItem({required String stepNumber, required String title, required bool isActive}) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: isActive ? AppColors.primary : AppColors.backgroundDark,
-            border: Border.all(color: isActive ? AppColors.primary : AppColors.border),
-            boxShadow: isActive ? [BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 8)] : null,
-          ),
-          child: Center(
-            child: isActive 
-              ? const Icon(Icons.settings, color: AppColors.backgroundDark, size: 16)
-              : Text(stepNumber, style: GoogleFonts.inter(color: AppColors.border, fontSize: 12)),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                'Step $stepNumber'.toUpperCase(),
-                style: GoogleFonts.inter(
-                  color: isActive ? AppColors.primary : AppColors.muted.withOpacity(0.5),
-                  fontSize: 12,
-                ),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title.toUpperCase(),
-              style: GoogleFonts.inter(
-                color: isActive ? AppColors.textMain : AppColors.muted.withOpacity(0.5), 
-                fontSize: 14, 
-                fontWeight: FontWeight.bold, 
-                letterSpacing: 1.5
-              ),
-            ),
-          ],
-        )
-      ],
-    );
-  }
+
 
   // ---------------------------------------------------------
   // MAIN CONTENT WIDGETS
@@ -468,53 +290,6 @@ class ConfigView extends GetView<ConfigController> {
                 style: GoogleFonts.inter(color: AppColors.muted, fontSize: 10, letterSpacing: 1.0, decoration: TextDecoration.underline),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStickyFooter() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          OutlinedButton.icon(
-            onPressed: () {
-              // Context-aware abort:
-              // If already configured (reconfiguring from Dashboard) → go back to Dashboard
-              // If first-time setup → log out
-              final isReconfiguring = DatabaseService.getState('isConfigured') ?? false;
-              if (isReconfiguring) {
-                Get.offAllNamed(Routes.DASHBOARD);
-              } else {
-                Get.offAllNamed(Routes.LOGIN);
-              }
-            },
-            icon: const Icon(Icons.close, size: 18),
-            label: Text(
-              (DatabaseService.getState('isConfigured') ?? false) ? 'BACK TO DASHBOARD' : 'ABORT SETUP',
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.muted,
-              side: const BorderSide(color: AppColors.border),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              textStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
-            ).copyWith(
-              foregroundColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.hovered) ? AppColors.danger : AppColors.muted),
-            ),
-          ),
-          AerostaticButton(
-            width: 240,
-            label: 'NEXT STAGE',
-            icon: Icons.arrow_forward,
-            onPressed: controller.nextStage,
           ),
         ],
       ),

@@ -32,7 +32,7 @@ void main() async {
   await DatabaseService.init();
 
   // await DatabaseService.eraseAll();
-  await DatabaseService.seedTestTickets();
+  // await DatabaseService.seedTestTickets();
   // Encapsulated Python Hardware Daemon
   try {
     writeLog('SYSTEM BOOT: Initializing Local Environment...');

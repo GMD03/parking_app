@@ -12,6 +12,7 @@ class TicketModel {
   DateTime? timeOut;
   final String zone;
   final String vehicleClass;
+  final String? gate;
   TicketStatus status;
 
   TicketModel({
@@ -22,6 +23,7 @@ class TicketModel {
     required this.zone,
     required this.status,
     required this.vehicleClass,
+    this.gate,
   });
 
   // Helper method to format time for the UI
@@ -51,6 +53,12 @@ class TicketModel {
     // Fetch live configurations to ensure dashboard consistency
     final storedPricing = DatabaseService.getState('facilityPricingRules');
     if (storedPricing != null) {
+      if (storedPricing['scheduleType'] != null) {
+        config.scheduleType = ScheduleType.values.firstWhere(
+          (e) => e.name == storedPricing['scheduleType'],
+          orElse: () => ScheduleType.twentyFourHours,
+        );
+      }
       config.gracePeriodMinutes = storedPricing['gracePeriod'] as int? ?? 15;
       config.baseHours = storedPricing['baseHours'] as int? ?? config.baseHours;
       config.succeedingPeriod = storedPricing['succeedingPeriod'] as int? ?? config.succeedingPeriod;
@@ -71,6 +79,7 @@ class TicketModel {
     'zone': zone,
     'vehicleClass': vehicleClass,
     'status': status.name,
+    'gate': gate,
   };
 
   factory TicketModel.fromJson(Map<String, dynamic> json) => TicketModel(
@@ -79,8 +88,8 @@ class TicketModel {
     timeIn: DateTime.parse(json['timeIn']),
     timeOut: json['timeOut'] != null ? DateTime.parse(json['timeOut']) : null,
     zone: json['zone'],
-
     vehicleClass: json['vehicleClass'] ?? 'UNKNOWN',
+    gate: json['gate'],
     
     status: TicketStatus.values.firstWhere(
       (e) => e.name == json['status'],

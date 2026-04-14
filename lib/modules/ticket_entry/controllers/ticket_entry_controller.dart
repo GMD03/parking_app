@@ -108,6 +108,7 @@ class TicketEntryController extends GetxController {
       plate,
       selectedClass.value.name,
       selectedZone.value,
+      selectedGate.value,
     );
 
     try {

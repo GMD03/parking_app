@@ -21,7 +21,7 @@ class DatabaseService {
     _db = await databaseFactory.openDatabase(
       dbPath,
       options: OpenDatabaseOptions(
-        version: 1,
+        version: 2,
         onCreate: (db, version) async {
           await db.execute('''
             CREATE TABLE app_state(
@@ -38,9 +38,15 @@ class DatabaseService {
               timeOut TEXT,
               zone TEXT,
               vehicleClass TEXT,
-              status TEXT
+              status TEXT,
+              gate TEXT
             )
           ''');
+        },
+        onUpgrade: (db, oldVersion, newVersion) async {
+          if (oldVersion < 2) {
+             await db.execute('ALTER TABLE tickets ADD COLUMN gate TEXT;');
+          }
         },
       ),
     );

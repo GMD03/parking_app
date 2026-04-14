@@ -52,8 +52,8 @@ class PricingConfig {
       succeedingPeriod: 1,
       overnightRate: 150.0,
       openTime: const TimeOfDay(hour: 6, minute: 0),
-      closeTime: const TimeOfDay(hour: 22, minute: 0),
-      overnightTime: const TimeOfDay(hour: 22, minute: 0),
+      closeTime: const TimeOfDay(hour: 18, minute: 0),
+      overnightTime: const TimeOfDay(hour: 18, minute: 0),
     );
   }
 
@@ -69,8 +69,8 @@ class PricingConfig {
       succeedingPeriod: 1,
       overnightRate: 150.0,
       openTime: const TimeOfDay(hour: 6, minute: 0),
-      closeTime: const TimeOfDay(hour: 22, minute: 0),
-      overnightTime: const TimeOfDay(hour: 22, minute: 0),
+      closeTime: const TimeOfDay(hour: 18, minute: 0),
+      overnightTime: const TimeOfDay(hour: 18, minute: 0),
     );
   }
 
@@ -86,8 +86,8 @@ class PricingConfig {
       succeedingPeriod: 1,
       overnightRate: 150.0,
       openTime: const TimeOfDay(hour: 6, minute: 0),
-      closeTime: const TimeOfDay(hour: 22, minute: 0),
-      overnightTime: const TimeOfDay(hour: 22, minute: 0),
+      closeTime: const TimeOfDay(hour: 18, minute: 0),
+      overnightTime: const TimeOfDay(hour: 18, minute: 0),
     );
   }
 
@@ -103,8 +103,8 @@ class PricingConfig {
       succeedingPeriod: 1,
       overnightRate: 200.0,
       openTime: const TimeOfDay(hour: 6, minute: 0),
-      closeTime: const TimeOfDay(hour: 22, minute: 0),
-      overnightTime: const TimeOfDay(hour: 22, minute: 0),
+      closeTime: const TimeOfDay(hour: 18, minute: 0),
+      overnightTime: const TimeOfDay(hour: 18, minute: 0),
     );
   }
 }

@@ -148,6 +148,8 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
           const SizedBox(height: 8),
           Text('Define billing parameters for the specific site environment. Amounts are in local currency.', style: GoogleFonts.inter(color: AppColors.muted, fontSize: 12)),
           const SizedBox(height: 32),
+          _buildScheduleDropdown(),
+          const SizedBox(height: 24),
           Row(
             children: [
               Expanded(child: _buildPricingField('GRACE PERIOD (MINS)', controller.gracePeriodCtrl)),
@@ -158,15 +160,23 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
             ],
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: _buildPricingField('SUCCEEDING PERIOD (HRS)', controller.succeedingPeriodCtrl)),
-              const SizedBox(width: 16),
-              Expanded(child: _buildPricingField('OVERSTAY RATE', controller.overstayRateCtrl, prefix: 'P')),
-              const SizedBox(width: 16),
-              Expanded(child: _buildPricingField('OVERNIGHT RATE', controller.overnightRateCtrl, prefix: 'P')),
-            ],
-          )
+          Obx(() {
+            final isOvernight = controller.selectedScheduleType.value.contains('Overnight');
+            return Row(
+              children: [
+                Expanded(child: _buildPricingField('SUCCEEDING PERIOD (HRS)', controller.succeedingPeriodCtrl)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildPricingField('OVERSTAY RATE', controller.overstayRateCtrl, prefix: 'P')),
+                if (isOvernight) ...[
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildPricingField('OVERNIGHT RATE', controller.overnightRateCtrl, prefix: 'P')),
+                ] else ...[
+                  const SizedBox(width: 16),
+                  Expanded(child: const SizedBox()),
+                ]
+              ],
+            );
+          }),
         ],
       )
     );
@@ -192,6 +202,41 @@ class ZoneSetupView extends GetView<ZoneSetupController> {
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.primary)),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildScheduleDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('SCHEDULE / BILLING TYPE', style: GoogleFonts.inter(color: AppColors.textMain, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+        const SizedBox(height: 8),
+        Obx(() => Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: DropdownButtonHideUnderline(
+             child: DropdownButton<String>(
+               value: controller.selectedScheduleType.value,
+               isExpanded: true,
+               dropdownColor: AppColors.surfaceContainerLowest,
+               icon: const Icon(Icons.arrow_drop_down, color: AppColors.primary),
+               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+               style: GoogleFonts.inter(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.bold),
+               onChanged: (String? newValue) {
+                 if (newValue != null) controller.selectedScheduleType.value = newValue;
+               },
+               items: const [
+                 DropdownMenuItem(value: 'regular', child: Text('Regular Rate')),
+                 DropdownMenuItem(value: 'regularWithOvernight', child: Text('Regular Rate with Overnight')),
+                 DropdownMenuItem(value: 'twentyFourHours', child: Text('24 Hours Rate')),
+                 DropdownMenuItem(value: 'twentyFourHoursWithOvernight', child: Text('24 Hours Rate with Overnight')),
+               ],
+             )
+          ),
+        )),
       ],
     );
   }

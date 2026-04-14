@@ -20,6 +20,8 @@ class ZoneSetupController extends GetxController {
   final overstayRateCtrl = TextEditingController(text: '30.0');
   final overnightRateCtrl = TextEditingController(text: '150.0');
 
+  final selectedScheduleType = 'twentyFourHours'.obs;
+
   final zoneRows = <ZoneRowData>[].obs;
   final allocatedSpots = 0.obs;
   
@@ -56,6 +58,10 @@ class ZoneSetupController extends GetxController {
       baseRateCtrl.text = storedPricing['baseRate']?.toString() ?? '20.0';
       overstayRateCtrl.text = storedPricing['succeedingRate']?.toString() ?? '30.0';
       overnightRateCtrl.text = storedPricing['overnightRate']?.toString() ?? '150.0';
+      
+      if (storedPricing['scheduleType'] != null) {
+        selectedScheduleType.value = storedPricing['scheduleType'];
+      }
     }
   }
 
@@ -125,6 +131,7 @@ class ZoneSetupController extends GetxController {
 
     // Bundle our new pricing logic
     Map<String, dynamic> pricingData = {
+      'scheduleType': selectedScheduleType.value,
       'gracePeriod': int.tryParse(gracePeriodCtrl.text) ?? 15,
       'baseHours': int.tryParse(baseHoursCtrl.text) ?? 2,
       'succeedingPeriod': int.tryParse(succeedingPeriodCtrl.text) ?? 1,

@@ -18,7 +18,11 @@ class TicketInspectorController extends GetxController {
   final availableGates = <String>['1', '2'];
   final selectedGate = '1'.obs;
 
-  TicketInspectorController({required this.ticket});
+  TicketInspectorController({required this.ticket}) {
+    if (ticket.gate != null && availableGates.contains(ticket.gate)) {
+      selectedGate.value = ticket.gate!;
+    }
+  }
 
   void selectGate(String gate) => selectedGate.value = gate;
 
@@ -36,6 +40,12 @@ class TicketInspectorController extends GetxController {
     final config = PricingConfig.default24Hour();
     
     if (storedPricing != null) {
+      if (storedPricing['scheduleType'] != null) {
+        config.scheduleType = ScheduleType.values.firstWhere(
+          (e) => e.name == storedPricing['scheduleType'],
+          orElse: () => ScheduleType.twentyFourHours,
+        );
+      }
       config.gracePeriodMinutes = storedPricing['gracePeriod'] as int? ?? 15;
       config.baseHours = storedPricing['baseHours'] as int? ?? config.baseHours;
       config.succeedingPeriod = storedPricing['succeedingPeriod'] as int? ?? config.succeedingPeriod;

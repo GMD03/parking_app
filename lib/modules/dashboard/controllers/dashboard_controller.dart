@@ -69,6 +69,7 @@ class DashboardController extends GetxController {
             : null,
         zone: r['zone'] as String,
         vehicleClass: r['vehicleClass'] as String,
+        gate: r['gate'] as String?,
         status: TicketStatus.values.firstWhere(
           (e) => e.name == r['status'],
           orElse: () => TicketStatus.active,
@@ -169,7 +170,7 @@ class DashboardController extends GetxController {
     }
   }
 
-  Future<void> addTicket(String plate, String vehicleClass, String zoneName) async {
+  Future<void> addTicket(String plate, String vehicleClass, String zoneName, String gate) async {
     final newId = '#${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}';
 
     final newTicket = TicketModel(
@@ -179,6 +180,7 @@ class DashboardController extends GetxController {
       status: TicketStatus.active,
       zone: zoneName, 
       vehicleClass: vehicleClass, 
+      gate: gate,
     );
 
     await DatabaseService.instance.insert('tickets', {
@@ -189,6 +191,7 @@ class DashboardController extends GetxController {
        'zone': newTicket.zone,
        'vehicleClass': newTicket.vehicleClass,
        'status': newTicket.status.name,
+       'gate': newTicket.gate,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
 
     allTickets.insert(0, newTicket); 

@@ -51,6 +51,7 @@ class LoginView extends GetView<LoginController> {
 
             // Layer 3: Main content
             Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildHeader(),
                 Expanded(child: _buildHeroContent(screenSize)),
@@ -347,9 +348,11 @@ class LoginView extends GetView<LoginController> {
   Widget _buildHeroContent(Size screenSize) {
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 80.0),
-      child: Column(
-        children: [
-          SizedBox(height: screenSize.height * 0.04),
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          children: [
+            SizedBox(height: screenSize.height * 0.04),
 
           // Overline tag
           Container(
@@ -420,6 +423,7 @@ class LoginView extends GetView<LoginController> {
           // Login card
           _buildLoginCard(),
         ],
+      ),
       ),
     );
   }

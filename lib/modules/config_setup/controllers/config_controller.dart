@@ -62,6 +62,10 @@ class ConfigController extends GetxController {
     apiKeyController.text = 'SCADA-${segment()}-${segment()}-${segment()}-${segment()}';
   }
 
+  void returnToDashboard() {
+    Get.offAllNamed(Routes.DASHBOARD);
+  }
+
   Future<void> nextStage() async {
     // 1. Validation
     if (syncMode.value == SyncMode.cloud && apiKeyController.text.trim().isEmpty) {

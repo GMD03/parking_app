@@ -30,39 +30,33 @@ class ConfigView extends GetView<ConfigController> {
                 const SetupSidebar(currentStep: 1),
                 // Right Pane: Main Configuration Area
                 Expanded(
-                  child: Column(
-                    children: [
-                      // Scrollable content area
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 64),
-                          child: Center(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 720),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildHeader(),
-                                  const SizedBox(height: 32),
-                                  _buildSyncModeSection(),
-                                  const SizedBox(height: 48),
-                                  _buildDynamicConfigSection(),
-                                ],
-                              ),
-                            ),
-                          ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 64),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 720),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildHeader(),
+                            const SizedBox(height: 32),
+                            _buildSyncModeSection(),
+                            const SizedBox(height: 48),
+                            _buildDynamicConfigSection(),
+                          ],
                         ),
                       ),
-                      // Sticky Footer Action Bar
-                      SetupActionFooter(
-                        primaryLabel: 'NEXT STAGE',
-                        onPrimary: controller.nextStage,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
             ),
+          ),
+          SetupActionFooter(
+            onBack: controller.returnToDashboard,
+            backLabel: 'BACK TO DASHBOARD',
+            primaryLabel: 'NEXT STAGE',
+            onPrimary: controller.nextStage,
           ),
         ],
       ),
